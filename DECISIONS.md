@@ -238,7 +238,7 @@ Dated record of design decisions for `ampfalaeris/envmetag`, with the evidence o
 - `PREPROCESS_READS` = FastQC (raw) → fastp → FastQC (trimmed) → bowtie2 against PhiX (keep unaligned pairs) → Hostile, all nf-core modules (fastp 1.4.0, bowtie2/samtools, Hostile 2.0.2) called through the record ↔ tuple adapter.
 - PhiX reference: `--phix_fasta` defaults to ENA `J02482.1` (https://www.ebi.ac.uk/ena/browser/api/fasta/J02482.1), indexed at runtime by `BOWTIE2_BUILD`.
 - Host index: `--hostile_index` defaults to `human-t2t-hla-argos985-mycob140`, fetched at runtime by `HOSTILE_FETCH`; the `test` profile uses `test-human-mit`.
-- fastp runs with its defaults plus the nf-core module's built-in `--detect_adapter_for_pe` (no extra `ext.args`). **Open:** trimming thresholds (minimum length, quality cut) are not yet chosen.
+- fastp runs with its defaults plus the nf-core module's built-in `--detect_adapter_for_pe` (no extra `ext.args`). Decided 2026-10-25 to keep defaults for v0.1; revisit only with evidence from the spiked test data or real runs.
 
 **Why:**
 - PhiX: J02482.1 is the INSDC record RefSeq NC_001422.1 is derived from; both return the same 5,386 bp phiX174 genome (checked 2026-10-25). The ENA URL has no query string, so the staged file gets a usable name (`J02482.1`).
@@ -253,3 +253,26 @@ Dated record of design decisions for `ampfalaeris/envmetag`, with the evidence o
 **Sources:**
 - Hostile — https://github.com/bede/hostile
 - ENA browser API — https://www.ebi.ac.uk/ena/browser/api/
+
+---
+
+## 2026-10-25 — SingleM metapackage provisioning: local copy preferred, optional one-time download cached with `storeDir`
+
+**Decision:**
+- `--singlem_metapackage`: path to an already-extracted `.smpkg` directory. Preferred, and documented with the size (3.8 GB download, 17 GB extracted).
+- Otherwise `SINGLEM_PREPAREMETAPACKAGE` takes `--singlem_metapackage_url` (default: GlobDB r232) as a staged `Path`, extracts it, checks for `<name>.smpkg/CONTENTS.json`, and stores the result in `--singlem_db_cache` via `storeDir`. If neither `--singlem_metapackage` nor `--singlem_db_cache` is set, the run errors; it never writes 17 GB to a location the user did not choose.
+
+**Why:** SingleM reads the metapackage from a local directory; it cannot read one in place from object storage, so every run needs a local copy. Re-downloading and re-extracting 3.8 GB → 17 GB per run is wasteful. The user's local extraction of the GlobDB archive took under ~8 minutes.
+
+**Evidence (Nextflow 26.10.3, 2026-10-25):**
+- `storeDir` with a remote `Path` input (spike, 5.5 kB ENA file): run 1 staged the file ("Copying foreign file") and ran the task; run 2 printed `[skipping] Stored process` and logged no foreign-file copy. So once stored, the archive is **not** downloaded again.
+- First-run disk cost: Nextflow stages the archive in `work/` (3.8 GB) before the task extracts 17 GB; the stored copy then lives in `--singlem_db_cache`.
+- SingleM 0.21.4 container has `curl`, `wget`, and busybox `tar` 1.36.1. Module tests (synthetic 1-file archives): valid archive extracts; an archive without `CONTENTS.json` fails with "did not extract to a SingleM metapackage"; stub passes.
+
+---
+
+## 2026-10-25 — Reports: MultiQC for read QC and accounting; separate envmetag report for profiles
+
+**Decision:** MultiQC carries the basic per-sample metrics: FastQC, fastp, bowtie2 (PhiX), Hostile, and the SingleM prokaryotic-fraction estimate as General Statistics columns. A separate envmetag HTML report carries the SingleM community results (profiles, per-rank tables, Krona) and, later, the assembly/binning and marker-gene results.
+
+**Why:** MultiQC already parses the QC tools natively and is where users expect read accounting. Community profiles need caveats MultiQC custom content cannot carry well: relative abundance is of prokaryotic marker-gene coverage, `unassigned` is coverage unresolved at a rank, and marker presence is not activity. Keeping one home for each kind of number avoids two reports disagreeing.

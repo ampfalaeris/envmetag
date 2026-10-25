@@ -1,0 +1,70 @@
+nextflow_process {
+
+    name "Test Process SINGLEM_PREPAREMETAPACKAGE"
+    script "../main.nf"
+    process "SINGLEM_PREPAREMETAPACKAGE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "singlem"
+    tag "singlem/preparemetapackage"
+
+    // fixtures are synthetic 1-file archives (a real GlobDB metapackage is 3.8 GB / 17 GB extracted)
+
+    test("extracts a metapackage archive") {
+
+        when {
+            process {
+                """
+                input[0] = channel.value(file("${moduleDir}/tests/fixtures/fixture.smpkg.tar.gz", checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            def mp = path(process.out[0][0])
+            assertAll(
+                { assert mp.fileName.toString() == 'fixture.smpkg' },
+                { assert mp.resolve('CONTENTS.json').toFile().exists() },
+                { assert path(mp.resolve('CONTENTS.json').toString()).json.singlem_metapackage_version == 6 }
+            )
+        }
+    }
+
+    test("fails on an archive that is not a metapackage") {
+
+        when {
+            process {
+                """
+                input[0] = channel.value(file("${moduleDir}/tests/fixtures/not_a_metapackage.smpkg.tar.gz", checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.failed },
+                { assert process.stdout.any { line -> line.contains('did not extract to a SingleM metapackage') } || process.errorReport.contains('did not extract to a SingleM metapackage') }
+            )
+        }
+    }
+
+    test("stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = channel.value(file("${moduleDir}/tests/fixtures/fixture.smpkg.tar.gz", checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert path(process.out[0][0]).resolve('CONTENTS.json').toFile().exists()
+        }
+    }
+}
