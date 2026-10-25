@@ -194,6 +194,9 @@ Dated record of design decisions for `ampfalaeris/envmetag`, with the evidence o
 - Calling `error()` from an `include`d helper function aborts the run, but the console shows only `Unexpected error [InvocationTargetException]`; the message appears only in `.nextflow.log`. Calling `error()` inline in the operator closure prints the message: `[ERROR] TEST_JOIN: sample 's1' is missing a profile -- ...`.
 - Typed records cannot be indexed by a dynamic field name (`r[f]`: "The `[` operator is not defined for operands with types Record and String"), and `Map.findAll` is not in the typed stdlib (documented Map methods: `any`, `containsKey`, `containsValue`, `each`, `entrySet`, `every`, `isEmpty`, `keySet`, `size`, `subMap`, `values`).
 
+- **Receiver must be the typed channel.** In the `PROFILE_SINGLEM` nf-test, `samples.join(pipe_results, ...)` failed with `Invalid operator 'join' argument [nextflow.dataflow.ChannelImpl] -- it must be a channel type`: nf-test's generated wrapper is untyped, so `samples` arrived as a legacy channel, which rejects a typed `ChannelImpl` argument. `pipe_results.join(samples, ...)` (typed process output as receiver) passed. Lint did not flag either form.
+- `collect()` on a typed channel yields `Bag<Path>` (unordered), not `List<Path>`; a process input declared `List<Path>` fails lint ("Argument with type Bag<Path> is not compatible"). Declare `Bag<Path>` and sort inside the process if order matters.
+
 **Sources:**
 - Operator reference (`join`) — https://docs.seqera.io/nextflow/reference/operator
 - Map stdlib type — https://docs.seqera.io/nextflow/reference/stdlib-types/map

@@ -6,7 +6,7 @@ process SINGLEM_SUMMARISE {
     container 'quay.io/biocontainers/singlem:0.21.4--pyhdfd78af_2'
 
     input:
-    profiles: List<Path>
+    profiles: Bag<Path>   // unordered; sorted by filename below so sample column order is stable
 
     output:
     record(

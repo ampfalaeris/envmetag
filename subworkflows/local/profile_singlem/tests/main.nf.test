@@ -1,0 +1,88 @@
+nextflow_workflow {
+
+    name "Test Subworkflow PROFILE_SINGLEM"
+    script "../main.nf"
+    workflow "PROFILE_SINGLEM"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "profile_singlem"
+    tag "singlem"
+
+    test("two MIC samples, tiny tier, CI metapackage") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    record(
+                        id: 'mic_coupon',
+                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                    ),
+                    record(
+                        id: 'pipeline_debris',
+                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
+                    )
+                )
+                input[1] = channel.value(file(params.singlem_ci_metapackage, checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            def profiles = workflow.out.profiles.sort { r -> r.id }
+            def fractions = workflow.out.fractions.sort { r -> r.id }
+            def summary = workflow.out.summary[0]
+            def fraction_row = { r ->
+                def lines = path(r.fraction).readLines()
+                [lines[0].split('\t') as List, lines[1].split('\t', -1) as List].transpose().collectEntries()
+            }
+            assertAll(
+                { assert profiles*.id == ['mic_coupon', 'pipeline_debris'] },
+                { assert fractions*.id == ['mic_coupon', 'pipeline_debris'] },
+                // each fraction must be computed from that sample's own reads:
+                // 20,000 pairs x 2 x 150 bp (SRR12174148) and x 151 bp (SRR35816318)
+                { assert fraction_row(fractions[0]).sample == 'mic_coupon' },
+                { assert fraction_row(fractions[0]).metagenome_size as long == 6000000L },
+                { assert fraction_row(fractions[1]).sample == 'pipeline_debris' },
+                { assert fraction_row(fractions[1]).metagenome_size as long == 6040000L },
+                // one summary across all samples, columns in sorted sample order
+                { assert path(summary.combined).readLines().drop(1).collect { l -> l.split('\t')[0] }.toUnique() == ['mic_coupon', 'pipeline_debris'] },
+                { assert path(summary.by_rank.find { f -> f.toString().endsWith('-genus.tsv') }).readLines()[0] == 'taxonomy\tmic_coupon\tpipeline_debris' },
+                { assert snapshot(profiles.collect { r -> path(r.profile) }, path(summary.extras)).match() }
+            )
+        }
+    }
+
+    test("stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    record(
+                        id: 'mic_coupon',
+                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                    )
+                )
+                input[1] = channel.value(file(params.singlem_ci_metapackage, checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assertAll(
+                { assert workflow.out.profiles*.id == ['mic_coupon'] },
+                { assert workflow.out.fractions*.id == ['mic_coupon'] },
+                { assert workflow.out.summary.size() == 1 }
+            )
+        }
+    }
+}
