@@ -1,0 +1,92 @@
+nextflow_workflow {
+
+    name "Test Subworkflow PREPROCESS_READS"
+    script "../main.nf"
+    workflow "PREPROCESS_READS"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "preprocess_reads"
+    tag "fastp"
+    tag "bowtie2"
+    tag "hostile"
+
+    test("two MIC samples, tiny tier, PhiX + Hostile test index") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    record(
+                        id: 'mic_coupon',
+                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                    ),
+                    record(
+                        id: 'pipeline_debris',
+                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
+                    )
+                )
+                input[1] = channel.value(file(params.phix_fasta))
+                input[2] = channel.value(params.hostile_index)
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            def clean = workflow.out.clean.sort { r -> r.id }
+            def reports = workflow.out.multiqc_files.collect { f -> path(f).fileName.toString() }.toSorted()
+            def count_reads = { f -> path(f).linesGzip.size().intdiv(4) }
+            def hostile_json = { id -> path(workflow.out.multiqc_files.find { f -> path(f).fileName.toString() == "${id}.json" }).json[0] }
+            // TODO(test data): once the tiny tier carries the PhiX and human-mito spikes, assert removal counts > 0
+            // here; the provisional reads have no spikes, so Hostile currently removes 0 reads.
+            assertAll(
+                // the record handed back must be exactly the reads Hostile reports writing
+                { assert clean.every { r -> hostile_json(r.id).reads_out == 2 * count_reads(r.r1) } },
+                { assert clean*.id == ['mic_coupon', 'pipeline_debris'] },
+                // the adapter must hand back a real pair: distinct files, same read count
+                { assert clean.every { r -> path(r.r1).fileName.toString() != path(r.r2).fileName.toString() } },
+                { assert clean.every { r -> count_reads(r.r1) == count_reads(r.r2) } },
+                // cleaning never adds reads; 20,000 pairs went in per sample
+                { assert clean.every { r -> count_reads(r.r1) > 0 && count_reads(r.r1) <= 20000 } },
+                // per sample: FastQC raw (2) + trimmed (2) zips, fastp JSON, bowtie2 log, Hostile JSON
+                { assert reports.size() == 14 },
+                { assert reports.findAll { n -> n.endsWith('_fastqc.zip') }.size() == 8 },
+                { assert reports.contains('mic_coupon_raw_1_fastqc.zip') && reports.contains('mic_coupon_trimmed_1_fastqc.zip') },
+                { assert reports.contains('mic_coupon.fastp.json') && reports.contains('mic_coupon_phix.bowtie2.log') && reports.contains('mic_coupon.json') }
+            )
+        }
+    }
+
+    test("stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    record(
+                        id: 'mic_coupon',
+                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                    )
+                )
+                input[1] = channel.value(file(params.phix_fasta))
+                input[2] = channel.value(params.hostile_index)
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assertAll(
+                { assert workflow.out.clean*.id == ['mic_coupon'] },
+                // the upstream FastQC stub writes one zip per sample (a real run writes one per read file)
+                { assert workflow.out.multiqc_files.size() == 5 }
+            )
+        }
+    }
+}

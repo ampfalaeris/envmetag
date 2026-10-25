@@ -228,3 +228,28 @@ Dated record of design decisions for `ampfalaeris/envmetag`, with the evidence o
 **Sources:**
 - SingleM pipe — https://wwood.github.io/singlem/tools/pipe
 - SingleM prokaryotic_fraction — https://wwood.github.io/singlem/tools/prokaryotic_fraction
+
+---
+
+## 2026-10-25 — Read preprocessing: nf-core modules, PhiX from ENA, Hostile mycobacteria-masked index, paired-end only
+
+**Decision:**
+- v0.1 accepts **paired-end reads only**, one samplesheet row per sample.
+- `PREPROCESS_READS` = FastQC (raw) → fastp → FastQC (trimmed) → bowtie2 against PhiX (keep unaligned pairs) → Hostile, all nf-core modules (fastp 1.4.0, bowtie2/samtools, Hostile 2.0.2) called through the record ↔ tuple adapter.
+- PhiX reference: `--phix_fasta` defaults to ENA `J02482.1` (https://www.ebi.ac.uk/ena/browser/api/fasta/J02482.1), indexed at runtime by `BOWTIE2_BUILD`.
+- Host index: `--hostile_index` defaults to `human-t2t-hla-argos985-mycob140`, fetched at runtime by `HOSTILE_FETCH`; the `test` profile uses `test-human-mit`.
+- fastp runs with its defaults plus the nf-core module's built-in `--detect_adapter_for_pe` (no extra `ext.args`). **Open:** trimming thresholds (minimum length, quality cut) are not yet chosen.
+
+**Why:**
+- PhiX: J02482.1 is the INSDC record RefSeq NC_001422.1 is derived from; both return the same 5,386 bp phiX174 genome (checked 2026-10-25). The ENA URL has no query string, so the staged file gets a usable name (`J02482.1`).
+- Hostile index: the mycobacteria-masked variant is masked against 985 bacterial genomes plus 140 mycobacterial genomes, so environmental mycobacteria are less likely to be removed as host. Both names were confirmed with `hostile index list` (Hostile 2.0.2): `human-t2t-hla`, `-argos985`, `-argos985-mycob140`, two viral/phage-masked variants, `mouse-mm39`, `test-human-mit`.
+- Hostile runs `clean` with `--airplane` in the nf-core module, so no task downloads anything except `HOSTILE_FETCH`.
+
+**Evidence (nf-test, Nextflow 26.10.3, Docker; provisional tiny reads = first 20k pairs per run):**
+- All 12 tasks succeed for two samples. For SRR12174148, Hostile reported `reads_in 39308` (19,654 pairs after fastp + PhiX), `reads_removed 0`. Zero is expected: the provisional reads carry no human spike, which is why the real `tiny` tier must.
+- **Adapter gotcha:** the nf-core FastQC module emits a *List* of zips for paired reads but a single *Path* from its stub. Mixed into a channel declared `Channel<Path>`, the list passed lint (legacy boundary, untyped) and failed in the test (`ClassCastException: String cannot be cast to ArrayList`). Fixed with `flatMap { _meta, zips -> zips instanceof Path ? [zips] : zips }`; a plain `flatMap` over a bare `Path` would iterate its path components.
+- Raw and trimmed FastQC are aliases of one module and would both write `<prefix>_1_fastqc.zip`; `ext.prefix` `<id>_raw` / `<id>_trimmed` keeps them apart.
+
+**Sources:**
+- Hostile — https://github.com/bede/hostile
+- ENA browser API — https://www.ebi.ac.uk/ena/browser/api/
