@@ -23,7 +23,7 @@ Centrifuger is an optional cloud-only profile (comprehensive indexes need tens o
 - WSL2; repo lives in the Linux filesystem (`~/...`), never `/mnt/c` (executable bits and Docker mounts break there).
 - Nextflow `>=26.10.0` (`manifest.nextflowVersion = '!>=26.10.0'`). Strict syntax is the default parser.
 - Template: nf-core/tools 4.2.0, custom prefix `ampfalaeris`, `is_nfcore: false`. Not an nf-core pipeline; never call it `nf-core/envmetag`.
-- nf-test 0.9.4 in CI. Its handling of typed processes and record inputs is **unverified**; check before relying on it.
+- nf-test 0.9.4 in CI and locally (`~/.local/bin/nf-test`). Typed processes, typed subworkflows, record inputs, snapshots, `-stub`, and legacy nf-core modules through the record adapter all verified 2026-10-25 (see DECISIONS.md). In assertions, `path(x)` is a plain Java `Path`: use `.fileName.toString()`, not `.name`.
 - `uv` manages Python for local development of `bin/` scripts only. It does not provide runtime dependencies inside pipeline tasks.
 
 ## Commands
@@ -41,7 +41,8 @@ nf-core pipelines lint                           # template checks; some nf-core
 
 - All new scripts start with `nextflow.enable.types = true`. A typed script cannot also contain legacy process or workflow definitions.
 - Never use `PROCESS.out.x` or `WORKFLOW.out.x`. Assign the call: `def fq = FASTP(samples)`, then `fq.reads`.
-- Carry samples as **records** with named fields, not positional tuples or loose meta maps. Declare record types for every data shape that crosses a process boundary.
+- Carry samples as **records** with named fields, not positional tuples or loose meta maps. Declare record types for every data shape that crosses a process boundary, all in `types/main.nf`, and `include` them where used (record types are script-scoped).
+- Never give a local variable the same name as an `emit:` output. Lint passes, but the run fails with `Missing workflow output parameter`.
 - Annotate types on every workflow `take:` input, process input/output, and the `params` block.
 - Static-typing operator semantics: `map` does not drop nulls; `join` requires `by:`; `mix` takes one argument per call. Avoid `set`, `tap`, implicit `it`, `flatten`, and `.out`. `distinct` and `collectFile` on a `Value` failed typed lint in this repo.
 - **Legacy nf-core modules** (untyped) are allowed. Call them through a thin adapter: record → `tuple(meta, files)` before the call, outputs back to records immediately after. That boundary is not type-checked, so test it.
