@@ -91,7 +91,7 @@ Dated record of design decisions for `ampfalaeris/envmetag`, with the evidence o
 
 ## 2026-10-25 — Test data: two public MIC / produced-water metagenomes, subsampled and spiked, hosted on Zenodo
 
-**Decision:** Build the test dataset from two public ENA runs, subsample them with a fixed seed, spike in simulated PhiX and human mitochondrial reads, and deposit the result on Zenodo (CC BY 4.0) with two tiers: `full` (1M read pairs per sample, for the `test` profile and real-database CI) and `tiny` (~10k–20k pairs, for nf-test module tests). A build script in this repo records every step; no reads are committed.
+**Decision:** Build the test dataset from two public ENA runs, subsample them with a fixed seed, spike in simulated PhiX and human mitochondrial reads, and deposit the result on Zenodo (CC BY 4.0) with two tiers: `full` (1M read pairs per sample, for the `test_full` profile with the full GlobDB metapackage) and `tiny` (~10k–20k pairs, for CI: nf-test module tests and the `test` profile). A build script in this repo records every step; no reads are committed.
 
 | Run | BioProject | Sample | Instrument | Study |
 |---|---|---|---|---|
@@ -129,3 +129,35 @@ Dated record of design decisions for `ampfalaeris/envmetag`, with the evidence o
 - ENA/INSDC policies — https://ena-browser-docs.readthedocs.io/en/latest/about/policies.html
 - nf-core/test-datasets `mag` — https://github.com/nf-core/test-datasets/tree/mag
 - nf-core/test-datasets `taxprofiler` — https://github.com/nf-core/test-datasets/blob/taxprofiler/README.md
+
+---
+
+## 2026-10-25 — CI runs real SingleM against a 3-marker GlobDB subset; the full metapackage runs before each release
+
+**Decision:**
+- **`test` (CI):** `tiny` reads + a CI metapackage built from 3 GlobDB r232 packages (S3.1 rplB, S3.2 rplC, S3.5 rpsB), no nucleotide SDB, with `--assignment-method diamond` set in `conf/test.config`.
+- **`test_full` (before every release, locally or on a manual larger-runner job):** `full` reads + the full GlobDB metapackage and the default assignment method, with species-level regression assertions. Each run is noted in `CHANGELOG.md`.
+- **Hosting:** the CI metapackage gets its own Zenodo record under CC BY-SA 4.0, separate from the CC BY 4.0 test-reads record.
+
+**Why:**
+- The full metapackage does not fit a free GitHub runner. The documented SSD storage is 14 GB for standard Linux runners (public and private repos); the metapackage is 17 GB extracted plus a 3.8 GB archive.
+- `-stub` only checks that the stub writes its own headers. A real run against a small database checks the flags, staging, the `sample` column, the real output headers, `prokaryotic_fraction`, and every downstream parser.
+- CI cannot build the subset itself: building needs the full metapackage, and GlobDB distributes it as a single `.tar.gz`.
+
+**Evidence (tested locally 2026-10-25, SingleM 0.21.4 `quay.io/biocontainers/singlem:0.21.4--pyhdfd78af_2`, `--threads 4`, `--memory=4g`, first 200k pairs of SRR12174148):**
+- Built with `singlem metapackage --singlem-packages <3 spkgs> --no-nucleotide-sdb --taxon-genome-lengths <GlobDB taxon_genome_lengths TSV> --taxonomy-database-name GlobDB --taxonomy-database-version r232`: exit 0, 59 s, 992 MB, `singlem_metapackage_version: 6`.
+- `singlem pipe` with the default assignment method **fails** on it (exit 1, `TypeError` in `SequenceDatabase.acquire`; the manifest has `"nucleotide_sdb": null`). With `--assignment-method diamond`: exit 0, 33 s.
+- With the default method, the full metapackage gives species-level *Methanococcus* MOTU40_004873 (12.15), *M. maripaludis* (5.52), and *Oleidesulfovibrio alaskensis* (2.50), with ~94% species assignment. The CI metapackage gives genus-level *Methanococcus* (21.98) and *Oleidesulfovibrio* (2.20), 0% species assignment, plus one Patescibacteriota family (0.55) the full run did not report.
+- Determinism: three runs produced byte-identical profiles (md5 `dec91e422dc83e4778d6021b1557dd5d`). OTU tables differed in row order only; they were identical after sorting.
+
+**Consequences:**
+- CI asserts: non-empty profile containing `g__Methanococcus` and `g__Oleidesulfovibrio`, exact headers, `sample == id`, profile md5, sorted OTU table. CI profiles are never read as biological results.
+- The default smafa + nucleotide-SDB path is tested only by `test_full`; a bug specific to it will not show up in CI.
+- The Zenodo record must state the changes from GlobDB r232 (3 of ~59 packages kept, nucleotide SDB removed, prefilter rebuilt), the build command, the SingleM version, and the attribution and license link required by CC BY-SA 4.0. Rebuild and publish a new version if SingleM's metapackage format changes.
+
+**Not yet verified:** the `tiny` tier on the CI metapackage (fewer reads and 3 markers may give an empty profile), and `prokaryotic_fraction` against the CI metapackage.
+
+**Sources:**
+- GitHub-hosted runner specs — https://docs.github.com/en/actions/reference/runners/github-hosted-runners
+- `singlem metapackage` — https://wwood.github.io/singlem/advanced/metapackage
+- CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/

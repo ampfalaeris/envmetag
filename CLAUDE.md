@@ -11,6 +11,13 @@ Shotgun metagenomic profiling of environmental samples, with curated marker gene
 
 Centrifuger is an optional cloud-only profile (comprehensive indexes need tens of GB of RAM). SingleM runs locally (<4 GB RAM by default).
 
+- SingleM uses the GlobDB r232 metapackage (`--metapackage`), downloaded at runtime: 3.8 GB compressed, 17 GB extracted. Never bundled; CC BY-SA 4.0 with attribution.
+- SingleM runs on **raw** reads (per SingleM docs); trimming and host removal feed assembly and the marker module only.
+- SingleM names samples from the forward-read filename; stage files as `${id}_R1...` or rewrite the column, and test that `sample == id`.
+- `test` profile (CI) = tiny reads + a 3-marker GlobDB CI metapackage (rplB, rplC, rpsB; no nucleotide SDB; ~1 GB) with `--assignment-method diamond` set in `conf/test.config`. It tests plumbing and formats, not biology (genus level only). Assert on known genera, headers, `sample == id`, and the profile md5 (deterministic); compare OTU tables only after sorting (row order varies).
+- The CI metapackage is a GlobDB adaptation: its own Zenodo record under CC BY-SA 4.0, separate from the CC BY 4.0 test-reads record, stating the changes and the SingleM version that built it. Rebuild it if SingleM's metapackage format changes.
+- `test_full` = 1M-pair reads + full GlobDB with the default assignment method (too big for free runners: 14 GB disk). Run it before every release (locally or via a manual larger-runner job), assert the known species, and note the run in `CHANGELOG.md`. It is the only test of the default smafa + nucleotide-SDB path.
+
 ## Environment
 
 - WSL2; repo lives in the Linux filesystem (`~/...`), never `/mnt/c` (executable bits and Docker mounts break there).
