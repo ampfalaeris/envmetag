@@ -1,0 +1,85 @@
+nextflow_process {
+
+    name "Test Process SINGLEM_PIPE"
+    script "../main.nf"
+    process "SINGLEM_PIPE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "singlem"
+    tag "singlem/pipe"
+
+    test("two MIC samples, tiny tier, CI metapackage") {
+
+        when {
+            process {
+                """
+                input[0] = channel.of(
+                    record(
+                        id: 'mic_coupon',
+                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                    ),
+                    record(
+                        id: 'pipeline_debris',
+                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
+                    )
+                )
+                input[1] = file(params.singlem_ci_metapackage, checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            // fail before assertAll so a failed run can never write a snapshot
+            assert process.success
+            def results = process.out[0].sort { r -> r.id }
+            def rows = { r -> path(r.profile).readLines().drop(1).collect { line -> line.split('\t') } }
+            assertAll(
+                { assert results*.id == ['mic_coupon', 'pipeline_debris'] },
+                // header and the sample column must equal the record id (R1 staged as <id>.fastq.gz)
+                { assert results.every { r -> path(r.profile).readLines()[0] == 'sample\tcoverage\ttaxonomy' } },
+                { assert results.every { r -> rows(r).every { row -> row[0] == r.id } } },
+                // dominant genera from the full-GlobDB run (see DECISIONS.md); CI metapackage is genus-level only
+                { assert rows(results[0]).any { row -> row[2].contains('g__Methanococcus') } },
+                { assert rows(results[0]).any { row -> row[2].contains('g__Oleidesulfovibrio') } },
+                { assert rows(results[1]).any { row -> row[2].contains('g__Sporolactobacillus') } },
+                { assert results.every { r -> path(r.archive_otu_table).json.version == 4 } },
+                { assert results.every { r -> path(r.archive_otu_table).json.otus.size() > 0 } },
+                // profiles are deterministic (DECISIONS.md); archive OTU tables vary in row order, so not snapshotted
+                { assert snapshot(results.collect { r -> path(r.profile) }).match() }
+            )
+        }
+    }
+
+    test("stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = channel.of(
+                    record(
+                        id: 'mic_coupon',
+                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                    )
+                )
+                input[1] = file(params.singlem_ci_metapackage, checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            def r = process.out[0][0]
+            assertAll(
+                { assert path(r.profile).readLines()[0] == 'sample\tcoverage\ttaxonomy' },
+                { assert path(r.profile).readLines()[1].split('\t')[0] == 'mic_coupon' },
+                { assert path(r.archive_otu_table).json.fields.size() == 12 }
+            )
+        }
+    }
+}

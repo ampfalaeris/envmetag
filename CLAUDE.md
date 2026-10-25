@@ -67,7 +67,7 @@ nf-core pipelines lint                           # template checks; some nf-core
 
 ## Failure handling
 
-Fail loudly; never degrade silently. Validate inputs against schemas, error on empty or malformed outputs, and use explicit checks (e.g., `failOnMismatch` on joins). An unexplained empty result is a bug.
+Fail loudly; never degrade silently. Validate inputs against schemas, error on empty or malformed outputs, and use explicit checks. Typed `join` rejects `failOnMismatch` (only `by` and `remainder`) and silently drops unmatched items, so every join is `join(other, by: 'id', remainder: true)` followed by an inline `map` that calls `error(...)` when a field from either side is null. Call `error()` inline, not from an included function: from a function the message is hidden behind `InvocationTargetException`. An unexplained empty result is a bug.
 
 ## Data, licensing, and provenance
 
