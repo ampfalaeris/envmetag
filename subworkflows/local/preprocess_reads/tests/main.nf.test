@@ -23,7 +23,7 @@ nextflow_workflow {
                         r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
                     ),
                     record(
-                        id: 'pipeline_debris',
+                        id: 'apb_enrichment',
                         r1: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
                         r2: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
                     )
@@ -45,7 +45,7 @@ nextflow_workflow {
             assertAll(
                 // the record handed back must be exactly the reads Hostile reports writing
                 { assert clean.every { r -> hostile_json(r.id).reads_out == 2 * count_reads(r.r1) } },
-                { assert clean*.id == ['mic_coupon', 'pipeline_debris'] },
+                { assert clean*.id == ['apb_enrichment', 'mic_coupon'] },
                 // the adapter must hand back a real pair: distinct files, same read count
                 { assert clean.every { r -> path(r.r1).fileName.toString() != path(r.r2).fileName.toString() } },
                 { assert clean.every { r -> count_reads(r.r1) == count_reads(r.r2) } },

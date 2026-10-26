@@ -30,7 +30,7 @@ ISS=quay.io/biocontainers/insilicoseq:2.0.1--pyh7cba7a3_0
 # run  sample_id  ISS error model (matches the run's instrument)  ENA MD5 R1  ENA MD5 R2
 RUNS=(
     "SRR12174148 mic_coupon      HiSeq   2b8fa343f43b91876eacd6c09924954f 58ce2e7e9812b6077d45cc6af5bb949f"
-    "SRR35816318 pipeline_debris NovaSeq 40ffee1dd7192ed0790aceb1e23fe376 13750760783f241d1af392b85b007022"
+    "SRR35816318 apb_enrichment NovaSeq 40ffee1dd7192ed0790aceb1e23fe376 13750760783f241d1af392b85b007022"
 )
 
 # reference  ENA accession  plain FASTA header (InSilicoSeq copies the header into read names)
@@ -153,8 +153,10 @@ rm -rf "$WORK"
     echo "seed=$SEED full_pairs=$FULL_PAIRS tiny_pairs=$TINY_PAIRS spike_pairs_per_organism=$SPIKE_PAIRS"
     echo "seqtk=$SEQTK"
     echo "insilicoseq=$ISS"
-    echo "sources: SRR12174148 (PRJNA644413, https://doi.org/10.1128/aem.01819-20);"
-    echo "         SRR35816318 (PRJNA1346464, https://doi.org/10.3389/fmicb.2026.1771929);"
+    echo "sources: SRR12174148 (PRJNA644413, BioSample SAMN15459511): carbon steel coupon biofilm exposed to oil field"
+    echo "           production water; https://doi.org/10.1128/aem.01819-20"
+    echo "         SRR35816318 (PRJNA1346464, BioSample SAMN52836159): carbon steel coupon biofilm from a 21-day"
+    echo "           acid-producing-bacteria enrichment of corroded crude-pipeline debris; https://doi.org/10.3389/fmicb.2026.1771929"
     echo "         spikes simulated from ENA J02482.1 (phiX174) and J01415.2 (human mitochondrion, rCRS)"
 } > "$OUT/PROVENANCE.txt"
 log "done: $OUT"

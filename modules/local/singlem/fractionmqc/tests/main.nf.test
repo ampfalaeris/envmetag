@@ -18,7 +18,7 @@ nextflow_process {
             process {
                 """
                 input[0] = channel.of(
-                    file("${moduleDir}/tests/fixtures/pipeline_debris.singlem_prokaryotic_fraction.tsv", checkIfExists: true),
+                    file("${moduleDir}/tests/fixtures/apb_enrichment.singlem_prokaryotic_fraction.tsv", checkIfExists: true),
                     file("${moduleDir}/tests/fixtures/mic_coupon.singlem_prokaryotic_fraction.tsv", checkIfExists: true)
                 ).collect()
                 """
@@ -33,8 +33,8 @@ nextflow_process {
                 { assert lines.contains("# plot_type: 'generalstats'") },
                 { assert data[0] == 'Sample\tread_fraction\taverage_bacterial_archaeal_genome_size\twarning' },
                 // sorted by sample, genome size converted to Mbp
-                { assert data[1] == 'mic_coupon\t77.03\t2.03\t' },
-                { assert data[2] == 'pipeline_debris\t44.42\t3.53\t' },
+                { assert data[1] == 'apb_enrichment\t44.42\t3.53\t' },
+                { assert data[2] == 'mic_coupon\t77.03\t2.03\t' },
                 { assert snapshot(process.out[0]).match() }
             )
         }

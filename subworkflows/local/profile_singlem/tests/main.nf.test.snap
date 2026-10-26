@@ -2,12 +2,12 @@
     "two MIC samples, tiny tier, CI metapackage": {
         "content": [
             [
-                "mic_coupon.singlem_profile.tsv:md5,ea4539583ab944ee0267850db15da203",
-                "pipeline_debris.singlem_profile.tsv:md5,2ab0e2269d15cb311b60560e2efa9832"
+                "apb_enrichment.singlem_profile.tsv:md5,938bfee9b9e96e7f6f1a779b94ca70c7",
+                "mic_coupon.singlem_profile.tsv:md5,ea4539583ab944ee0267850db15da203"
             ],
-            "singlem.profile_extras.tsv:md5,ff492808f0baa047650f1e47042dfacd"
+            "singlem.profile_extras.tsv:md5,f384cab896180ed663ea10667929d9a9"
         ],
-        "timestamp": "2026-10-25T19:14:00.89570948",
+        "timestamp": "2026-10-25T20:43:13.810071802",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.3"

@@ -8,24 +8,24 @@
                 "preprocess",
                 "preprocess/clean_reads",
                 "preprocess/clean_reads.csv",
+                "preprocess/clean_reads/apb_enrichment",
+                "preprocess/clean_reads/apb_enrichment/apb_enrichment_phix.unmapped_1.clean_1.fastq.gz",
+                "preprocess/clean_reads/apb_enrichment/apb_enrichment_phix.unmapped_2.clean_2.fastq.gz",
                 "preprocess/clean_reads/mic_coupon",
                 "preprocess/clean_reads/mic_coupon/mic_coupon_phix.unmapped_1.clean_1.fastq.gz",
                 "preprocess/clean_reads/mic_coupon/mic_coupon_phix.unmapped_2.clean_2.fastq.gz",
-                "preprocess/clean_reads/pipeline_debris",
-                "preprocess/clean_reads/pipeline_debris/pipeline_debris_phix.unmapped_1.clean_1.fastq.gz",
-                "preprocess/clean_reads/pipeline_debris/pipeline_debris_phix.unmapped_2.clean_2.fastq.gz",
                 "singlem",
                 "singlem/archive_otu_tables",
+                "singlem/archive_otu_tables/apb_enrichment.singlem_archive_otu_table.json",
                 "singlem/archive_otu_tables/mic_coupon.singlem_archive_otu_table.json",
-                "singlem/archive_otu_tables/pipeline_debris.singlem_archive_otu_table.json",
                 "singlem/profiles",
                 "singlem/profiles.csv",
+                "singlem/profiles/apb_enrichment.singlem_profile.tsv",
                 "singlem/profiles/mic_coupon.singlem_profile.tsv",
-                "singlem/profiles/pipeline_debris.singlem_profile.tsv",
                 "singlem/prokaryotic_fraction",
                 "singlem/prokaryotic_fraction.csv",
+                "singlem/prokaryotic_fraction/apb_enrichment.singlem_prokaryotic_fraction.tsv",
                 "singlem/prokaryotic_fraction/mic_coupon.singlem_prokaryotic_fraction.tsv",
-                "singlem/prokaryotic_fraction/pipeline_debris.singlem_prokaryotic_fraction.tsv",
                 "singlem/summary",
                 "singlem/summary.json",
                 "singlem/summary/singlem.by_rank-class.tsv",
@@ -40,11 +40,11 @@
                 "singlem/summary/singlem.profiles.tsv"
             ],
             [
-                "mic_coupon.singlem_profile.tsv:md5,ea4539583ab944ee0267850db15da203",
-                "pipeline_debris.singlem_profile.tsv:md5,2ab0e2269d15cb311b60560e2efa9832"
+                "apb_enrichment.singlem_profile.tsv:md5,938bfee9b9e96e7f6f1a779b94ca70c7",
+                "mic_coupon.singlem_profile.tsv:md5,ea4539583ab944ee0267850db15da203"
             ]
         ],
-        "timestamp": "2026-10-25T20:03:45.738032369",
+        "timestamp": "2026-10-25T20:45:16.861814008",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.3"

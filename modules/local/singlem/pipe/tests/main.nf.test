@@ -21,7 +21,7 @@ nextflow_process {
                         r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
                     ),
                     record(
-                        id: 'pipeline_debris',
+                        id: 'apb_enrichment',
                         r1: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
                         r2: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
                     )
@@ -35,16 +35,17 @@ nextflow_process {
             // fail before assertAll so a failed run can never write a snapshot
             assert process.success
             def results = process.out[0].sort { r -> r.id }
+            def by_id = results.collectEntries { r -> [r.id, r] }
             def rows = { r -> path(r.profile).readLines().drop(1).collect { line -> line.split('\t') } }
             assertAll(
-                { assert results*.id == ['mic_coupon', 'pipeline_debris'] },
+                { assert results*.id == ['apb_enrichment', 'mic_coupon'] },
                 // header and the sample column must equal the record id (R1 staged as <id>.fastq.gz)
                 { assert results.every { r -> path(r.profile).readLines()[0] == 'sample\tcoverage\ttaxonomy' } },
                 { assert results.every { r -> rows(r).every { row -> row[0] == r.id } } },
                 // dominant genera from the full-GlobDB run (see DECISIONS.md); CI metapackage is genus-level only
-                { assert rows(results[0]).any { row -> row[2].contains('g__Methanococcus') } },
-                { assert rows(results[0]).any { row -> row[2].contains('g__Oleidesulfovibrio') } },
-                { assert rows(results[1]).any { row -> row[2].contains('g__Sporolactobacillus') } },
+                { assert rows(by_id.mic_coupon).any { row -> row[2].contains('g__Methanococcus') } },
+                { assert rows(by_id.mic_coupon).any { row -> row[2].contains('g__Oleidesulfovibrio') } },
+                { assert rows(by_id.apb_enrichment).any { row -> row[2].contains('g__Sporolactobacillus') } },
                 { assert results.every { r -> path(r.archive_otu_table).json.version == 4 } },
                 { assert results.every { r -> path(r.archive_otu_table).json.otus.size() > 0 } },
                 // profiles are deterministic (DECISIONS.md); archive OTU tables vary in row order, so not snapshotted

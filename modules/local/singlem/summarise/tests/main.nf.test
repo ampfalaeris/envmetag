@@ -21,7 +21,7 @@ nextflow_process {
                         r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
                     ),
                     record(
-                        id: 'pipeline_debris',
+                        id: 'apb_enrichment',
                         r1: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
                         r2: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
                     )
@@ -55,7 +55,7 @@ nextflow_process {
                 { assert path(r.combined).readLines()[0] == 'sample\tcoverage\ttaxonomy' },
                 { assert r.by_rank.collect { f -> path(f).fileName.toString() }.toSorted() == ranks.collect { k -> "singlem.by_rank-${k}.tsv".toString() } },
                 // site-by-rank tables: one column per sample, `unassigned` always first
-                { assert genus[0] == 'taxonomy\tmic_coupon\tpipeline_debris' },
+                { assert genus[0] == 'taxonomy\tapb_enrichment\tmic_coupon' },
                 { assert genus[1].startsWith('unassigned\t') },
                 { assert genus.any { line -> line.contains('g__Methanococcus') } },
                 { assert path(r.krona).text.contains('<html') },

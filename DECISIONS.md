@@ -95,11 +95,17 @@ Dated record of design decisions for `ampfalaeris/envmetag`, with the evidence o
 
 | Run | BioProject | Sample | Instrument | Study |
 |---|---|---|---|---|
-| SRR12174148 | PRJNA644413 | biofilm from carbon steel corrosion coupon exposed to oil field production water | HiSeq 4000, 2×150 | https://doi.org/10.1128/aem.01819-20 |
-| SRR35816318 | PRJNA1346464 | debris from corroded crude oil transporting pipeline | NovaSeq X Plus, 2×151 | https://doi.org/10.3389/fmicb.2026.1771929 |
+| SRR12174148 | PRJNA644413 | carbon steel coupon biofilm exposed to oil field production water (BioSample SAMN15459511, `MIC098`); likely a laboratory corrosion-reactor biofilm, not confirmed | HiSeq 4000, 2×150 | https://doi.org/10.1128/aem.01819-20 |
+| SRR35816318 | PRJNA1346464 | enrichment biofilm on a carbon steel coupon: corroded crude-pipeline debris enriched for acid-producing bacteria (APB) for 21 days (BioSample SAMN52836159, `APB-CP`) | NovaSeq X Plus, 2×151 | https://doi.org/10.3389/fmicb.2026.1771929 |
+
+Sample descriptions corrected 2026-10-25 from the BioSample records (earlier text called SRR35816318 "debris from corroded crude oil transporting pipeline", which is only its inoculum source).
+- SAMN52836159 `description`: "Debris from corroded crude oil transporting pipeline was enriched for acid producing bacteria for 21 days; biofilm grown on carbon steel coupon was used for analysis." The paper's abstract reports that "the highest corrosion activities were observed in enrichments dominated by acid-producing bacteria (APB) and hydrogen-utilizing bacteria". The abstract describes the field samples as from natural gas infrastructure, while the BioSample says crude oil pipeline; the BioSample is quoted here.
+- SAMN15459511 says only "biofilm from carbon steel corrosion coupon exposed to oil field production water". The AEM abstract states MIC "was reproduced in the laboratory, both under stagnant conditions and in customized corrosion reactors simulating pipeline flow", and the *M. maripaludis* genome came "from a highly corrosive mixed biofilm"; mapping `MIC098` to a specific experiment needs the paper's methods/supplement.
 
 **Why:**
-- Both are MIC samples from oil/gas infrastructure, the pipeline's target use case, and both are tied to peer-reviewed studies.
+- Both are MIC-relevant carbon steel coupon biofilms tied to peer-reviewed studies of oil/gas corrosion, the pipeline's target use case.
+- Their communities do not overlap: a methanogen + sulfate-reducer corrosion biofilm (*Methanococcus*, *Oleidesulfovibrio*) and a Bacillota APB enrichment dominated by *Sporolactobacillus nakayamae* (a lactic-acid-producing genus, consistent with an APB enrichment). That contrast is useful for the profile report and for v0.3's methane/sulfur marker modules.
+- **Limitation:** both are low-diversity biofilms (about 4–7 dominant taxa in SingleM). Neither exercises a high-diversity field community; add one if profile-level behaviour (e.g. many low-abundance taxa, long rank tables) needs testing.
 - The two runs differ in instrument and adapter load, so fastp is exercised in two regimes. Two samples also exercise multi-sample joins and the MultiQC aggregation.
 - nf-core/test-datasets does not fit: the `mag` CI reads are simulated from a single *Bacteroides fragilis* genome, and the `taxprofiler` CI reads are gut/ancient samples. Neither is environmental.
 - Spikes give the PhiX and host-removal steps a known, nonzero target, so a zero count is a detectable failure, not a silent pass.

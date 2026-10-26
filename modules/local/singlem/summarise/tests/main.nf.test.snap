@@ -1,11 +1,11 @@
 {
     "two samples, tiny tier, CI metapackage": {
         "content": [
-            "singlem.profile_extras.tsv:md5,ff492808f0baa047650f1e47042dfacd",
-            "singlem.level_coverage.tsv:md5,4e18da1f6b6b0ed673260767453e7936",
-            "singlem.profiles.tsv:md5,6e7aa4dc792b8c895583fbc60491e1a9"
+            "singlem.profile_extras.tsv:md5,f384cab896180ed663ea10667929d9a9",
+            "singlem.level_coverage.tsv:md5,c56b56ac0e4e9231c4997543b608bce2",
+            "singlem.profiles.tsv:md5,95f16e536aeaf398c171cd7ebc03e36f"
         ],
-        "timestamp": "2026-10-25T19:07:18.890276678",
+        "timestamp": "2026-10-25T20:40:51.743855794",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.3"
