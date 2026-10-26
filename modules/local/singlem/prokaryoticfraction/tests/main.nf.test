@@ -56,8 +56,9 @@ nextflow_process {
                 { assert lines.size() == 2 },
                 { assert header.take(6) == ['sample', 'bacterial_archaeal_bases', 'metagenome_size', 'read_fraction', 'average_bacterial_archaeal_genome_size', 'warning'] },
                 { assert row.sample == 'mic_coupon' },
-                // 20,000 pairs x 2 x 150 bp: SingleM must count the same reads that produced the profile
-                { assert row.metagenome_size as long == 6000000L },
+                // bases in the 100,000 input pairs (counted independently with awk; spikes are 126 bp):
+                // SingleM must count the same reads that produced the profile
+                { assert row.metagenome_size as long == 29909616L },
                 // the value itself is meaningless on the 3-marker CI metapackage (DECISIONS.md); only its range is checked
                 { assert (row.read_fraction as double) >= 0 && (row.read_fraction as double) <= 100 }
             )

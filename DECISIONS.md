@@ -165,7 +165,7 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 - The default smafa + nucleotide-SDB path is tested only by `test_full`; a bug specific to it will not show up in CI.
 - The Zenodo record must state the changes from GlobDB r232 (3 of ~59 packages kept, nucleotide SDB removed, prefilter rebuilt), the build command, the SingleM version, and the attribution and license link required by CC BY-SA 4.0. Rebuild and publish a new version if SingleM's metapackage format changes.
 
-**Not yet verified:** the `tiny` tier on the CI metapackage (fewer reads and 3 markers may give an empty profile), and `prokaryotic_fraction` against the CI metapackage.
+**Resolved (2026-10-26):** both items left open here were since tested. `prokaryotic_fraction` runs on the CI metapackage but caps `read_fraction` at 100 with a warning, so CI does not assert the value (see "SingleM split into three modules"). The `tiny` tier did give an empty profile at 20,000 seeded pairs, so it is now 100,000 pairs (see "2026-10-26 — Tiny test tier is 100,000 read pairs").
 
 **Sources:**
 - GitHub-hosted runner specs — https://docs.github.com/en/actions/reference/runners/github-hosted-runners
@@ -233,7 +233,7 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 - Full GlobDB, first 1M pairs: SRR12174148 `read_fraction` 77.03, SRR35816318 44.42, no warnings. On the 3-marker CI metapackage, `read_fraction` is capped at 100.00 and SingleM writes a warning (genus-only assignments), so CI must not assert the value.
 - Archive OTU table is JSON `version: 4` with keys `alignment_hmm_sha256s`, `singlem_package_sha256s`, `fields` (12 names), `otus`.
 - SRR35816318 full-GlobDB profile (1M pairs, 270 s, exit 0, no warnings): dominated by *Sporolactobacillus nakayamae* (coverage 32.09) and *Clostridium_B luticellarii* (3.28), 93% species-level, a Bacillota community distinct from SRR12174148's methanogen/sulfate-reducer biofilm.
-- CI metapackage at 20k pairs (`--assignment-method diamond`): SRR12174148 → `g__Methanococcus` 2.75, `g__Oleidesulfovibrio` 0.55; SRR35816318 → `g__Sporolactobacillus` 1.09. Non-empty for both, so 20k pairs is enough for the `tiny` tier.
+- CI metapackage at 20k pairs (`--assignment-method diamond`): SRR12174148 → `g__Methanococcus` 2.75, `g__Oleidesulfovibrio` 0.55; SRR35816318 → `g__Sporolactobacillus` 1.09. Non-empty for both, so 20k pairs is enough for the `tiny` tier. **Superseded 2026-10-26:** this was the first 20k reads streamed from ENA; the seeded 20k build from `build_testdata.sh` gave an empty SRR35816318 profile (see "2026-10-26 — Tiny test tier is 100,000 read pairs").
 
 **Sources:**
 - SingleM pipe — https://wwood.github.io/singlem/tools/pipe
@@ -303,3 +303,52 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 - nf-schema enforces the new samplesheet rules: a single-end row → `Entry 1: Missing required field(s): fastq_2`; a duplicate sample → `Entry 2: Detected duplicate entries: [sample:mic_coupon]`.
 
 **Also from this rewrite (lint, Nextflow 26.10.3):** `channel.topic(...)` items are untyped, so closures must index them (`v[0]`), not destructure; `groupTuple` and `collectFile` are "discouraged from use with static typing" (warnings). Versions are grouped in one closure after `collect()`, and `flatMap` turns the collected `Value` back into a `Channel` so `collectFile` can run (on a `Value` it is a lint error). The three remaining `collectFile` warnings are accepted for now.
+
+---
+
+## 2026-10-26 — envmetag report: Quarto in `assets/`, data prepared in `bin/`, Plotly, ranks down to species
+
+**Decision:**
+- The report is a Quarto document, `assets/envmetag_report.qmd`, shipped with the pipeline and rendered by a local typed module (`ENVMETAG_REPORT`) to one self-contained HTML file (`embed-resources: true`) with the Jupyter/Python engine.
+- The `.qmd` only renders. `bin/envmetag_report_data.py` reads the index files (`singlem/profiles.csv`, `singlem/prokaryotic_fraction.csv`, `singlem/summary.json`) and writes one `report_data.json`. It fails on samples missing from an index, empty tables, or per-rank abundances (including `unassigned`) that do not sum to ~100%.
+- Sections (v0.1): header (pipeline version, metapackage, assignment method, links); how to read the numbers; sample overview (prokaryotic fraction, average genome size, SingleM `warning` shown verbatim); community composition; taxonomic resolution (`level_coverage`); per-sample profile tables; methods and GlobDB CC BY-SA 4.0 attribution. Later versions add sections; no empty placeholders.
+- Composition plots use **Plotly**, with a rank selector from **domain down to species**. The top **15** taxa per rank (a param) get their own colour; the rest are pooled as "Other"; `unassigned` is always its own segment in a fixed neutral colour.
+- A rank with no `by_rank-<rank>.tsv` file (SingleM writes none when nothing is assigned at that rank, e.g. species on the CI metapackage) is shown as "No <rank>-level assignments in this run", not as an error.
+- Stacked bars are used up to a sample-count threshold (a param, default 15). Above it the layout changes (heatmap or similar); the fallback is designed after v0.1, once the plots have been seen on real data.
+- MultiQC and Krona are separate files, linked by relative path with the path also printed, so the reader can find them if the HTML is moved. No MultiQC numbers are copied into the report; the prokaryotic fraction appears in both because both read it from the same SingleM output.
+
+**Why:**
+- A `.qmd` in `assets/` ships and is versioned with the pipeline. Keeping the calculations in `bin/` means the numbers are unit-tested and the JSON can be md5-snapshotted; Quarto HTML embeds generated IDs and is checked by properties only.
+- Plotly makes the rank selector and hover values possible in one file, at the cost of ~4 MB of embedded JavaScript per report.
+- Stacked bars become unreadable well before 30 samples.
+- nf-core `quartonotebook` is deprecated (its script is `assert false`); `quarto/notebook` is tuple-based, runs papermill, and expects its container to be replaced. A small local typed module fits this repository's conventions. Quarto/Deno write caches under `$HOME`, which fails in read-only containers; the module points `XDG_CACHE_HOME`/`XDG_DATA_HOME` into the task directory (the same issue `quarto/notebook` handles).
+
+**Evidence (2026-10-26):** nf-core/modules master checked for `quartonotebook` (deprecated) and `quarto/notebook` (current). conda-forge `quarto` latest is 1.9.38 (anaconda.org API); the exact build is pinned when the container is built. Not yet built or run.
+
+**Sources:**
+- Quarto HTML `embed-resources` — https://quarto.org/docs/output-formats/html-publishing.html
+- nf-core `quarto/notebook` — https://github.com/nf-core/modules/tree/master/modules/nf-core/quarto/notebook
+
+---
+
+## 2026-10-26 — Tiny test tier is 100,000 read pairs
+
+**Decision:** `build_testdata.sh` samples the `tiny` tier at 100,000 pairs per run (was 20,000). The full tier (1,000,000 pairs + spikes) is unchanged. Test assertions that depend on read or base counts were updated, and the snapshots regenerated from this build.
+
+**Why:** at 20,000 seeded pairs, the 3-marker CI metapackage gave an **empty** SRR35816318 (`apb_enrichment`) profile: 7 sequences after read extraction, then "No reads found", and the empty-profile check in `SINGLEM_PIPE` failed the run as intended. The earlier "20k is enough" result came from the first 20k reads streamed from ENA, a different (luckier) draw. A tier that depends on a dozen marker reads would break on any change to SingleM or the metapackage; choosing a seed until one passes was rejected as cherry-picking.
+
+**Evidence (2026-10-26, SingleM 0.21.4, CI metapackage, `--assignment-method diamond`; Nextflow 26.10.3, nf-test 0.9.4, Docker, `NFT_MAX_MEMORY=7.GB`):**
+- 20k seeded build: 11 of 16 nf-tests failed; all 5 not caused by memory limits were the empty `apb_enrichment` profile.
+- 100k build: sequences after read extraction 47 (`apb_enrichment`) and 86 (`mic_coupon`); profiles `g__Sporolactobacillus` 3.83; `g__Methanococcus` 6.04, `g__Oleidesulfovibrio` 1.10, `g__JACCQO01` 0.55. All 16 nf-tests pass; 4 snapshots regenerated.
+- `metagenome_size` expectations (29,909,616 and 30,200,000 bases) were counted independently with awk over R1 + R2; the spikes are 126 bp, so the count is not pairs × read length.
+- Rebuilding gave a full tier byte-identical to the previous build (`md5sums.txt`); 7 min 57 s for both runs.
+
+**Finding: R2 adapter read-through inflates DIAMOND prefilter hits.** In every build, R2 had far more prefilter hits than R1 (CI metapackage: `apb_enrichment` 54 vs 4,558 at 100k, 535 vs 46,813 on the 1M full tier; `mic_coupon` 83 vs 510). Checks:
+- Swapping `-1`/`-2` and running each file alone: the hits follow the R2 file, not its position. Present in the unspiked, unsampled first-20k reads too, so it is not caused by the spikes, subsampling, or the download (the raw files pass ENA's MD5s).
+- 99.2% of R2 prefilter hits (kept with `--working-directory`) contain the read-through adapter `AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT`, vs 42.1% of R1 hits (library background: ~46% of `apb_enrichment` reads carry adapter, a short-insert library).
+- **Cause: an adapter-contaminated reference entry.** Rerunning DIAMOND with SingleM's prefilter parameters (from `singlem/diamond_spkg_searcher.py`: `--evalue 0.01 --frameshift 15 --range-culling --range-cover 1 --max-target-seqs 1`) on the 46,813 R2 hit reads: 46,296 hit one subject, `ribosomal_protein_S2_rpsB~GB_GCA_937897625.1`, a 62-residue fragment. The alignments are ~15 aa at 86% identity, 99% have e-values between 1e-5 and 0.01, and 46,185 span the insert/adapter junction. The matched reference segment is `VRSEERRVGKEC` (positions 45–56), and the frame-0 translation of the R2 adapter is `RSEERRVGKEC`. The R1 adapter translates to `RSEEHTSELQS` and never hit (0 of 362,899 R1 adapter tails). The insert alone (199 of 46,405) or the adapter alone (219 of 46,376) rarely hit: the match needs the codon before the adapter to pass the e-value cutoff. Most likely the source assembly kept adapter at a contig end and the gene call ran into it. Not checked: whether the full GlobDB's prefilter has the same entry (its raw-read R2:R1 ratio is 3.0×, see below).
+- On fastp-trimmed reads the excess disappears: 51 vs 46 hits. With the full GlobDB, the raw-read ratio is 3.0× (8,605 vs 25,824), identical for the default and `diamond` assignment methods (the prefilter runs before assignment).
+- Effect on the profile: the adapter hits are discarded at read extraction (4,558 hits → 47 sequences); raw and trimmed reads give the same taxon. **Coverage differs:** 3.83 (raw) vs 6.77 (trimmed) for `g__Sporolactobacillus`. Not yet explained; it bears on the decision that SingleM runs on raw reads and should be checked against the full GlobDB before v0.1.
+
+**Sources:**
+- SingleM pipe (input reads, `--working-directory`) — https://wwood.github.io/singlem/tools/pipe

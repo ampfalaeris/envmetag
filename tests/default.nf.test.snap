@@ -40,11 +40,11 @@
                 "singlem/summary/singlem.profiles.tsv"
             ],
             [
-                "apb_enrichment.singlem_profile.tsv:md5,938bfee9b9e96e7f6f1a779b94ca70c7",
-                "mic_coupon.singlem_profile.tsv:md5,ea4539583ab944ee0267850db15da203"
+                "apb_enrichment.singlem_profile.tsv:md5,860f09a50e84b3cf6c150004af6663cb",
+                "mic_coupon.singlem_profile.tsv:md5,39d5969df28cb937727cf7db5ccf8357"
             ]
         ],
-        "timestamp": "2026-10-25T20:45:16.861814008",
+        "timestamp": "2026-10-26T17:50:45.869218689",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.3"

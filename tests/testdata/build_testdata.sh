@@ -3,7 +3,7 @@
 # Build the envmetag test dataset from public ENA runs (see DECISIONS.md, "Test data").
 #
 #   full tier: 1,000,000 read pairs sampled from each run + simulated PhiX and human-mitochondrion spikes
-#   tiny tier: 20,000 read pairs sampled from the full tier (spikes included at the same rate)
+#   tiny tier: 100,000 read pairs sampled from the full tier (spikes included at the same rate)
 #
 # Every step is seeded and every tool runs from a pinned container, so a rebuild on another machine
 # gives byte-identical files (checked against md5sums.txt). Reads are never committed to the repository;
@@ -21,7 +21,7 @@ set -euo pipefail
 
 SEED=20261025
 FULL_PAIRS=1000000
-TINY_PAIRS=20000
+TINY_PAIRS=100000
 SPIKE_PAIRS=10000   # per spike organism per sample in the full tier (~1% each)
 
 SEQTK=quay.io/biocontainers/seqtk:1.5--h577a1d6_1

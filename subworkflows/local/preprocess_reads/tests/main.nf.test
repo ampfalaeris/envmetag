@@ -49,8 +49,8 @@ nextflow_workflow {
                 // the adapter must hand back a real pair: distinct files, same read count
                 { assert clean.every { r -> path(r.r1).fileName.toString() != path(r.r2).fileName.toString() } },
                 { assert clean.every { r -> count_reads(r.r1) == count_reads(r.r2) } },
-                // cleaning never adds reads; 20,000 pairs went in per sample
-                { assert clean.every { r -> count_reads(r.r1) > 0 && count_reads(r.r1) <= 20000 } },
+                // cleaning never adds reads; 100,000 pairs went in per sample
+                { assert clean.every { r -> count_reads(r.r1) > 0 && count_reads(r.r1) <= 100000 } },
                 // per sample: FastQC raw (2) + trimmed (2) zips, fastp JSON, bowtie2 log, Hostile JSON
                 { assert reports.size() == 14 },
                 { assert reports.findAll { n -> n.endsWith('_fastqc.zip') }.size() == 8 },

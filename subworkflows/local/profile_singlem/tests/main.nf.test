@@ -45,11 +45,11 @@ nextflow_workflow {
                 { assert profiles*.id == ['apb_enrichment', 'mic_coupon'] },
                 { assert fractions*.id == ['apb_enrichment', 'mic_coupon'] },
                 // each fraction must be computed from that sample's own reads:
-                // 20,000 pairs x 2 x 150 bp (SRR12174148) and x 151 bp (SRR35816318)
+                // bases in each sample's 100,000 input pairs, counted independently with awk
                 { assert fraction_row(fraction_by_id.mic_coupon).sample == 'mic_coupon' },
-                { assert fraction_row(fraction_by_id.mic_coupon).metagenome_size as long == 6000000L },
+                { assert fraction_row(fraction_by_id.mic_coupon).metagenome_size as long == 29909616L },
                 { assert fraction_row(fraction_by_id.apb_enrichment).sample == 'apb_enrichment' },
-                { assert fraction_row(fraction_by_id.apb_enrichment).metagenome_size as long == 6040000L },
+                { assert fraction_row(fraction_by_id.apb_enrichment).metagenome_size as long == 30200000L },
                 // one summary across all samples, columns in sorted sample order
                 { assert path(summary.combined).readLines().drop(1).collect { l -> l.split('\t')[0] }.toUnique() == ['apb_enrichment', 'mic_coupon'] },
                 { assert path(summary.by_rank.find { f -> f.toString().endsWith('-genus.tsv') }).readLines()[0] == 'taxonomy\tapb_enrichment\tmic_coupon' },
