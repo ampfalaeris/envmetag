@@ -275,4 +275,21 @@ Dated record of design decisions for `ampfalaeris/envmetag`, with the evidence o
 
 **Decision:** MultiQC carries the basic per-sample metrics: FastQC, fastp, bowtie2 (PhiX), Hostile, and the SingleM prokaryotic-fraction estimate as General Statistics columns. A separate envmetag HTML report carries the SingleM community results (profiles, per-rank tables, Krona) and, later, the assembly/binning and marker-gene results.
 
+**Evidence (real `-profile test,docker` run on the provisional tiny reads, 2026-10-25):** MultiQC found 2 reports each for bowtie2, Hostile, and fastp, FastQC for raw and trimmed, the SingleM General Statistics columns, and a per-process software-versions table (e.g. `BOWTIE2_ALIGN`: bowtie2 2.5.5, pigz 2.8, samtools 1.24). **Open polish:** sample names split across rows (`mic_coupon`, `mic_coupon_phix`, `mic_coupon_raw_1`, ...); needs `extra_fn_clean_exts` and separate raw/trimmed FastQC sections in `assets/multiqc_config.yml`.
+
 **Why:** MultiQC already parses the QC tools natively and is where users expect read accounting. Community profiles need caveats MultiQC custom content cannot carry well: relative abundance is of prokaryotic marker-gene coverage, `unassigned` is coverage unresolved at a rank, and marker presence is not activity. Keeping one home for each kind of number avoids two reports disagreeing.
+
+---
+
+## 2026-10-25 — Typed `params` block: types in `main.nf`, defaults in `nextflow.config`, `input` as `String`
+
+**Decision:** `main.nf` declares every parameter it references with a type and **no default**; defaults stay in `nextflow.config` (read by nf-schema and the template), descriptions in `nextflow_schema.json`. `input` is declared `String`, not `Path`. Optional strings are `String?`.
+
+**Evidence (scratch copy of the repo, Nextflow 26.10.3, nf-schema 2.7.3):**
+- With a `params` block present, lint rejects any `params.x` not declared in it ("Unrecognized parameter `version`"), so it is all-or-nothing for the entry workflow.
+- Precedence: a value in `nextflow.config` overrides the block's default; a profile overrides the config; the CLI overrides both. (Block default `BLOCK_DEFAULT` + config `CONFIG_DEFAULT` → `CONFIG_DEFAULT`; `-profile test` → `test-human-mit`; `--hostile_index CLI_VALUE` → `CLI_VALUE`.) A default in both places would silently lose to the config.
+- `input: Path` crashed every run with `StackOverflowError` in Groovy's `DefaultJsonGenerator.writeIterator`: the template's params-to-JSON dump iterates a `Path` (each component is itself a `Path`). `input: String` works; nf-schema still validates the samplesheet path (`format: file-path`, `exists: true`) and its contents.
+- An undeclared CLI parameter now fails the run: `Parameter 'hostile_indx' was specified on the command line or params file but is not declared in the script or config` (the template only warned).
+- nf-schema enforces the new samplesheet rules: a single-end row → `Entry 1: Missing required field(s): fastq_2`; a duplicate sample → `Entry 2: Detected duplicate entries: [sample:mic_coupon]`.
+
+**Also from this rewrite (lint, Nextflow 26.10.3):** `channel.topic(...)` items are untyped, so closures must index them (`v[0]`), not destructure; `groupTuple` and `collectFile` are "discouraged from use with static typing" (warnings). Versions are grouped in one closure after `collect()`, and `flatMap` turns the collected `Value` back into a `Channel` so `collectFile` can run (on a `Value` it is a lint error). The three remaining `collectFile` warnings are accepted for now.

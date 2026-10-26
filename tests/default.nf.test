@@ -13,19 +13,39 @@ nextflow_pipeline {
         }
 
         then {
-            // stable_path: All files + folders in ${params.outdir}/ with a stable path (including file name)
-            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
-            // stable_content: All files in ${params.outdir}/ with stable content
-            def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
             assert workflow.success
+
+            // stable_path: every output path relative to outdir (pipeline_info names carry timestamps)
+            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            // index files hold absolute paths (machine-specific), so check their contents instead of snapshotting them
+            def index = { rel ->
+                def lines = path("${params.outdir}/${rel}").readLines()
+                def header = lines[0].split(',') as List
+                lines.drop(1).collect { line -> [header, line.split(',', -1) as List].transpose().collectEntries() }.sort { row -> row.id }
+            }
+            def clean = index('preprocess/clean_reads.csv')
+            def profiles = index('singlem/profiles.csv')
+            def fractions = index('singlem/prokaryotic_fraction.csv')
+            def summary = path("${params.outdir}/singlem/summary.json").json
+            def profile_rows = { row -> path(row.profile).readLines().drop(1).collect { line -> line.split('\t') } }
+
             assertAll(
+                { assert clean*.id == ['mic_coupon', 'pipeline_debris'] },
+                { assert profiles*.id == ['mic_coupon', 'pipeline_debris'] },
+                { assert fractions*.id == ['mic_coupon', 'pipeline_debris'] },
+                // every path in an index points at a published file under outdir
+                { assert (clean.collectMany { row -> [row.r1, row.r2] } + profiles.collectMany { row -> [row.profile, row.archive_otu_table] } + fractions*.fraction)
+                    .every { p -> p.toString().startsWith(params.outdir.toString()) && path(p.toString()).toFile().exists() } },
+                { assert path(summary.extras).toFile().exists() && summary.by_rank.size() > 0 },
+                // SingleM sample column equals the samplesheet id, and the known dominant genera are found
+                { assert profiles.every { row -> profile_rows(row).every { cols -> cols[0] == row.id } } },
+                { assert profile_rows(profiles[0]).any { cols -> cols[2].contains('g__Methanococcus') } },
+                { assert profile_rows(profiles[1]).any { cols -> cols[2].contains('g__Sporolactobacillus') } },
+                { assert path("${params.outdir}/multiqc/multiqc_report.html").toFile().exists() },
                 { assert snapshot(
-                    // pipeline versions.yml file for multiqc from which Nextflow version is removed because we test pipelines on multiple Nextflow versions
-                    removeNextflowVersion("$outputDir/pipeline_info/envmetag_software_mqc_versions.yml"),
-                    // All stable path name, with a relative path
                     stable_path,
-                    // All files with stable contents
-                    stable_content
+                    // SingleM profiles are deterministic (DECISIONS.md)
+                    profiles.collect { row -> path(row.profile) }
                 ).match() }
             )
         }

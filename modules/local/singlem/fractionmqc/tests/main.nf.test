@@ -1,0 +1,62 @@
+nextflow_process {
+
+    name "Test Process SINGLEM_FRACTIONMQC"
+    script "../main.nf"
+    process "SINGLEM_FRACTIONMQC"
+
+    tag "modules"
+    tag "modules_local"
+    tag "singlem"
+    tag "singlem/fractionmqc"
+
+    // fixtures: real `singlem prokaryotic_fraction` output (full GlobDB, 1M pairs) with sample names
+    // replaced by record ids; 2 lines each
+
+    test("two samples -> MultiQC generalstats TSV") {
+
+        when {
+            process {
+                """
+                input[0] = channel.of(
+                    file("${moduleDir}/tests/fixtures/pipeline_debris.singlem_prokaryotic_fraction.tsv", checkIfExists: true),
+                    file("${moduleDir}/tests/fixtures/mic_coupon.singlem_prokaryotic_fraction.tsv", checkIfExists: true)
+                ).collect()
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            def lines = path(process.out[0][0]).readLines()
+            def data = lines.findAll { line -> !line.startsWith('#') }
+            assertAll(
+                { assert lines.contains("# plot_type: 'generalstats'") },
+                { assert data[0] == 'Sample\tread_fraction\taverage_bacterial_archaeal_genome_size\twarning' },
+                // sorted by sample, genome size converted to Mbp
+                { assert data[1] == 'mic_coupon\t77.03\t2.03\t' },
+                { assert data[2] == 'pipeline_debris\t44.42\t3.53\t' },
+                { assert snapshot(process.out[0]).match() }
+            )
+        }
+    }
+
+    test("stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = channel.of(
+                    file("${moduleDir}/tests/fixtures/mic_coupon.singlem_prokaryotic_fraction.tsv", checkIfExists: true)
+                ).collect()
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert path(process.out[0][0]).readLines().contains('Sample\tread_fraction\taverage_bacterial_archaeal_genome_size\twarning')
+        }
+    }
+}

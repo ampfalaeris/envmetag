@@ -1,0 +1,53 @@
+{
+    "-profile test": {
+        "content": [
+            [
+                "multiqc",
+                "multiqc/multiqc_report.html",
+                "pipeline_info",
+                "preprocess",
+                "preprocess/clean_reads",
+                "preprocess/clean_reads.csv",
+                "preprocess/clean_reads/mic_coupon",
+                "preprocess/clean_reads/mic_coupon/mic_coupon_phix.unmapped_1.clean_1.fastq.gz",
+                "preprocess/clean_reads/mic_coupon/mic_coupon_phix.unmapped_2.clean_2.fastq.gz",
+                "preprocess/clean_reads/pipeline_debris",
+                "preprocess/clean_reads/pipeline_debris/pipeline_debris_phix.unmapped_1.clean_1.fastq.gz",
+                "preprocess/clean_reads/pipeline_debris/pipeline_debris_phix.unmapped_2.clean_2.fastq.gz",
+                "singlem",
+                "singlem/archive_otu_tables",
+                "singlem/archive_otu_tables/mic_coupon.singlem_archive_otu_table.json",
+                "singlem/archive_otu_tables/pipeline_debris.singlem_archive_otu_table.json",
+                "singlem/profiles",
+                "singlem/profiles.csv",
+                "singlem/profiles/mic_coupon.singlem_profile.tsv",
+                "singlem/profiles/pipeline_debris.singlem_profile.tsv",
+                "singlem/prokaryotic_fraction",
+                "singlem/prokaryotic_fraction.csv",
+                "singlem/prokaryotic_fraction/mic_coupon.singlem_prokaryotic_fraction.tsv",
+                "singlem/prokaryotic_fraction/pipeline_debris.singlem_prokaryotic_fraction.tsv",
+                "singlem/summary",
+                "singlem/summary.json",
+                "singlem/summary/singlem.by_rank-class.tsv",
+                "singlem/summary/singlem.by_rank-domain.tsv",
+                "singlem/summary/singlem.by_rank-family.tsv",
+                "singlem/summary/singlem.by_rank-genus.tsv",
+                "singlem/summary/singlem.by_rank-order.tsv",
+                "singlem/summary/singlem.by_rank-phylum.tsv",
+                "singlem/summary/singlem.krona.html",
+                "singlem/summary/singlem.level_coverage.tsv",
+                "singlem/summary/singlem.profile_extras.tsv",
+                "singlem/summary/singlem.profiles.tsv"
+            ],
+            [
+                "mic_coupon.singlem_profile.tsv:md5,ea4539583ab944ee0267850db15da203",
+                "pipeline_debris.singlem_profile.tsv:md5,2ab0e2269d15cb311b60560e2efa9832"
+            ]
+        ],
+        "timestamp": "2026-10-25T20:03:45.738032369",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.3"
+        }
+    }
+}

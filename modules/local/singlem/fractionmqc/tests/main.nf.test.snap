@@ -1,0 +1,14 @@
+{
+    "two samples -> MultiQC generalstats TSV": {
+        "content": [
+            [
+                "singlem_prokaryotic_fraction_mqc.tsv:md5,40ec334823dfe2a1118d004753c84ac9"
+            ]
+        ],
+        "timestamp": "2026-10-25T19:47:23.399441529",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.3"
+        }
+    }
+}

@@ -11,7 +11,9 @@
                 "type": "string",
                 "pattern": "^\\S+$",
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
-                "meta": ["id"]
+                "meta": [
+                    "id"
+                ]
             },
             "fastq_1": {
                 "type": "string",
@@ -25,9 +27,16 @@
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "errorMessage": "FastQ file for reads 2 must be provided (paired-end reads only), cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             }
         },
-        "required": ["sample", "fastq_1"]
-    }
+        "required": [
+            "sample",
+            "fastq_1",
+            "fastq_2"
+        ]
+    },
+    "uniqueEntries": [
+        "sample"
+    ]
 }

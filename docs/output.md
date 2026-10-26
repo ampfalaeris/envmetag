@@ -2,48 +2,64 @@
 
 ## Introduction
 
-This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
+This document describes the output produced by the pipeline. All paths are relative to the top-level results directory (`--outdir`).
 
-The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
-
-<!-- TODO nf-core: Write this documentation describing your workflow's output -->
+Each result set has an **index file** (CSV or JSON) listing one entry per sample, with columns named after the record fields and absolute paths to the published files. Downstream steps and the report read these index files; do not rely on globbing the directories. Row order in index files is not guaranteed; sort by `id`.
 
 ## Pipeline overview
 
-The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
+- [Read preprocessing](#read-preprocessing): FastQC (raw) → fastp → FastQC (trimmed) → PhiX removal (bowtie2) → host removal (Hostile)
+- [SingleM profiling](#singlem-profiling): read-based taxonomic profiles and prokaryotic fraction, computed on **raw** reads
+- [MultiQC](#multiqc): read QC and read accounting across all samples
+- [Pipeline information](#pipeline-information): run metrics and parameters
 
-- [FastQC](#fastqc) - Raw read QC
-- [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
-- [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
-
-### FastQC
+### Read preprocessing
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `fastqc/`
-  - `*_fastqc.html`: FastQC report containing quality metrics.
-  - `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
+- `preprocess/clean_reads.csv`: index with columns `id,r1,r2`.
+- `preprocess/clean_reads/<id>/`
+  - `*.clean_1.fastq.gz`, `*.clean_2.fastq.gz`: reads after adapter/quality trimming (fastp), PhiX removal, and host removal.
 
 </details>
 
-[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
+Cleaned reads are the input to later assembly and marker-gene steps. FastQC, fastp, bowtie2, and Hostile reports are summarised in MultiQC rather than published separately.
+
+### SingleM profiling
+
+SingleM runs on raw reads, as its documentation recommends. All abundances below are **read-based estimates from marker genes**, not counts of classified reads.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `singlem/profiles.csv`: index with columns `id,profile,archive_otu_table`.
+- `singlem/profiles/<id>.singlem_profile.tsv`: condensed taxonomic profile (`sample`, `coverage`, `taxonomy`). `coverage` is marker-gene coverage, not read count.
+- `singlem/archive_otu_tables/<id>.singlem_archive_otu_table.json`: archive OTU table, so profiles can be re-condensed or re-annotated without searching the reads again.
+- `singlem/prokaryotic_fraction.csv`: index with columns `id,fraction`.
+- `singlem/prokaryotic_fraction/<id>.singlem_prokaryotic_fraction.tsv`: `singlem prokaryotic_fraction` output. `read_fraction` is an estimate (genome-size based, capped at 100) of the percentage of raw-read bases from Bacteria and Archaea; the remainder may be eukaryotic, viral, or unknown. Check the `warning` column.
+- `singlem/summary.json`: index of the cross-sample summary files below.
+- `singlem/summary/`
+  - `singlem.profiles.tsv`: all samples' profiles in one table.
+  - `singlem.profile_extras.tsv`: per taxon `coverage`, `full_coverage` (including descendants), `relative_abundance`, `level`.
+  - `singlem.level_coverage.tsv`: how much coverage was assigned at each taxonomic level.
+  - `singlem.by_rank-<rank>.tsv`: site-by-taxon relative abundance, one table per rank. **A rank with no assignments has no file.** The first row, `unassigned`, is coverage not resolved at that rank.
+  - `singlem.krona.html`: interactive Krona plot.
+
+</details>
+
+`relative_abundance` is a share of **prokaryotic marker-gene coverage**, not of all reads; read it together with `read_fraction`. Taxon presence is not evidence of activity.
 
 ### MultiQC
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
+- `multiqc/multiqc_report.html`: standalone HTML report.
 
 </details>
 
-[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
-
-Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQC. The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability. For more information about how to use MultiQC reports, see <http://multiqc.info>.
+[MultiQC](http://multiqc.info) summarises FastQC (raw and trimmed), fastp, bowtie2 (PhiX), and Hostile, plus the SingleM prokaryotic-fraction estimate and its warning as General Statistics columns, and the software versions used. Community profiles are not in MultiQC; they are in the SingleM outputs above (and the envmetag report, planned).
 
 ### Pipeline information
 
@@ -51,11 +67,8 @@ Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQ
 <summary>Output files</summary>
 
 - `pipeline_info/`
-  - Reports generated by Nextflow: `execution_report.html`, `execution_timeline.html`, `execution_trace.txt` and `pipeline_dag.dot`/`pipeline_dag.svg`.
-  - Reports generated by the pipeline: `pipeline_report.html`, `pipeline_report.txt` and `software_versions.yml`. The `pipeline_report*` files will only be present if the `--email` / `--email_on_fail` parameter's are used when running the pipeline.
-  - Reformatted samplesheet files used as input to the pipeline: `samplesheet.valid.csv`.
-  - Parameters used by the pipeline run: `params.json`.
+  - Reports generated by Nextflow: `execution_report_<timestamp>.html`, `execution_timeline_<timestamp>.html`, `execution_trace_<timestamp>.txt`, `pipeline_dag_<timestamp>.html`.
+  - Parameters used by the run: `params_<timestamp>.json`.
+  - `pipeline_report.html` / `pipeline_report.txt`: only when `--email` / `--email_on_fail` is used.
 
 </details>
-
-[Nextflow](https://docs.seqera.io/platform-cloud/reports/overview) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.
