@@ -10,7 +10,7 @@ Initial release of ampfalaeris/envmetag, created with the [nf-core](https://nf-c
 ### `Added`
 
 - Typed entry workflow (`main.nf`) with a typed `params` block, and a typed `ENVMETAG` workflow.
-- Read preprocessing (`PREPROCESS_READS`): FastQC (raw/trimmed), fastp, PhiX removal with bowtie2 (ENA J02482.1), host removal with Hostile (`human-t2t-hla-argos985-mycob140`).
+- Read preprocessing (`PREPROCESS_READS`): FastQC (raw/trimmed), fastp, PhiX removal with bowtie2 (ENA J02482.1), host removal with Hostile (`human-t2t-hla-argos985-mycob140`), writing Casava 1.8+ read headers (`--casava`) so mates share a read ID.
 - SingleM profiling on fastp-trimmed reads, before PhiX and host removal (`PROFILE_SINGLEM`): `pipe`, `prokaryotic_fraction`, `summarise`, with the GlobDB r232 metapackage via `--singlem_metapackage` or a one-time cached download (`--singlem_db_cache`).
 - Workflow `output {}` block with index files for clean reads, SingleM profiles, prokaryotic fraction, and the SingleM summary.
 - MultiQC General Statistics columns for the SingleM prokaryotic-fraction estimate (`bin/singlem_fraction_mqc.py`).
@@ -31,5 +31,6 @@ Initial release of ampfalaeris/envmetag, created with the [nf-core](https://nf-c
 | bowtie2 | 2.5.5   |
 | Hostile | 2.0.2   |
 | FastQC  | 0.13.0  |
+| MultiQC | 1.35    |
 
 ### `Deprecated`

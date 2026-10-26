@@ -24,7 +24,7 @@ Each result set has an **index file** (CSV or JSON) listing one entry per sample
 
 </details>
 
-Cleaned reads are the input to later assembly and marker-gene steps. FastQC, fastp, bowtie2, and Hostile reports are summarised in MultiQC rather than published separately.
+Cleaned reads are the input to later assembly and marker-gene steps. Their headers use the Casava 1.8+ format (`@<read id> 1:N:0:0` / `@<read id> 2:N:0:0`, written by Hostile with `--casava`), so both mates of a pair share one read ID; the original header description is not kept. FastQC, fastp, bowtie2, and Hostile reports are summarised in MultiQC rather than published separately.
 
 ### SingleM profiling
 

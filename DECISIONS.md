@@ -13,6 +13,7 @@ Dated record of design decisions for `ampfalaeris/envmetag`, with the evidence o
 **Consequences:**
 - `manifest.nextflowVersion` set to `'!>=26.10.0'`.
 - CI matrix tests `26.10.0` and `latest-everything` (the template default of `25.10.4` cannot run typed code).
+- All local evidence in this log was gathered on Nextflow 26.10.3. CI tests the minimum supported version, 26.10.0, which has not been run anywhere yet (2026-10-26); the first CI run is the first check that 26.10.0 actually works.
 
 **Sources:**
 - Nextflow 26.10.0 changelog — https://docs.seqera.io/changelog/nextflow/v26.10.0
@@ -89,9 +90,9 @@ Dated record of design decisions for `ampfalaeris/envmetag`, with the evidence o
 
 ---
 
-## 2026-10-25 — Test data: two public MIC / produced-water metagenomes, subsampled and spiked, hosted on Zenodo
+## 2026-10-25 — Test data: two public carbon-steel corrosion metagenomes (coupon biofilm, APB enrichment), subsampled and spiked, hosted on Zenodo
 
-**Decision:** Build the test dataset from two public ENA runs, subsample them with a fixed seed, spike in simulated PhiX and human mitochondrial reads, and deposit the result on Zenodo (CC BY 4.0) with two tiers: `full` (1M read pairs per sample, for the `test_full` profile with the full GlobDB metapackage) and `tiny` (~10k–20k pairs, for CI: nf-test module tests and the `test` profile). A build script in this repo records every step; no reads are committed.
+**Decision:** Build the test dataset from two public ENA runs, subsample them with a fixed seed, spike in simulated PhiX and human mitochondrial reads, and deposit the result on Zenodo (CC BY 4.0) with two tiers: `full` (1M read pairs per sample, for the `test_full` profile with the full GlobDB metapackage) and `tiny` (~10k–20k pairs, for CI: nf-test module tests and the `test` profile; 100k pairs since 2026-10-26, see "Tiny test tier is 100,000 read pairs"). A build script in this repo records every step; no reads are committed.
 
 | Run | BioProject | Sample | Instrument | Study |
 |---|---|---|---|---|
@@ -360,13 +361,16 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 
 **Decision:** `PREPROCESS_READS` emits the fastp output as `trimmed` (records, R1/R2 picked by name), and `ENVMETAG` passes it to `PROFILE_SINGLEM`. `SINGLEM_PIPE` and `SINGLEM_PROKARYOTICFRACTION` both see these reads. PhiX- and host-removed reads (`clean`) still feed assembly and the marker module. This replaces "SingleM runs on raw reads" (GlobDB entry, 2026-10-25).
 
-**Why:**
-- Raw reads from short-insert libraries carry TruSeq adapter, which matches 8 adapter-contaminated proteins in the GlobDB r232 metapackage's prefilter (see "Tiny test tier is 100,000 read pairs"). Trimming removed the effect (R1/R2 prefilter hits 54/4,558 raw → 51/46 trimmed, CI metapackage, 100k pairs).
+**Why (in order of weight):**
+1. **Coverage on short-insert libraries, possibly more accurate.** SingleM 0.21.4 computes coverage per read: each hit adds `fl / (fl - aligned_length + 1)`, where `fl` is that read's own nucleotide length (`coverage_increment` in `singlem/sequence_classes.py`, summed per OTU in `singlem/pipe.py:1060`), the per-read form of the FAQ's `coverage = num_hits * L / (L - k + 1)`. A raw read with adapter read-through has `fl = 151` although only its insert can carry marker sequence, so raw reads in a short-insert library may understate coverage. Observed (CI metapackage, 100k pairs): `apb_enrichment` (~46% of reads carry adapter) `g__Sporolactobacillus` 3.83 raw → 4.20 trimmed; `mic_coupon` (~7.6%) unchanged (`g__Methanococcus` 6.04, `g__Oleidesulfovibrio` 1.10, `g__JACCQO01` 0.55). That the trimmed value is closer to the truth is a reading of the formula, **not measured** against reads simulated at a known depth.
+2. **Less spurious prefilter work.** `apb_enrichment` R2 prefilter hits 4,558 raw → 46 trimmed (100k pairs); 46,813 R2 hits on the 1M-pair full tier.
+3. **Not depending on the database being clean.** The GlobDB r232 metapackage prefilter holds 8 proteins with translated TruSeq adapter (see "Tiny test tier is 100,000 read pairs"). In our data they do **not** change the profile: the adapter hits are discarded at read extraction and raw and trimmed reads give the same taxa. They are a reason not to feed the database adapter, not evidence of a wrong profile.
+
+**Constraints that come with it:**
 - SingleM's docs warn against **quality** trimming ("can make them too short for SingleM to use, particularly if they are trimmed to be shorter than 100 bp") and say "Adapter trimming is unlikely to be detrimental, but is not needed." `fastp --help` (1.4.0, the pinned container): adapter trimming is on by default, poly-G trimming is automatic for NextSeq/NovaSeq, and the quality filter drops whole reads; the sliding-window trimmers (`--cut_front`, `--cut_tail`, `--cut_right`) are off unless requested, and `conf/modules.config` sets none. **Do not add `--cut_*` to fastp without revisiting this decision.**
 - Before host removal, so `prokaryotic_fraction` keeps host reads in its denominator: a host-rich sample must show a low prokaryotic fraction, not a high one. PhiX adds well under 1% of reads to the denominator.
-- Coverage changes modestly: `g__Sporolactobacillus` 3.83 (raw) → 4.20 (fastp output), CI metapackage, 100k pairs; `mic_coupon` (7.6% adapter) is unchanged (`g__Methanococcus` 6.04, `g__Oleidesulfovibrio` 1.10, `g__JACCQO01` 0.55). SingleM's FAQ gives `coverage = num_hits * L / (L - k + 1)` (L read length, k ≈ 60), so shorter, adapter-free reads raise coverage per hit; that the whole change comes from this term is not verified.
 
-**Finding: Hostile breaks SingleM's mate pairing.** Hostile 2.0.2 rewrites read headers from `@SRR35816318.24169622 LH00160:...:14795/1` (fastp and bowtie2 keep this; both mates share the ID) to `@SRR35816318.24169622/1` (the mates' IDs now differ). SingleM pairs mates by identical IDs: on the same Hostile reads, `g__Sporolactobacillus` coverage was **6.77** as written and **4.20** after stripping `/1`/`/2` from the IDs, which equals the fastp-only result; prefilter hits (51/46) and extracted sequences (41) were identical. So on Hostile output SingleM counts mates of one fragment separately and inflates coverage ~1.6×. SingleM no longer reads Hostile output, but the **v0.3 marker module reads the clean reads**: any read-based tool there that pairs by ID needs the suffix stripped (or a check that it handles it), and a test that a pair is counted once.
+**Finding: Hostile breaks SingleM's mate pairing.** Hostile 2.0.2 rewrites read headers from `@SRR35816318.24169622 LH00160:...:14795/1` (fastp and bowtie2 keep this; both mates share the ID) to `@SRR35816318.24169622/1` (the mates' IDs now differ). SingleM pairs mates by identical IDs: on the same Hostile reads, `g__Sporolactobacillus` coverage was **6.77** as written and **4.20** after stripping `/1`/`/2` from the IDs, which equals the fastp-only result; prefilter hits (51/46) and extracted sequences (41) were identical. So on Hostile output SingleM counts mates of one fragment separately and inflates coverage ~1.6×. SingleM no longer reads Hostile output, but the v0.3 marker module and assembly read the clean reads. **Resolved below** ("Hostile writes Casava 1.8+ headers"). SingleM's FASTQ reader keeps only the first whitespace token as the read name (`partition(" ")[0]` in `SeqReader.readfq`, `singlem/sequence_classes.py`), which is why the `/1` / `/2` suffix matters.
 
 **Tests:** the SingleM module and subworkflow tests feed SingleM fastp-trimmed reads too, produced in nf-test `setup` by the nf-core `FASTP` module with the pipeline's arguments (none set), rather than depositing trimmed reads with the test data, so the tests follow any change to fastp's version or arguments. Verified with nf-test 0.9.4 (2026-10-26):
 - A legacy `FASTP` setup feeds a typed process in `when` (`FASTP.out.reads.map { meta, reads -> record(...) }`), and setups chain: `run("FASTP")` then `run("SINGLEM_PIPE")` reading `FASTP.out` both ran.
@@ -375,3 +379,17 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 **Sources:**
 - SingleM pipe (input reads) — https://wwood.github.io/singlem/tools/pipe
 - SingleM FAQ (coverage formula) — https://wwood.github.io/singlem/FAQ
+- SingleM 0.21.4 source in `quay.io/biocontainers/singlem:0.21.4--pyhdfd78af_2`: `singlem/sequence_classes.py` (`coverage_increment`, `SeqReader.readfq`), `singlem/pipe.py`
+
+---
+
+## 2026-10-26 — Hostile writes Casava 1.8+ headers (`--casava`)
+
+**Decision:** `HOSTILE_CLEAN` runs with `ext.args = '--casava'` (`conf/modules.config`), so the clean reads carry `@<id> 1:N:0:0` / `@<id> 2:N:0:0` headers and both mates share the same ID. The `PREPROCESS_READS` test asserts that R1 and R2 IDs match read by read and that headers end in `1:N:0:0` / `2:N:0:0`, so a Hostile change to its header format fails the test.
+
+**Why:** by default Hostile writes `@<id>/1` / `@<id>/2`, so mate IDs differ, and tools that pair mates by ID count both ends of a fragment (SingleM: 1.6× coverage, see "SingleM runs on fastp-trimmed reads"). The clean reads feed assembly and the v0.3 marker module, which may use such tools. Fixing it with Hostile's own option keeps it a tool argument in `conf/modules.config`; a post-hoc regex rewrite would need its own module and script and another pass over every read file. Reordering the steps (fastp → Hostile → PhiX) would not help: Hostile rewrites headers wherever it runs, and bowtie2 passes headers through unchanged (its PhiX output kept fastp's headers).
+
+**Evidence (Hostile 2.0.2, `community.wave.seqera.io/library/hostile:2.0.2--a7f5e5d341b6b94b`, 2026-10-26):**
+- `hostile clean --help`: `-c, --casava  use Casava 1.8+ read header format (default: False)`; also `--rename` (integer names) and `--reorder` ("ensure deterministic output order"), not used. `--reorder` may matter once assembly or marker outputs are snapshotted (v0.2).
+- On 1,000 pairs of `apb_enrichment` fastp output with `--index test-human-mit`: default → `@SRR35816318.24169622/1` and `/2`; `--casava` → `@SRR35816318.24169622 1:N:0:0` and `2:N:0:0`.
+- On the full 100k-pair fastp output with `--casava`, SingleM (CI metapackage, `--assignment-method diamond`) gave `g__Sporolactobacillus` **4.20**, identical to the fastp output itself, with the same prefilter hits (51/46) and 41 sequences after extraction. Without `--casava` the same reads gave 6.77.
