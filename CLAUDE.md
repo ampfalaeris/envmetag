@@ -5,9 +5,11 @@ Shotgun metagenomic profiling of environmental samples, with curated marker gene
 ## Roadmap (build in this order; don't jump ahead)
 
 1. **v0.1**: read preprocessing → SingleM profiling → HTML report. Typed, tested, CI green.
-2. **v0.2**: assembly → binning → CheckM2. GTDB-Tk optional and off by default (R232 needs ~140 GB RAM).
-3. **v0.3**: curated marker-gene module (CANT-HYD, SCycDB, MCycDB, NCycDB), read-based abundance normalized to genome equivalents.
-4. **v0.4**: write index files that feed nf-core/funcscan (`sample,fasta[,protein,gbk[,gff]]`).
+2. **v0.2**: curated marker-gene module (CANT-HYD, SCycDB, MCycDB, NCycDB), read-based abundance on the clean reads, normalized to genome equivalents from SingleM `prokaryotic_fraction`. Read-based counts are the primary quantification.
+3. **v0.3**: assembly → binning → CheckM2; contig-based marker calls as supporting evidence. GTDB-Tk optional and off by default (R232 needs ~140 GB RAM).
+4. **v0.4**: write index files that feed nf-core/funcscan (`sample,fasta[,protein,gbk[,gff]]`); needs v0.3 contigs.
+
+Order changed 2026-10-26 (markers before assembly); see DECISIONS.md.
 
 Centrifuger is an optional cloud-only profile (comprehensive indexes need tens of GB of RAM). SingleM runs locally (<4 GB RAM by default).
 
