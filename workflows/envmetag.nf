@@ -33,9 +33,9 @@ workflow ENVMETAG {
     multiqc_methods_description: Path       // methods description template
 
     main:
-    // Clean reads feed later assembly and marker steps; SingleM runs on raw reads (SingleM docs)
+    // Clean reads feed later assembly and marker steps; SingleM runs on the fastp-trimmed reads (DECISIONS.md)
     def preprocessed = PREPROCESS_READS(samples, phix_fasta, hostile_index)
-    def singlem = PROFILE_SINGLEM(samples, metapackage)
+    def singlem = PROFILE_SINGLEM(preprocessed.trimmed, metapackage)
     def fraction_mqc = SINGLEM_FRACTIONMQC(singlem.fractions.map { r -> r.fraction }.collect())
 
     //

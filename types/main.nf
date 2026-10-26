@@ -16,7 +16,7 @@ record Sample {
     r2: Path
 }
 
-// Raw reads joined with that sample's SingleM profile (input to prokaryotic_fraction,
+// fastp-trimmed reads joined with that sample's SingleM profile (input to prokaryotic_fraction,
 // which must see the same reads that produced the profile).
 record SampleProfile {
     id: String

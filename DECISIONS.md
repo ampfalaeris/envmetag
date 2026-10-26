@@ -78,7 +78,7 @@ Dated record of design decisions for `ampfalaeris/envmetag`, with the evidence o
 
 **Consequences:**
 - README credits GlobDB (paper below) and links the license; cite underlying sources per https://globdb.org/citations.
-- SingleM runs on raw reads, per the `singlem pipe` docs ("Please use **raw** metagenomic reads, not quality trimmed reads, if possible").
+- SingleM runs on raw reads, per the `singlem pipe` docs ("Please use **raw** metagenomic reads, not quality trimmed reads, if possible"). **Superseded 2026-10-26:** SingleM runs on the fastp-trimmed reads (see "2026-10-26 — SingleM runs on fastp-trimmed reads, before PhiX and host removal").
 
 **Sources:**
 - GlobDB downloads — https://globdb.org/downloads
@@ -216,9 +216,9 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 ## 2026-10-25 — SingleM split into three modules: `pipe`, `summarise`, `prokaryotic_fraction`
 
 **Decision:**
-- `SINGLEM_PIPE` (per sample): raw reads → condensed profile (`-p`) plus archive OTU table (`--archive-otu-table`), so profiles can be re-condensed or re-annotated without re-searching reads. Condensing happens inside `pipe`; no separate `condense` step.
+- `SINGLEM_PIPE` (per sample): reads (raw at the time; fastp-trimmed since 2026-10-26) → condensed profile (`-p`) plus archive OTU table (`--archive-otu-table`), so profiles can be re-condensed or re-annotated without re-searching reads. Condensing happens inside `pipe`; no separate `condense` step.
 - `SINGLEM_SUMMARISE` (all samples in one task): profiles → report tables.
-- `SINGLEM_PROKARYOTIC_FRACTION` (per sample): profile + the same raw reads → prokaryotic fraction.
+- `SINGLEM_PROKARYOTIC_FRACTION` (per sample): profile + the same reads → prokaryotic fraction.
 - R1 is staged as `${id}.fastq.gz` so SingleM's `sample` column equals the record `id`.
 
 **Evidence (SingleM 0.21.4 `quay.io/biocontainers/singlem:0.21.4--pyhdfd78af_2`, 2026-10-25):**
@@ -346,9 +346,32 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 **Finding: R2 adapter read-through inflates DIAMOND prefilter hits.** In every build, R2 had far more prefilter hits than R1 (CI metapackage: `apb_enrichment` 54 vs 4,558 at 100k, 535 vs 46,813 on the 1M full tier; `mic_coupon` 83 vs 510). Checks:
 - Swapping `-1`/`-2` and running each file alone: the hits follow the R2 file, not its position. Present in the unspiked, unsampled first-20k reads too, so it is not caused by the spikes, subsampling, or the download (the raw files pass ENA's MD5s).
 - 99.2% of R2 prefilter hits (kept with `--working-directory`) contain the read-through adapter `AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT`, vs 42.1% of R1 hits (library background: ~46% of `apb_enrichment` reads carry adapter, a short-insert library).
-- **Cause: an adapter-contaminated reference entry.** Rerunning DIAMOND with SingleM's prefilter parameters (from `singlem/diamond_spkg_searcher.py`: `--evalue 0.01 --frameshift 15 --range-culling --range-cover 1 --max-target-seqs 1`) on the 46,813 R2 hit reads: 46,296 hit one subject, `ribosomal_protein_S2_rpsB~GB_GCA_937897625.1`, a 62-residue fragment. The alignments are ~15 aa at 86% identity, 99% have e-values between 1e-5 and 0.01, and 46,185 span the insert/adapter junction. The matched reference segment is `VRSEERRVGKEC` (positions 45–56), and the frame-0 translation of the R2 adapter is `RSEERRVGKEC`. The R1 adapter translates to `RSEEHTSELQS` and never hit (0 of 362,899 R1 adapter tails). The insert alone (199 of 46,405) or the adapter alone (219 of 46,376) rarely hit: the match needs the codon before the adapter to pass the e-value cutoff. Most likely the source assembly kept adapter at a contig end and the gene call ran into it. Not checked: whether the full GlobDB's prefilter has the same entry (its raw-read R2:R1 ratio is 3.0×, see below).
-- On fastp-trimmed reads the excess disappears: 51 vs 46 hits. With the full GlobDB, the raw-read ratio is 3.0× (8,605 vs 25,824), identical for the default and `diamond` assignment methods (the prefilter runs before assignment).
-- Effect on the profile: the adapter hits are discarded at read extraction (4,558 hits → 47 sequences); raw and trimmed reads give the same taxon. **Coverage differs:** 3.83 (raw) vs 6.77 (trimmed) for `g__Sporolactobacillus`. Not yet explained; it bears on the decision that SingleM runs on raw reads and should be checked against the full GlobDB before v0.1.
+- **Cause: an adapter-contaminated reference entry.** Rerunning DIAMOND with SingleM's prefilter parameters (from `singlem/diamond_spkg_searcher.py`: `--evalue 0.01 --frameshift 15 --range-culling --range-cover 1 --max-target-seqs 1`) on the 46,813 R2 hit reads: 46,296 hit one subject, `ribosomal_protein_S2_rpsB~GB_GCA_937897625.1`, a 62-residue fragment. The alignments are ~15 aa at 86% identity, 99% have e-values between 1e-5 and 0.01, and 46,185 span the insert/adapter junction. The matched reference segment is `VRSEERRVGKEC` (positions 45–56), and the frame-0 translation of the R2 adapter is `RSEERRVGKEC`. The R1 adapter translates to `RSEEHTSELQS` and never hit (0 of 362,899 R1 adapter tails). The insert alone (199 of 46,405) or the adapter alone (219 of 46,376) rarely hit: the match needs the codon before the adapter to pass the e-value cutoff. Most likely the source assembly kept adapter at a contig end and the gene call ran into it.
+- **Full GlobDB r232 metapackage:** the same entry is in its prefilter (`prefilter.fna.dmnd`, 134,118 proteins, dumped with `diamond getseq`). Scanning every protein for exact ≥10 aa runs of the six-frame translations of both TruSeq adapters found **8 entries from 8 genomes**, all short fragments (38–69 aa): rpsB `GCA_937897625.1`, rpsS `GCA_913009475.1`, rplE `GCA_964443115.1` and `GCA_937968025.1`, TruB `GCA_937889205.1`, pheT `GCA_913009695.1`, recR `GCA_947040435.1`, trmD `GCA_937915475.1`; 4 match the R2/P5 adapter and 4 the R1/P7 adapter. Against the full prefilter, 43,046 of the 46,813 R2 hit reads hit again, mostly the rpsS entry (40,889). Exact 10-mers are a lower bound; diverged adapter-derived stretches are not counted.
+- On adapter-trimmed reads the excess disappears: 51 vs 46 hits (first measured on the pipeline's PhiX/host-removed reads; the fastp output alone gives the same counts and the same 41 sequences after extraction). With the full GlobDB, the raw-read ratio is 3.0× (8,605 vs 25,824), identical for the default and `diamond` assignment methods (the prefilter runs before assignment).
+- Effect on the profile: the adapter hits are discarded at read extraction (4,558 hits → 47 sequences); raw and trimmed reads give the same taxon. **Coverage:** `g__Sporolactobacillus` 3.83 on raw reads, 4.20 on the fastp output. (An earlier 6.77 came from the Hostile output and is a read-naming artefact, not trimming; see "SingleM runs on fastp-trimmed reads, before PhiX and host removal".)
 
 **Sources:**
 - SingleM pipe (input reads, `--working-directory`) — https://wwood.github.io/singlem/tools/pipe
+
+---
+
+## 2026-10-26 — SingleM runs on fastp-trimmed reads, before PhiX and host removal
+
+**Decision:** `PREPROCESS_READS` emits the fastp output as `trimmed` (records, R1/R2 picked by name), and `ENVMETAG` passes it to `PROFILE_SINGLEM`. `SINGLEM_PIPE` and `SINGLEM_PROKARYOTICFRACTION` both see these reads. PhiX- and host-removed reads (`clean`) still feed assembly and the marker module. This replaces "SingleM runs on raw reads" (GlobDB entry, 2026-10-25).
+
+**Why:**
+- Raw reads from short-insert libraries carry TruSeq adapter, which matches 8 adapter-contaminated proteins in the GlobDB r232 metapackage's prefilter (see "Tiny test tier is 100,000 read pairs"). Trimming removed the effect (R1/R2 prefilter hits 54/4,558 raw → 51/46 trimmed, CI metapackage, 100k pairs).
+- SingleM's docs warn against **quality** trimming ("can make them too short for SingleM to use, particularly if they are trimmed to be shorter than 100 bp") and say "Adapter trimming is unlikely to be detrimental, but is not needed." `fastp --help` (1.4.0, the pinned container): adapter trimming is on by default, poly-G trimming is automatic for NextSeq/NovaSeq, and the quality filter drops whole reads; the sliding-window trimmers (`--cut_front`, `--cut_tail`, `--cut_right`) are off unless requested, and `conf/modules.config` sets none. **Do not add `--cut_*` to fastp without revisiting this decision.**
+- Before host removal, so `prokaryotic_fraction` keeps host reads in its denominator: a host-rich sample must show a low prokaryotic fraction, not a high one. PhiX adds well under 1% of reads to the denominator.
+- Coverage changes modestly: `g__Sporolactobacillus` 3.83 (raw) → 4.20 (fastp output), CI metapackage, 100k pairs; `mic_coupon` (7.6% adapter) is unchanged (`g__Methanococcus` 6.04, `g__Oleidesulfovibrio` 1.10, `g__JACCQO01` 0.55). SingleM's FAQ gives `coverage = num_hits * L / (L - k + 1)` (L read length, k ≈ 60), so shorter, adapter-free reads raise coverage per hit; that the whole change comes from this term is not verified.
+
+**Finding: Hostile breaks SingleM's mate pairing.** Hostile 2.0.2 rewrites read headers from `@SRR35816318.24169622 LH00160:...:14795/1` (fastp and bowtie2 keep this; both mates share the ID) to `@SRR35816318.24169622/1` (the mates' IDs now differ). SingleM pairs mates by identical IDs: on the same Hostile reads, `g__Sporolactobacillus` coverage was **6.77** as written and **4.20** after stripping `/1`/`/2` from the IDs, which equals the fastp-only result; prefilter hits (51/46) and extracted sequences (41) were identical. So on Hostile output SingleM counts mates of one fragment separately and inflates coverage ~1.6×. SingleM no longer reads Hostile output, but the **v0.3 marker module reads the clean reads**: any read-based tool there that pairs by ID needs the suffix stripped (or a check that it handles it), and a test that a pair is counted once.
+
+**Tests:** the SingleM module and subworkflow tests feed SingleM fastp-trimmed reads too, produced in nf-test `setup` by the nf-core `FASTP` module with the pipeline's arguments (none set), rather than depositing trimmed reads with the test data, so the tests follow any change to fastp's version or arguments. Verified with nf-test 0.9.4 (2026-10-26):
+- A legacy `FASTP` setup feeds a typed process in `when` (`FASTP.out.reads.map { meta, reads -> record(...) }`), and setups chain: `run("FASTP")` then `run("SINGLEM_PIPE")` reading `FASTP.out` both ran.
+- Setup outputs are **not** visible in `then`: `FASTP.out` there fails with `MissingPropertyException: No such property: FASTP for class: com.askimed.nf.test.lang.process.ProcessContext`, which nf-test reports only as "1 of 6 assertions failed" (the message shows with `--verbose`). Expected values that depend on setup output, such as `metagenome_size`, are therefore hardcoded with a comment: fastp-output bases 28,922,250 (`mic_coupon`) and 24,819,804 (`apb_enrichment`); fastp's JSON `after_filtering.total_bases`, an awk count, and SingleM's `metagenome_size` agree.
+
+**Sources:**
+- SingleM pipe (input reads) — https://wwood.github.io/singlem/tools/pipe
+- SingleM FAQ (coverage formula) — https://wwood.github.io/singlem/FAQ

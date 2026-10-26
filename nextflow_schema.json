@@ -72,7 +72,7 @@
             "title": "SingleM options",
             "type": "object",
             "fa_icon": "fas fa-bacteria",
-            "description": "Read-based taxonomic profiling with SingleM on raw reads.",
+            "description": "Read-based taxonomic profiling with SingleM on fastp-trimmed reads.",
             "properties": {
                 "singlem_metapackage": {
                     "type": "string",

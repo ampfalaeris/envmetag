@@ -1,5 +1,6 @@
 //
-// SingleM read-based taxonomic profiling on raw reads (SingleM docs: use raw, untrimmed reads)
+// SingleM read-based taxonomic profiling on fastp-trimmed reads. SingleM's docs advise against quality trimming;
+// fastp runs with adapter trimming and no sliding-window quality trimming (DECISIONS.md, 2026-10-26).
 //
 
 nextflow.enable.types = true
@@ -12,7 +13,7 @@ include { Sample                      } from '../../../types'
 workflow PROFILE_SINGLEM {
 
     take:
-    samples: Channel<Sample>   // raw reads, one record per sample
+    samples: Channel<Sample>   // fastp-trimmed reads, one record per sample
     metapackage: Value<Path>   // extracted SingleM metapackage directory (.smpkg)
 
     main:

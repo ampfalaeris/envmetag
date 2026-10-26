@@ -28,7 +28,7 @@ Cleaned reads are the input to later assembly and marker-gene steps. FastQC, fas
 
 ### SingleM profiling
 
-SingleM runs on raw reads, as its documentation recommends. All abundances below are **read-based estimates from marker genes**, not counts of classified reads.
+SingleM runs on the fastp-trimmed reads (adapters and poly-G tails removed, no sliding-window quality trimming), before PhiX and host removal. Untrimmed adapter sequence matches a few adapter-contaminated proteins in the GlobDB r232 metapackage (see `DECISIONS.md`). All abundances below are **read-based estimates from marker genes**, not counts of classified reads.
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -37,7 +37,7 @@ SingleM runs on raw reads, as its documentation recommends. All abundances below
 - `singlem/profiles/<id>.singlem_profile.tsv`: condensed taxonomic profile (`sample`, `coverage`, `taxonomy`). `coverage` is marker-gene coverage, not read count.
 - `singlem/archive_otu_tables/<id>.singlem_archive_otu_table.json`: archive OTU table, so profiles can be re-condensed or re-annotated without searching the reads again.
 - `singlem/prokaryotic_fraction.csv`: index with columns `id,fraction`.
-- `singlem/prokaryotic_fraction/<id>.singlem_prokaryotic_fraction.tsv`: `singlem prokaryotic_fraction` output. `read_fraction` is an estimate (genome-size based, capped at 100) of the percentage of raw-read bases from Bacteria and Archaea; the remainder may be eukaryotic, viral, or unknown. Check the `warning` column.
+- `singlem/prokaryotic_fraction/<id>.singlem_prokaryotic_fraction.tsv`: `singlem prokaryotic_fraction` output. `read_fraction` is an estimate (genome-size based, capped at 100) of the percentage of trimmed-read bases (host and PhiX reads included) from Bacteria and Archaea; the remainder may be eukaryotic, viral, or unknown. Check the `warning` column.
 - `singlem/summary.json`: index of the cross-sample summary files below.
 - `singlem/summary/`
   - `singlem.profiles.tsv`: all samples' profiles in one table.

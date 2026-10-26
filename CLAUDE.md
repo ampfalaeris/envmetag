@@ -12,7 +12,7 @@ Shotgun metagenomic profiling of environmental samples, with curated marker gene
 Centrifuger is an optional cloud-only profile (comprehensive indexes need tens of GB of RAM). SingleM runs locally (<4 GB RAM by default).
 
 - SingleM uses the GlobDB r232 metapackage (`--metapackage`), downloaded at runtime: 3.8 GB compressed, 17 GB extracted. Never bundled; CC BY-SA 4.0 with attribution.
-- SingleM runs on **raw** reads (per SingleM docs); trimming and host removal feed assembly and the marker module only.
+- SingleM runs on the **fastp-trimmed** reads, before PhiX and host removal (DECISIONS.md, 2026-10-26): raw-read adapter sequence hits adapter-contaminated GlobDB proteins, and the host reads stay in the prokaryotic-fraction denominator. fastp must not quality-trim (`--cut_*`); SingleM's docs warn that short, quality-trimmed reads fail. Clean (PhiX/host-removed) reads feed assembly and the marker module.
 - SingleM names samples from the forward-read filename; stage files as `${id}_R1...` or rewrite the column, and test that `sample == id`.
 - `test` profile (CI) = tiny reads + a 3-marker GlobDB CI metapackage (rplB, rplC, rpsB; no nucleotide SDB; ~1 GB) with `--assignment-method diamond` set in `conf/test.config`. It tests plumbing and formats, not biology (genus level only). Assert on known genera, headers, `sample == id`, and the profile md5 (deterministic); compare OTU tables only after sorting (row order varies).
 - The CI metapackage is a GlobDB adaptation: its own Zenodo record under CC BY-SA 4.0, separate from the CC BY 4.0 test-reads record, stating the changes and the SingleM version that built it. Rebuild it if SingleM's metapackage format changes.

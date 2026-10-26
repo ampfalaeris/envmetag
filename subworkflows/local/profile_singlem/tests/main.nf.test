@@ -9,23 +9,43 @@ nextflow_workflow {
     tag "profile_singlem"
     tag "singlem"
 
+    // SingleM runs on fastp-trimmed reads in the pipeline (DECISIONS.md, 2026-10-26), so the tests do too:
+    // the nf-core FASTP module with the pipeline's own (default) arguments
+    setup {
+        run("FASTP") {
+            script "../../../../modules/nf-core/fastp/main.nf"
+            process {
+                """
+                input[0] = channel.of(
+                    tuple([id: 'mic_coupon', single_end: false], [
+                        file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                    ], []),
+                    tuple([id: 'apb_enrichment', single_end: false], [
+                        file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
+                        file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
+                    ], [])
+                )
+                input[1] = false
+                input[2] = false
+                input[3] = false
+                """
+            }
+        }
+    }
+
     test("two MIC samples, tiny tier, CI metapackage") {
 
         when {
             workflow {
                 """
-                input[0] = channel.of(
+                input[0] = FASTP.out.reads.map { meta, reads ->
                     record(
-                        id: 'mic_coupon',
-                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
-                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
-                    ),
-                    record(
-                        id: 'apb_enrichment',
-                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
-                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
+                        id: meta.id,
+                        r1: reads.find { f -> f.name.endsWith('_R1.fastp.fastq.gz') },
+                        r2: reads.find { f -> f.name.endsWith('_R2.fastp.fastq.gz') }
                     )
-                )
+                }
                 input[1] = channel.value(file(params.singlem_ci_metapackage, checkIfExists: true))
                 """
             }
@@ -45,11 +65,12 @@ nextflow_workflow {
                 { assert profiles*.id == ['apb_enrichment', 'mic_coupon'] },
                 { assert fractions*.id == ['apb_enrichment', 'mic_coupon'] },
                 // each fraction must be computed from that sample's own reads:
-                // bases in each sample's 100,000 input pairs, counted independently with awk
+                // bases in each sample's fastp output (fastp JSON and awk agree). Hardcoded because nf-test 0.9.4
+                // does not expose setup outputs in `then`; a fastp version or argument change will change them.
                 { assert fraction_row(fraction_by_id.mic_coupon).sample == 'mic_coupon' },
-                { assert fraction_row(fraction_by_id.mic_coupon).metagenome_size as long == 29909616L },
+                { assert fraction_row(fraction_by_id.mic_coupon).metagenome_size as long == 28922250L },
                 { assert fraction_row(fraction_by_id.apb_enrichment).sample == 'apb_enrichment' },
-                { assert fraction_row(fraction_by_id.apb_enrichment).metagenome_size as long == 30200000L },
+                { assert fraction_row(fraction_by_id.apb_enrichment).metagenome_size as long == 24819804L },
                 // one summary across all samples, columns in sorted sample order
                 { assert path(summary.combined).readLines().drop(1).collect { l -> l.split('\t')[0] }.toUnique() == ['apb_enrichment', 'mic_coupon'] },
                 { assert path(summary.by_rank.find { f -> f.toString().endsWith('-genus.tsv') }).readLines()[0] == 'taxonomy\tapb_enrichment\tmic_coupon' },

@@ -37,6 +37,8 @@ nextflow_workflow {
         then {
             assert workflow.success
             def clean = workflow.out.clean.sort { r -> r.id }
+            def trimmed = workflow.out.trimmed.sort { r -> r.id }
+            def fastp_json = { id -> path(workflow.out.multiqc_files.find { f -> path(f).fileName.toString() == "${id}.fastp.json" }).json }
             def reports = workflow.out.multiqc_files.collect { f -> path(f).fileName.toString() }.toSorted()
             def count_reads = { f -> path(f).linesGzip.size().intdiv(4) }
             def hostile_json = { id -> path(workflow.out.multiqc_files.find { f -> path(f).fileName.toString() == "${id}.json" }).json[0] }
@@ -51,6 +53,13 @@ nextflow_workflow {
                 { assert clean.every { r -> count_reads(r.r1) == count_reads(r.r2) } },
                 // cleaning never adds reads; 100,000 pairs went in per sample
                 { assert clean.every { r -> count_reads(r.r1) > 0 && count_reads(r.r1) <= 100000 } },
+                // trimmed (SingleM input): fastp's own pair, matching the read count fastp reports
+                { assert trimmed*.id == ['apb_enrichment', 'mic_coupon'] },
+                { assert trimmed.every { r -> path(r.r1).fileName.toString() == "${r.id}_R1.fastp.fastq.gz" && path(r.r2).fileName.toString() == "${r.id}_R2.fastp.fastq.gz" } },
+                { assert trimmed.every { r -> 2 * count_reads(r.r1) == fastp_json(r.id).summary.after_filtering.total_reads } },
+                { assert trimmed.every { r -> count_reads(r.r1) == count_reads(r.r2) } },
+                // PhiX and host removal run after trimming, so they can only drop reads
+                { assert [trimmed, clean].transpose().every { t, c -> count_reads(c.r1) <= count_reads(t.r1) } },
                 // per sample: FastQC raw (2) + trimmed (2) zips, fastp JSON, bowtie2 log, Hostile JSON
                 { assert reports.size() == 14 },
                 { assert reports.findAll { n -> n.endsWith('_fastqc.zip') }.size() == 8 },
@@ -84,6 +93,7 @@ nextflow_workflow {
             assert workflow.success
             assertAll(
                 { assert workflow.out.clean*.id == ['mic_coupon'] },
+                { assert workflow.out.trimmed*.id == ['mic_coupon'] },
                 // the upstream FastQC stub writes one zip per sample (a real run writes one per read file)
                 { assert workflow.out.multiqc_files.size() == 5 }
             )
