@@ -123,6 +123,10 @@ Dated record of design decisions for `ampfalaeris/envmetag`, with the evidence o
 - The methanogen + sulfate-reducer community matches the linked study's finding that methanogenic archaea drive the corrosion, and should give MCycDB and SCycDB hits for v0.3.
 - SingleM takes the `sample` column from the forward-read filename (`SRR12174148_1M_1.fq.gz` → `SRR12174148_1M_1`), not from any sample ID. The module must control staged filenames or rewrite that column, and a test must assert `sample` equals the record `id`.
 
+**Build script (`tests/testdata/build_testdata.sh`, 2026-10-25):** verifies the raw runs against ENA's MD5s; samples 1,000,000 pairs per run with `seqtk sample -s 20261025` (same seed for R1 and R2, pairing checked read by read); simulates 10,000 PhiX (ENA J02482.1) and 10,000 human-mitochondrion (ENA J01415.2, rCRS, 16,569 bp) pairs per sample with InSilicoSeq using the run's instrument model (HiSeq: 126 bp reads; NovaSeq: 151 bp); samples the tiny tier (20,000 pairs) from the full tier with the same seed; writes samplesheets, `MANIFEST.tsv` (pairs and spike pairs per file), `md5sums.txt`, and `PROVENANCE.txt`. Evidence:
+- InSilicoSeq 2.0.1 output is identical for the same `--seed` **and** `--cpus` (two runs with `--cpus 2` matched; `--cpus 1` differed), so the script pins `--cpus 1`. `--n_reads` counts reads, not pairs (1,000 → 500 pairs). Reference headers are replaced with plain names because InSilicoSeq copies them into read names (ENA headers contain `|`).
+- Trial on SRR35816318: 3 min 10 s; full tier 1,020,000 pairs (10,000 + 10,000 spikes); tiny tier 20,000 pairs with 185 PhiX and 172 human-mito pairs. A second build into a separate directory gave identical `md5sums.txt` for all six files.
+
 **SRR35816318 check (same setup, first 1M pairs, 2026-10-25):** exit 0, 270 s, 7 profile taxa, no warnings; see the SingleM modules entry below. Both runs now pass, so nothing SingleM-related blocks the deposit.
 
 **Sources:**
