@@ -418,3 +418,19 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 - Yu X, et al. (2021). SCycDB: a curated functional gene database for metagenomic profiling of sulphur cycling pathways. *Molecular Ecology Resources* 21(3):924–940. https://doi.org/10.1111/1755-0998.13306
 - Berg M, Reiter T, Emerson J, Brown CT, Roux S (2025). Comparison of short-read and long-read metagenome assemblies in a natural soil community highlights systematic bias in recovery of high-diversity populations. *NAR Genomics and Bioinformatics* 7(4):lqaf163. https://doi.org/10.1093/nargab/lqaf163
 - nf-core/mag — https://nf-co.re/mag
+
+---
+
+## 2026-10-26 — Zenodo deposits: flat layout, samplesheets in the repository, build scripts cite their commit
+
+**Decision:**
+- `build_testdata.sh` writes a **flat** directory: the reads, `phix.fa`, `human_mt.fa`, `samplesheet_full.csv`, `samplesheet_tiny.csv`, `MANIFEST.tsv`, `md5sums.txt` and `PROVENANCE.txt` (was `full/`, `tiny/`, `references/`). A flat list of files is what a Zenodo web upload is sure to support, so the local layout now matches the deposit and the same `base + filename` works for both.
+- The pipeline reads the samplesheets from the **repository** (`tests/testdata/samplesheet_{tiny,full}.csv`, written by the deposit build with the record's URL prefix), not from the record. A wrong URL or a moved file is then fixed by a commit, not by a new Zenodo version. `ENVMETAG_TESTDATA_BASE` still points the `test` and `test_full` profiles at a local build.
+- Both build scripts write the repository commit into `PROVENANCE.txt`. A deposit build (`build_testdata.sh` with a `base_url`, `build_ci_metapackage.sh --deposit`) refuses to run unless the script is committed unchanged, so each record can cite the exact code that made it.
+- The CI metapackage is built by `tests/testdata/build_ci_metapackage.sh` (previously by hand, recorded only in a local `build.log`) and deposited as one reproducible `GlobDB_r232_ci3.smpkg.tar.gz` (`tar --sort=name`, fixed mtime, numeric owner, `gzip -n`), with `md5sums.txt` and a `PROVENANCE.txt` stating the changes from GlobDB, the command, the SingleM version and the CC BY-SA 4.0 attribution.
+- `conf/test_full.config` now uses the full tier and the full metapackage (it still pointed at the template's viralrecon test data).
+
+**Evidence (2026-10-26):**
+- `build_ci_metapackage.sh` run twice into separate directories: identical `md5sums.txt`, including the `.tar.gz` (194,810,030 bytes), 4 min 20 s each with `--threads 1`. Every file in the package also matched, by md5, the hand-built `globdb_r232_ci3` package that all CI-metapackage evidence in this log was gathered on.
+- File URLs, checked on a public record (23679385, 2026-10-27): `https://zenodo.org/records/<id>/files/<key>` returns the file directly (HTTP 206 to a range request, `application/octet-stream`, no redirect), with or without `?download=1`. That record's key is `SciML/JumpProcesses.jl-v10.0.1.zip`, so keys **can** contain `/` (it came from the GitHub integration; whether the web upload allows it was not checked). Flat names are kept anyway: they need no assumption about upload paths, and a staged file's name is the last URL segment either way.
+- Zenodo drafts, including a reserved DOI, stay editable and deletable until published, so the real draft (record 23679308) served as the dry run instead of sandbox.zenodo.org.

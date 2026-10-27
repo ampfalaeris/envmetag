@@ -9,13 +9,18 @@
 # gives byte-identical files (checked against md5sums.txt). Reads are never committed to the repository;
 # the output is deposited on Zenodo.
 #
+# The output is flat (Zenodo records have no folders): reads, references, samplesheet_full.csv,
+# samplesheet_tiny.csv, MANIFEST.tsv, md5sums.txt and PROVENANCE.txt all sit in out_dir.
+#
 # Usage: build_testdata.sh <raw_dir> <out_dir> [base_url]
 #   raw_dir   directory with the full ENA FASTQs (<run>_1.fastq.gz, <run>_2.fastq.gz); verified by MD5
 #   out_dir   output directory (created; must not already contain a build)
 #   base_url  prefix written into the samplesheets (default: absolute out_dir). For the Zenodo deposit,
-#             pass the record's file URL prefix, e.g. https://zenodo.org/records/<id>/files
+#             pass the record's file URL prefix, e.g. https://zenodo.org/records/<id>/files; the script then
+#             refuses to run unless it is committed unchanged, and its samplesheets are copied to
+#             tests/testdata/ in the repository (the pipeline reads those, not the deposited copies).
 #
-# Requires: docker, curl, md5sum, gzip, awk.
+# Requires: docker, curl, md5sum, gzip, awk, git.
 
 set -euo pipefail
 
@@ -49,7 +54,17 @@ OUT=$(cd "$2" && pwd)
 BASE=${3:-$OUT}
 [ -e "$OUT/md5sums.txt" ] && die "$OUT already contains a build (md5sums.txt); use an empty directory"
 WORK="$OUT/.work"
-mkdir -p "$WORK" "$OUT/full" "$OUT/tiny" "$OUT/references"
+mkdir -p "$WORK"
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+COMMIT=$(git -C "$SCRIPT_DIR" rev-parse HEAD 2>/dev/null) || die "cannot read the git commit of $SCRIPT_DIR"
+DIRTY=""
+if ! git -C "$SCRIPT_DIR" ls-files --error-unmatch -- "$(basename "$0")" > /dev/null 2>&1; then
+    DIRTY=" (this script is not committed)"
+elif ! git -C "$SCRIPT_DIR" diff --quiet HEAD -- "$(basename "$0")"; then
+    DIRTY=" (with uncommitted changes to this script)"
+fi
+[ $# -lt 3 ] || [ -z "$DIRTY" ] || die "a deposit build (base_url given) needs $(basename "$0") committed unchanged, so the record can cite it"
 
 docker_run() {  # image, then command; mounts RAW (read-only) and OUT, runs as the calling user
     local image=$1; shift
@@ -87,8 +102,8 @@ done
 for entry in "${REFS[@]}"; do
     read -r name acc header <<< "$entry"
     log "fetching $acc"
-    curl -fsSL --retry 5 "https://www.ebi.ac.uk/ena/browser/api/fasta/$acc" | awk -v h=">$header" 'NR == 1 { print h; next } { print }' > "$OUT/references/$name.fa"
-    [ "$(grep -c '^>' "$OUT/references/$name.fa")" -eq 1 ] || die "$acc did not download as a single FASTA record"
+    curl -fsSL --retry 5 "https://www.ebi.ac.uk/ena/browser/api/fasta/$acc" | awk -v h=">$header" 'NR == 1 { print h; next } { print }' > "$OUT/$name.fa"
+    [ "$(grep -c '^>' "$OUT/$name.fa")" -eq 1 ] || die "$acc did not download as a single FASTA record"
 done
 
 #
@@ -96,7 +111,7 @@ done
 #
 manifest="$OUT/MANIFEST.tsv"
 printf 'tier\tsample\trun\tpairs\tphix_pairs\thuman_mt_pairs\tr1\tr2\n' > "$manifest"
-for tier in full tiny; do printf 'sample,fastq_1,fastq_2\n' > "$OUT/$tier/samplesheet.csv"; done
+for tier in full tiny; do printf 'sample,fastq_1,fastq_2\n' > "$OUT/samplesheet_$tier.csv"; done
 
 for entry in "${RUNS[@]}"; do
     read -r run id model _md5_1 _md5_2 <<< "$entry"
@@ -114,32 +129,32 @@ for entry in "${RUNS[@]}"; do
         read -r name _acc _header <<< "$ref"
         spike_seed=$((spike_seed + 1))
         log "$run: simulating $SPIKE_PAIRS $name pairs ($model model, seed $spike_seed)"
-        docker_run "$ISS" iss generate --genomes "$OUT/references/$name.fa" --n_reads $((2 * SPIKE_PAIRS)) \
+        docker_run "$ISS" iss generate --genomes "$OUT/$name.fa" --n_reads $((2 * SPIKE_PAIRS)) \
             --model "$model" --seed "$spike_seed" --cpus 1 --output "$WORK/${run}_$name" > "$WORK/${run}_$name.iss.log" 2>&1
         for m in 1 2; do gzip -n -f "$WORK/${run}_${name}_R$m.fastq"; done
     done
 
     for m in 1 2; do
         cat "$WORK/${run}_sub_$m.fastq.gz" "$WORK/${run}_phix_R$m.fastq.gz" "$WORK/${run}_human_mt_R$m.fastq.gz" \
-            > "$OUT/full/${run}_full_R$m.fastq.gz"
+            > "$OUT/${run}_full_R$m.fastq.gz"
     done
-    check_paired "$OUT/full/${run}_full_R1.fastq.gz" "$OUT/full/${run}_full_R2.fastq.gz"
+    check_paired "$OUT/${run}_full_R1.fastq.gz" "$OUT/${run}_full_R2.fastq.gz"
 
     log "$run: sampling $TINY_PAIRS pairs for the tiny tier"
     for m in 1 2; do
-        docker_run "$SEQTK" sh -c "seqtk sample -s $SEED '$OUT/full/${run}_full_R$m.fastq.gz' $TINY_PAIRS | gzip -n > '$OUT/tiny/${run}_tiny_R$m.fastq.gz'"
+        docker_run "$SEQTK" sh -c "seqtk sample -s $SEED '$OUT/${run}_full_R$m.fastq.gz' $TINY_PAIRS | gzip -n > '$OUT/${run}_tiny_R$m.fastq.gz'"
     done
-    check_paired "$OUT/tiny/${run}_tiny_R1.fastq.gz" "$OUT/tiny/${run}_tiny_R2.fastq.gz"
+    check_paired "$OUT/${run}_tiny_R1.fastq.gz" "$OUT/${run}_tiny_R2.fastq.gz"
 
     for tier in full tiny; do
-        r1="$OUT/$tier/${run}_${tier}_R1.fastq.gz"
-        r2="$OUT/$tier/${run}_${tier}_R2.fastq.gz"
+        r1="$OUT/${run}_${tier}_R1.fastq.gz"
+        r2="$OUT/${run}_${tier}_R2.fastq.gz"
         pairs=$(count_pairs "$r1")
         phix=$(count_spike "$r1" spike_phix_)
         human=$(count_spike "$r1" spike_human_mt_)
-        [ "$phix" -gt 0 ] && [ "$human" -gt 0 ] || die "$tier/$run has no spike reads (phix=$phix human_mt=$human)"
+        [ "$phix" -gt 0 ] && [ "$human" -gt 0 ] || die "$run ($tier) has no spike reads (phix=$phix human_mt=$human)"
         printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$tier" "$id" "$run" "$pairs" "$phix" "$human" "$(basename "$r1")" "$(basename "$r2")" >> "$manifest"
-        printf '%s,%s/%s/%s,%s/%s/%s\n' "$id" "$BASE" "$tier" "$(basename "$r1")" "$BASE" "$tier" "$(basename "$r2")" >> "$OUT/$tier/samplesheet.csv"
+        printf '%s,%s/%s,%s/%s\n' "$id" "$BASE" "$(basename "$r1")" "$BASE" "$(basename "$r2")" >> "$OUT/samplesheet_$tier.csv"
     done
 done
 
@@ -147,9 +162,10 @@ done
 # 4. Checksums and provenance
 #
 rm -rf "$WORK"
-(cd "$OUT" && find full tiny references -type f -name '*.gz' -o -type f -name '*.fa' | LC_ALL=C sort | xargs md5sum > md5sums.txt)
+(cd "$OUT" && find . -maxdepth 1 -type f \( -name '*.fastq.gz' -o -name '*.fa' \) -printf '%f\n' | LC_ALL=C sort | xargs md5sum > md5sums.txt)
 {
     echo "envmetag test data, built $(date -u +%Y-%m-%d) by tests/testdata/build_testdata.sh"
+    echo "repository: https://github.com/ampfalaeris/envmetag, commit $COMMIT$DIRTY"
     echo "seed=$SEED full_pairs=$FULL_PAIRS tiny_pairs=$TINY_PAIRS spike_pairs_per_organism=$SPIKE_PAIRS"
     echo "seqtk=$SEQTK"
     echo "insilicoseq=$ISS"

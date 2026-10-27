@@ -18,12 +18,12 @@ nextflow_workflow {
                 """
                 input[0] = channel.of(
                     tuple([id: 'mic_coupon', single_end: false], [
-                        file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
-                        file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                        file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
                     ], []),
                     tuple([id: 'apb_enrichment', single_end: false], [
-                        file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
-                        file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
+                        file(params.envmetag_testdata_base_path + 'SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
+                        file(params.envmetag_testdata_base_path + 'SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
                     ], [])
                 )
                 input[1] = false
@@ -89,8 +89,8 @@ nextflow_workflow {
                 input[0] = channel.of(
                     record(
                         id: 'mic_coupon',
-                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
-                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                        r1: file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
                     )
                 )
                 input[1] = channel.value(file(params.singlem_ci_metapackage, checkIfExists: true))

@@ -19,13 +19,13 @@ nextflow_workflow {
                 input[0] = channel.of(
                     record(
                         id: 'mic_coupon',
-                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
-                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                        r1: file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
                     ),
                     record(
                         id: 'apb_enrichment',
-                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
-                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
+                        r1: file(params.envmetag_testdata_base_path + 'SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
                     )
                 )
                 input[1] = channel.value(file(params.phix_fasta))
@@ -84,8 +84,8 @@ nextflow_workflow {
                 input[0] = channel.of(
                     record(
                         id: 'mic_coupon',
-                        r1: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
-                        r2: file(params.envmetag_testdata_base_path + 'tiny/SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                        r1: file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
                     )
                 )
                 input[1] = channel.value(file(params.phix_fasta))
