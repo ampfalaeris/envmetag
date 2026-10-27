@@ -12,6 +12,9 @@ process SINGLEM_FRACTIONMQC {
     output:
     file('singlem_prokaryotic_fraction_mqc.tsv')
 
+    topic:
+    tuple(task.process, 'python', eval("python3 --version | cut -d' ' -f2")) >> 'versions'
+
     script:
     """
     singlem_fraction_mqc.py ${fractions.toSorted { f -> f.name }.join(' ')} --output singlem_prokaryotic_fraction_mqc.tsv

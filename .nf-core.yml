@@ -34,7 +34,6 @@ lint:
     - conf/igenomes.config
     - conf/igenomes_ignored.config
     - conf/igenomes.config
-  included_configs: false
 
 template:
   org: ampfalaeris

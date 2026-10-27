@@ -46,7 +46,9 @@ nextflow_pipeline {
                 { assert snapshot(
                     stable_path,
                     // SingleM profiles are deterministic (DECISIONS.md)
-                    profiles.collect { row -> path(row.profile) }
+                    profiles.collect { row -> path(row.profile) },
+                    // tool versions per process; a container update changes this snapshot
+                    path("${params.outdir}/pipeline_info/envmetag_software_mqc_versions.yml").readLines()
                 ).match() }
             )
         }

@@ -14,8 +14,12 @@ Initial release of ampfalaeris/envmetag, created with the [nf-core](https://nf-c
 - SingleM profiling on fastp-trimmed reads, before PhiX and host removal (`PROFILE_SINGLEM`): `pipe`, `prokaryotic_fraction`, `summarise`, with the GlobDB r232 metapackage via `--singlem_metapackage` or a one-time cached download (`--singlem_db_cache`).
 - Workflow `output {}` block with index files for clean reads, SingleM profiles, prokaryotic fraction, and the SingleM summary.
 - MultiQC General Statistics columns for the SingleM prokaryotic-fraction estimate (`bin/singlem_fraction_mqc.py`).
+- Software versions per process published to `pipeline_info/envmetag_software_mqc_versions.yml` and snapshotted in the pipeline test.
+- Citations for fastp, Bowtie 2, Hostile, SingleM, and GlobDB in `CITATIONS.md` and the MultiQC methods description.
 
 ### `Fixed`
+
+- MultiQC shows one General Statistics row per sample, with separate FastQC sections for raw and trimmed reads (previously six rows per sample).
 
 ### `Changed`
 

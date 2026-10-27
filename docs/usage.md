@@ -4,51 +4,40 @@
 
 ## Introduction
 
-<!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
+envmetag takes paired-end Illumina shotgun metagenomes, one read pair per sample. This page covers the samplesheet, the SingleM metapackage, and general Nextflow options; parameters are documented in the pipeline schema (`nextflow run ampfalaeris/envmetag --help`).
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+Pass a comma-separated samplesheet with a header row and three columns:
 
 ```bash
 --input '[path to samplesheet file]'
 ```
 
-### Multiple runs of the same sample
-
-The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes:
-
 ```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
+site_a,/data/site_a_R1.fastq.gz,/data/site_a_R2.fastq.gz
+site_b,/data/site_b_R1.fastq.gz,/data/site_b_R2.fastq.gz
 ```
 
-### Full samplesheet
+| Column    | Description                                                                                                         |
+| --------- | ------------------------------------------------------------------------------------------------------------------- |
+| `sample`  | Sample name. Must be unique and cannot contain spaces. It is used as the sample ID in every output and report.      |
+| `fastq_1` | Path to the gzipped forward reads (`.fastq.gz` or `.fq.gz`).                                                        |
+| `fastq_2` | Path to the gzipped reverse reads (`.fastq.gz` or `.fq.gz`). Required: envmetag accepts paired-end reads only.      |
 
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
+Each sample has exactly one row. The pipeline does not merge multiple runs or lanes of the same sample; concatenate them before running (`cat lane1_R1.fastq.gz lane2_R1.fastq.gz > sample_R1.fastq.gz`, and the same for R2, in the same order). A duplicate `sample` value or a missing `fastq_2` fails validation before any task runs.
 
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
+An [example samplesheet](../assets/samplesheet.csv) is provided with the pipeline.
 
-```csv title="samplesheet.csv"
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz
-CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz
-TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,
-TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,
-```
+## SingleM metapackage
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+SingleM profiles reads against the GlobDB r232 metapackage (3.8 GB compressed, 17 GB extracted, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)). It must be on local or shared disk; SingleM cannot read it from object storage. Provide it in one of two ways:
 
-An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
+- `--singlem_metapackage /path/to/GlobDB_r232.metapackage_v4.smpkg`: an extracted copy you already have (preferred).
+- `--singlem_db_cache /path/to/cache`: the pipeline downloads `--singlem_metapackage_url` once and keeps the extracted copy there for later runs. The first run needs about 21 GB free in the cache directory and in `work/`.
+
+The run fails at startup if neither is set.
 
 ## Running the pipeline
 

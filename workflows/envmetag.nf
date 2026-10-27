@@ -78,6 +78,7 @@ workflow ENVMETAG {
     singlem_profiles: Channel<Record> = singlem.profiles
     singlem_fractions: Channel<Record> = singlem.fractions
     singlem_summary: Value<Record> = singlem.summary
+    software_versions: Channel<Path> = versions_yaml
     multiqc_report: Value<Path> = multiqc_out.report.map { _meta, report -> report }
 }
 

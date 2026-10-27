@@ -5,6 +5,7 @@
                 "multiqc",
                 "multiqc/multiqc_report.html",
                 "pipeline_info",
+                "pipeline_info/envmetag_software_mqc_versions.yml",
                 "preprocess",
                 "preprocess/clean_reads",
                 "preprocess/clean_reads.csv",
@@ -42,9 +43,35 @@
             [
                 "apb_enrichment.singlem_profile.tsv:md5,83cb7a37afb843904488fc88ae4dbe64",
                 "mic_coupon.singlem_profile.tsv:md5,39d5969df28cb937727cf7db5ccf8357"
+            ],
+            [
+                "BOWTIE2_ALIGN:",
+                "  bowtie2: 2.5.5",
+                "  pigz: 2.8",
+                "  samtools: 1.24",
+                "BOWTIE2_BUILD:",
+                "  bowtie2: 2.5.5",
+                "FASTP:",
+                "  fastp: 1.4.0",
+                "FASTQC_RAW:",
+                "  fastqc: 0.13.0",
+                "FASTQC_TRIMMED:",
+                "  fastqc: 0.13.0",
+                "HOSTILE_CLEAN:",
+                "  hostile: 2.0.2",
+                "HOSTILE_FETCH:",
+                "  hostile: 2.0.2",
+                "SINGLEM_FRACTIONMQC:",
+                "  python: 3.12.15",
+                "SINGLEM_PIPE:",
+                "  singlem: 0.21.4",
+                "SINGLEM_PROKARYOTICFRACTION:",
+                "  singlem: 0.21.4",
+                "SINGLEM_SUMMARISE:",
+                "  singlem: 0.21.4"
             ]
         ],
-        "timestamp": "2026-10-26T18:47:14.124426765",
+        "timestamp": "2026-10-27T14:33:46.980872526",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.3"

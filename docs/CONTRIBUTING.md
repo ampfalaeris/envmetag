@@ -162,4 +162,8 @@ If you update images or graphics, follow the nf-core [style guidelines](https://
 
 ## Pipeline specific contribution guidelines
 
-<!-- TODO nf-core: Add any pipeline specific contribution guidelines here, such as coding styles, procedures, checklists etc. -->
+- Work on the `dev` branch; CI runs on pull requests from `dev` into `master`.
+- New Nextflow scripts use static typing (`nextflow.enable.types = true`) and carry samples as records declared in `types/main.nf`. Run `nextflow lint .` before every commit; it must report no errors.
+- Every module and subworkflow has nf-test coverage before it is wired into the main workflow. Stubs create every declared output with its real filename and valid headers.
+- Tool arguments go in `conf/modules.config`, not in module files. Logic beyond calling a tool goes in a `bin/` script with unit tests.
+- Record non-trivial design choices in [`DECISIONS.md`](../DECISIONS.md) with the evidence behind them, and update `CHANGELOG.md` and `docs/output.md` with any change to outputs.

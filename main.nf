@@ -137,6 +137,7 @@ workflow {
     singlem_profiles = run.singlem_profiles
     singlem_fractions = run.singlem_fractions
     singlem_summary = run.singlem_summary
+    software_versions = run.software_versions
     multiqc_report = run.multiqc_report
 }
 
@@ -181,6 +182,9 @@ output {
         index {
             path 'singlem/summary.json'
         }
+    }
+    software_versions {
+        path 'pipeline_info'
     }
     multiqc_report {
         path 'multiqc'
