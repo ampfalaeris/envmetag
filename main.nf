@@ -90,10 +90,11 @@ workflow {
     }
 
     //
-    // SingleM metapackage: an existing extracted copy, or a one-time download cached in --singlem_db_cache
+    // SingleM metapackage: an existing extracted copy, or a download of --singlem_metapackage_url, kept in
+    // --singlem_db_cache when set and otherwise extracted in the work directory for this run (DECISIONS.md)
     //
     if (!params.singlem_metapackage && !params.singlem_db_cache) {
-        error("Set --singlem_metapackage (an extracted .smpkg directory) or --singlem_db_cache (where to keep a one-time download of --singlem_metapackage_url, ~17 GB extracted)")
+        log.warn("Neither --singlem_metapackage nor --singlem_db_cache is set: downloading ${params.singlem_metapackage_url} and extracting it in the work directory (the default GlobDB r232 archive is a 3.8 GB download, 17 GB extracted). A fresh run downloads it again; set --singlem_db_cache to keep one copy.")
     }
     def metapackage = params.singlem_metapackage
         ? channel.value(file(params.singlem_metapackage, checkIfExists: true))

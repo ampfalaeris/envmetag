@@ -16,6 +16,7 @@ Initial release of ampfalaeris/envmetag, created with the [nf-core](https://nf-c
 - MultiQC General Statistics columns for the SingleM prokaryotic-fraction estimate (`bin/singlem_fraction_mqc.py`).
 - Software versions per process published to `pipeline_info/envmetag_software_mqc_versions.yml` and snapshotted in the pipeline test.
 - Citations for fastp, Bowtie 2, Hostile, SingleM, and GlobDB in `CITATIONS.md` and the MultiQC methods description.
+- CI downloads the SingleM CI metapackage from Zenodo (record 23679677), checks its md5, and caches it.
 
 ### `Fixed`
 
@@ -25,6 +26,7 @@ Initial release of ampfalaeris/envmetag, created with the [nf-core](https://nf-c
 
 - Samplesheet requires `fastq_2` (paired-end only) and unique `sample` values.
 - Outputs are published by the workflow `output {}` block; the template's `publishDir` defaults were removed.
+- Without `--singlem_metapackage` or `--singlem_db_cache`, the metapackage is downloaded and extracted in the work directory with a warning (previously an error). `-profile test` downloads the CI metapackage from Zenodo and needs no environment variables.
 
 ### `Dependencies`
 

@@ -48,7 +48,7 @@ nextflow run ampfalaeris/envmetag \
    --outdir results
 ```
 
-or let it download the metapackage once into a cache directory with `--singlem_db_cache /path/to/cache` (the first run needs about 21 GB free there and in `work/`).
+or let it download the metapackage once into a cache directory with `--singlem_db_cache /path/to/cache` (the first run needs about 21 GB free there and in `work/`). With neither option, the pipeline downloads and extracts it in `work/` on every fresh run.
 
 See the [usage documentation](docs/usage.md) for all options and the [output documentation](docs/output.md) for what each result file means.
 
@@ -66,6 +66,8 @@ The `test` and `test_full` profiles use reads subsampled from two public carbon-
 
 - Test reads: Zenodo record [23679308](https://zenodo.org/records/23679308) (CC BY 4.0), built by [`tests/testdata/build_testdata.sh`](tests/testdata/build_testdata.sh).
 - CI metapackage: Zenodo record [23679677](https://zenodo.org/records/23679677) (CC BY-SA 4.0), a 3-marker subset of the GlobDB r232 SingleM metapackage. It tests the pipeline's plumbing and file formats, not biology.
+
+`-profile test` downloads both from Zenodo and needs no other parameters (the CI metapackage is 195 MB, about 1 GB extracted in `work/`).
 
 ## Licences
 

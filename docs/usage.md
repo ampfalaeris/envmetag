@@ -32,12 +32,11 @@ An [example samplesheet](../assets/samplesheet.csv) is provided with the pipelin
 
 ## SingleM metapackage
 
-SingleM profiles reads against the GlobDB r232 metapackage (3.8 GB compressed, 17 GB extracted, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)). It must be on local or shared disk; SingleM cannot read it from object storage. Provide it in one of two ways:
+SingleM profiles reads against the GlobDB r232 metapackage (3.8 GB compressed, 17 GB extracted, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)). It must be on local or shared disk; SingleM cannot read it from object storage. Provide it in one of three ways:
 
 - `--singlem_metapackage /path/to/GlobDB_r232.metapackage_v4.smpkg`: an extracted copy you already have (preferred).
 - `--singlem_db_cache /path/to/cache`: the pipeline downloads `--singlem_metapackage_url` once and keeps the extracted copy there for later runs. The first run needs about 21 GB free in the cache directory and in `work/`.
-
-The run fails at startup if neither is set.
+- Neither: the pipeline downloads the archive and extracts it in `work/` (about 21 GB). `-resume` reuses it, but a fresh run downloads it again, and it is removed when you clean `work/`. The run logs a warning in this case.
 
 ## Running the pipeline
 

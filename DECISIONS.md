@@ -271,7 +271,7 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 
 **Decision:**
 - `--singlem_metapackage`: path to an already-extracted `.smpkg` directory. Preferred, and documented with the size (3.8 GB download, 17 GB extracted).
-- Otherwise `SINGLEM_PREPAREMETAPACKAGE` takes `--singlem_metapackage_url` (default: GlobDB r232) as a staged `Path`, extracts it, checks for `<name>.smpkg/CONTENTS.json`, and stores the result in `--singlem_db_cache` via `storeDir`. If neither `--singlem_metapackage` nor `--singlem_db_cache` is set, the run errors; it never writes 17 GB to a location the user did not choose.
+- Otherwise `SINGLEM_PREPAREMETAPACKAGE` takes `--singlem_metapackage_url` (default: GlobDB r232) as a staged `Path`, extracts it, checks for `<name>.smpkg/CONTENTS.json`, and stores the result in `--singlem_db_cache` via `storeDir`. If neither `--singlem_metapackage` nor `--singlem_db_cache` is set, the run errors; it never writes 17 GB to a location the user did not choose. **Superseded 2026-10-27:** the run now extracts into `work/` with a warning (see "Metapackage download without a cache directory extracts in `work/`").
 
 **Why:** SingleM reads the metapackage from a local directory; it cannot read one in place from object storage, so every run needs a local copy. Re-downloading and re-extracting 3.8 GB → 17 GB per run is wasteful. The user's local extraction of the GlobDB archive took under ~8 minutes.
 
@@ -436,3 +436,24 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 - Zenodo drafts, including a reserved DOI, stay editable and deletable until published, so the real draft (record 23679308) served as the dry run instead of sandbox.zenodo.org.
 - Test reads published 2026-10-27 as https://doi.org/10.5281/zenodo.23679308 (Dataset, CC BY 4.0, version 1), built at commit `b7d4a48` with reads byte-identical to the tested local build. The record's API lists 15 files whose md5s all match the deposit build. The full nf-test suite (16 tests) then passed with no local test data, staging the tiny-tier reads from the record's URLs; no snapshot changed.
 - CI metapackage published 2026-10-27 as https://doi.org/10.5281/zenodo.23679677 (Dataset, `cc-by-sa-4.0`, version 1), built with `--deposit` at commit `b8ce08e`. The API lists 3 files (`GlobDB_r232_ci3.smpkg.tar.gz` 194,810,030 bytes, md5 `489596e61aa1353d1577c6fb99843d3a`; `md5sums.txt`; `PROVENANCE.txt`) whose md5s match the deposit build, and the archive downloads directly from `https://zenodo.org/records/23679677/files/GlobDB_r232_ci3.smpkg.tar.gz`. Related works: derived from GlobDB (doi:10.1093/bioadv/vbaf280), supplemented by the repository and by the test-reads record. The test-reads record was then edited (metadata only; still version 1, 15 files) to link both ENA runs (derived from), the repository and the metapackage record (supplemented by), and the two source studies (cites).
+
+---
+
+## 2026-10-27 — Metapackage download without a cache directory extracts in `work/`; `-profile test` needs no setup
+
+**Decision:**
+- If neither `--singlem_metapackage` nor `--singlem_db_cache` is set, the pipeline no longer stops: it downloads `--singlem_metapackage_url`, extracts it in the work directory, and logs a warning with the default archive's size. This supersedes the "never writes 17 GB to a location the user did not choose" rule in "SingleM metapackage provisioning" (2026-10-25); `--singlem_metapackage` stays the preferred option and `--singlem_db_cache` the way to keep one download across runs.
+- `conf/test.config` sets `singlem_metapackage_url` to the CI metapackage on Zenodo (record 23679677), so `-profile test` runs with no environment variables, as other Nextflow pipelines' test profiles do. `ENVMETAG_SINGLEM_CI_METAPACKAGE` remains an optional override pointing at an extracted copy.
+- CI (`.github/actions/nf-test/action.yml`) downloads the archive once, checks its md5 (`489596e61aa1353d1577c6fb99843d3a`), extracts it, caches it with `actions/cache` (v6.1.0, pinned by SHA; key = record id + md5), and sets `ENVMETAG_SINGLEM_CI_METAPACKAGE`. The SingleM module and subworkflow tests read the metapackage path directly, so without the cache each of them would download 195 MB.
+
+**Why:** `work/` is where users expect intermediate files and is easy to delete; nf-core pipelines extract their databases there. Requiring an environment variable for `-profile test` was a setup step no other pipeline asks for. The cost of the default (re-downloading 3.8 GB per fresh run) is stated in the warning and the docs rather than enforced.
+
+**Evidence (2026-10-27, Nextflow 26.10.3, Docker):**
+- Zenodo archive downloaded fresh: md5 matches the record's API and the local deposit build; all 44 extracted files match the record's `md5sums.txt`; `diff -r` against the local CI metapackage shows no differences.
+- The CI action's download and env steps, extracted from `action.yml` and run with a scratch `$HOME`: exit 0, md5 OK, 992 MB extracted, variable written to `$GITHUB_ENV`. (The `actions/cache` step itself only runs on GitHub.)
+- `nf-test test --profile=+docker --ci` with the variable pointing at that download and no `ENVMETAG_TESTDATA_BASE` (reads from Zenodo): 16/16 passed, no snapshot changed.
+- `nextflow run . -profile test,docker` from an empty directory with no `ENVMETAG_*` variables: warning logged, `SINGLEM_PREPAREMETAPACKAGE` ran once in `work/`, 20 tasks succeeded; a null `storeDir` created no extra directory; the `mic_coupon` profile md5 (`39d5969df28cb937727cf7db5ccf8357`) matches the pipeline-test snapshot.
+
+**Sources:**
+- `actions/cache` releases — https://github.com/actions/cache/releases
+- CI metapackage record — https://doi.org/10.5281/zenodo.23679677

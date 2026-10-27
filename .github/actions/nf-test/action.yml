@@ -35,6 +35,32 @@ runs:
         version: "${{ env.NFT_VER }}"
         install-pdiff: true
 
+    # 3-marker GlobDB r232 SingleM metapackage for CI (Zenodo 10.5281/zenodo.23679677, CC BY-SA 4.0).
+    # The cache key carries the archive md5, so a new Zenodo version needs both values updated together.
+    - name: Cache SingleM CI metapackage
+      id: cache-singlem-ci
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/envmetag-ci/GlobDB_r232_ci3.smpkg
+        key: singlem-ci-metapackage-zenodo23679677-489596e61aa1353d1577c6fb99843d3a
+
+    - name: Download SingleM CI metapackage
+      if: steps.cache-singlem-ci.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        mkdir -p ~/envmetag-ci
+        cd ~/envmetag-ci
+        curl -fsSL --retry 3 -o GlobDB_r232_ci3.smpkg.tar.gz \
+          https://zenodo.org/records/23679677/files/GlobDB_r232_ci3.smpkg.tar.gz
+        echo "489596e61aa1353d1577c6fb99843d3a  GlobDB_r232_ci3.smpkg.tar.gz" | md5sum -c -
+        tar -xzf GlobDB_r232_ci3.smpkg.tar.gz
+        rm GlobDB_r232_ci3.smpkg.tar.gz
+        test -f GlobDB_r232_ci3.smpkg/CONTENTS.json
+
+    - name: Point tests at the SingleM CI metapackage
+      shell: bash
+      run: echo "ENVMETAG_SINGLEM_CI_METAPACKAGE=$HOME/envmetag-ci/GlobDB_r232_ci3.smpkg" >> "$GITHUB_ENV"
+
     - name: Setup apptainer
       if: contains(inputs.profile, 'singularity')
       uses: eWaterCycle/setup-apptainer@3f706d898c9db585b1d741b4692e66755f3a1b40 # v2.0.0
