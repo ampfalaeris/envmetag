@@ -311,7 +311,7 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 
 **Decision:**
 - The report is a Quarto document, `assets/envmetag_report.qmd`, shipped with the pipeline and rendered by a local typed module (`ENVMETAG_REPORT`) to one self-contained HTML file (`embed-resources: true`) with the Jupyter/Python engine.
-- The `.qmd` only renders. `bin/envmetag_report_data.py` reads the index files (`singlem/profiles.csv`, `singlem/prokaryotic_fraction.csv`, `singlem/summary.json`) and writes one `report_data.json`. It fails on samples missing from an index, empty tables, or per-rank abundances (including `unassigned`) that do not sum to ~100%.
+- The `.qmd` only renders. `bin/envmetag_report_data.py` reads the index files (`singlem/profiles.csv`, `singlem/prokaryotic_fraction.csv`, `singlem/summary.json`) and writes one `report_data.json`. **Amended 2026-10-27:** it reads the staged SingleM files passed from channels, not the index files (see "envmetag report takes its inputs from channels"). It fails on samples missing from an index, empty tables, or per-rank abundances (including `unassigned`) that do not sum to ~100%.
 - Sections (v0.1): header (pipeline version, metapackage, assignment method, links); how to read the numbers; sample overview (prokaryotic fraction, average genome size, SingleM `warning` shown verbatim); community composition; taxonomic resolution (`level_coverage`); per-sample profile tables; methods and GlobDB CC BY-SA 4.0 attribution. Later versions add sections; no empty placeholders.
 - Composition plots use **Plotly**, with a rank selector from **domain down to species**. The top **15** taxa per rank (a param) get their own colour; the rest are pooled as "Other"; `unassigned` is always its own segment in a fixed neutral colour.
 - A rank with no `by_rank-<rank>.tsv` file (SingleM writes none when nothing is assigned at that rank, e.g. species on the CI metapackage) is shown as "No <rank>-level assignments in this run", not as an error.
@@ -457,3 +457,25 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 **Sources:**
 - `actions/cache` releases — https://github.com/actions/cache/releases
 - CI metapackage record — https://doi.org/10.5281/zenodo.23679677
+
+---
+
+## 2026-10-27 — envmetag report takes its inputs from channels; data script details
+
+**Decision:**
+- `ENVMETAG_REPORT` receives the SingleM files as staged inputs from channels (per-sample profiles and prokaryotic-fraction TSVs, the `summarise` by-rank and level-coverage tables) plus the sample ids. It does not read the published index files. Index files remain the interface for users and downstream pipelines; CLAUDE.md, `main.nf` and `docs/output.md` were reworded to match.
+- `bin/envmetag_report_data.py` (standard library only) writes `report_data.json` (`schema_version` 1): run metadata, per-sample overview from `prokaryotic_fraction`, per-rank composition, level coverage, per-sample profiles, and relative links to MultiQC and Krona. Samples are sorted by id and input order does not change the output, so the JSON can be md5-snapshotted.
+- Per-rank sums (taxa + `unassigned`) and per-sample level shares must be 100 ± 0.5 percentage points, or the script fails.
+- Top-N per rank is chosen by each taxon's **largest value in any one sample**, not its mean, so a taxon that dominates one sample is not pooled into "Other". Ties break on the full lineage. Plot labels are the last lineage field without its rank prefix; if two kept taxa share one, the parent is added.
+- A sample whose profile has no taxa is an error, not an empty bar.
+
+**Why:**
+- The output block writes index files when it publishes outputs; no channel inside the run carries them, and their absolute `outdir` paths are not staged into a task. A process that read them would depend on publishing order, which nothing guarantees.
+- The ±0.5 tolerance: real output already sums to 99.99 (mic_coupon, genus, CI run), because SingleM rounds each value to 2 decimals.
+- Pooling by mean would hide exactly the sample-specific dominants (e.g. a sulfate reducer in one corrosion coupon) the report is meant to show.
+- An empty profile has several possible causes (failed library, wrong reads, a true blank); failing makes the user look, per CLAUDE.md ("an unexplained empty result is a bug"). **Open:** extraction blanks are a legitimate use case and may need an explicit opt-in later.
+
+**Evidence (2026-10-27):**
+- SingleM 0.21.4 source (`quay.io/biocontainers/singlem:0.21.4--pyhdfd78af_2`, `condense.py`, `CondensedCommunityProfile.taxonomic_level_coverage_table`): level numbers count from root (0, skipped), so 1 = domain … 7 = species. SingleM replaces the numbers with names **only when a sample has 7 or 8 distinct levels**; otherwise it writes numbers. The CI run's file uses numbers (6 levels, deepest genus); a full-GlobDB run with species assignments will use names. The script accepts both and rejects anything else.
+- 22 pytest tests (`tests/bin/`) pass on Python 3.10, 3.13 (3.13.14 from uv) and 3.14 (pytest 9.1.1, via `uv run --no-project`). Fixtures in `tests/bin/fixtures/ci_two_samples/` are the real SingleM outputs of a `-profile test,docker` run (profiles byte-identical to the pipeline-test snapshot). Synthetic cases cover non-zero `unassigned`, a species table, named levels, pooling, duplicate labels, and malformed input. One test caught a bug in the first version (only the first of two taxa sharing a short name was relabelled).
+- CI runs these tests in `.github/workflows/bin-tests.yml` on Python 3.13, the minor version of the report container (python=3.13.16; uv has no 3.13.16 build, so the CI patch version can differ). Not yet run on GitHub.

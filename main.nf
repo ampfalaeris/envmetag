@@ -146,7 +146,8 @@ workflow {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     OUTPUTS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Downstream steps and the report read the index files, never by globbing these directories.
+    Users and downstream pipelines read the index files, never by globbing these directories. Steps in
+    this run (including the report) take records from channels; no channel carries the index files.
 ----------------------------------------------------------------------------------------
 */
 

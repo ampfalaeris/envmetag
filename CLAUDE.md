@@ -49,7 +49,7 @@ nf-core pipelines lint                           # template checks; some nf-core
 - Static-typing operator semantics: `map` does not drop nulls; `join` requires `by:`; `mix` takes one argument per call. Avoid `set`, `tap`, implicit `it`, `flatten`, and `.out`. `distinct` and `collectFile` on a `Value` failed typed lint in this repo.
 - **Legacy nf-core modules** (untyped) are allowed. Call them through a thin adapter: record → `tuple(meta, files)` before the call, outputs back to records immediately after. That boundary is not type-checked, so test it.
 - `workflows/envmetag.nf` still has the template's legacy software-versions/MultiQC block. Leave it untyped until it is deliberately rewritten. Don't "fix" it piecemeal.
-- Pipeline outputs go through the workflow `output {}` block with **index files** (CSV/JSON). Downstream steps and the report read index files, never by globbing output directories.
+- Pipeline outputs go through the workflow `output {}` block with **index files** (CSV/JSON). Users and downstream pipelines (e.g. funcscan) read index files, never by globbing output directories. Steps inside the same run, including the report, take records from channels: the index files are written when outputs are published, and no channel carries them.
 
 ## Module conventions
 

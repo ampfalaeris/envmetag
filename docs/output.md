@@ -4,7 +4,7 @@
 
 This document describes the output produced by the pipeline. All paths are relative to the top-level results directory (`--outdir`).
 
-Each result set has an **index file** (CSV or JSON) listing one entry per sample, with columns named after the record fields and absolute paths to the published files. Downstream steps and the report read these index files; do not rely on globbing the directories. Row order in index files is not guaranteed; sort by `id`.
+Each result set has an **index file** (CSV or JSON) listing one entry per sample, with columns named after the record fields and absolute paths to the published files. Read these index files in downstream analyses; do not rely on globbing the directories. Row order in index files is not guaranteed; sort by `id`.
 
 ## Pipeline overview
 
