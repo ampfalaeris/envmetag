@@ -1,0 +1,12 @@
+{
+    "two samples, CI metapackage output": {
+        "content": [
+            "report_data.json:md5,b5b1e4261e07f0862e90c2b421400110"
+        ],
+        "timestamp": "2026-10-27T19:15:53.911652801",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.3"
+        }
+    }
+}

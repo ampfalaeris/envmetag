@@ -23,8 +23,9 @@ Current steps (v0.1, in development):
 3. Taxonomic profiling of the trimmed reads ([SingleM](https://github.com/wwood/singlem) with the [GlobDB](https://globdb.org) r232 metapackage), including SingleM's estimate of the prokaryotic fraction of the reads
 4. PhiX removal ([Bowtie 2](https://github.com/BenLangmead/bowtie2)) and host-read removal ([Hostile](https://github.com/bede/hostile)) to produce clean reads for later steps
 5. Read QC and read accounting across samples ([MultiQC](https://multiqc.info))
+6. A self-contained HTML report of the community profiles ([Quarto](https://quarto.org), [Plotly](https://plotly.com/python/))
 
-Planned: an HTML report of the community profiles (v0.1); read-based marker-gene abundance (v0.2); assembly, binning, and CheckM2 (v0.3); index files for nf-core/funcscan (v0.4).
+Planned: read-based marker-gene abundance (v0.2); assembly, binning, and CheckM2 (v0.3); index files for nf-core/funcscan (v0.4).
 
 ## Usage
 

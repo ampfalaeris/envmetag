@@ -324,7 +324,7 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 - Stacked bars become unreadable well before 30 samples.
 - nf-core `quartonotebook` is deprecated (its script is `assert false`); `quarto/notebook` is tuple-based, runs papermill, and expects its container to be replaced. A small local typed module fits this repository's conventions. Quarto/Deno write caches under `$HOME`, which fails in read-only containers; the module points `XDG_CACHE_HOME`/`XDG_DATA_HOME` into the task directory (the same issue `quarto/notebook` handles).
 
-**Evidence (2026-10-26):** nf-core/modules master checked for `quartonotebook` (deprecated) and `quarto/notebook` (current). conda-forge `quarto` latest is 1.9.38 (anaconda.org API); the exact build is pinned when the container is built. Not yet built or run.
+**Evidence (2026-10-26):** nf-core/modules master checked for `quartonotebook` (deprecated) and `quarto/notebook` (current). conda-forge `quarto` latest is 1.9.38 (anaconda.org API); the exact build is pinned when the container is built. **Built and run 2026-10-27:** see "envmetag report container and offline rendering".
 
 **Sources:**
 - Quarto HTML `embed-resources` — https://quarto.org/docs/output-formats/html-publishing.html
@@ -479,3 +479,80 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 - SingleM 0.21.4 source (`quay.io/biocontainers/singlem:0.21.4--pyhdfd78af_2`, `condense.py`, `CondensedCommunityProfile.taxonomic_level_coverage_table`): level numbers count from root (0, skipped), so 1 = domain … 7 = species. SingleM replaces the numbers with names **only when a sample has 7 or 8 distinct levels**; otherwise it writes numbers. The CI run's file uses numbers (6 levels, deepest genus); a full-GlobDB run with species assignments will use names. The script accepts both and rejects anything else.
 - 22 pytest tests (`tests/bin/`) pass on Python 3.10, 3.13 (3.13.14 from uv) and 3.14 (pytest 9.1.1, via `uv run --no-project`). Fixtures in `tests/bin/fixtures/ci_two_samples/` are the real SingleM outputs of a `-profile test,docker` run (profiles byte-identical to the pipeline-test snapshot). Synthetic cases cover non-zero `unassigned`, a species table, named levels, pooling, duplicate labels, and malformed input. One test caught a bug in the first version (only the first of two taxa sharing a short name was relabelled).
 - CI runs these tests in `.github/workflows/bin-tests.yml` on Python 3.13, the minor version of the report container (python=3.13.16; uv has no 3.13.16 build, so the CI patch version can differ). Not yet run on GitHub.
+
+---
+
+## 2026-10-27 — envmetag report container and offline rendering
+
+**Decision:**
+- `ENVMETAG_REPORT` uses one Seqera Containers image (Docker format), `community.wave.seqera.io/library/python_quarto_plotly_ipykernel_pruned:3bfdf2df398a5458` (build `bd-3bfdf2df398a5458_1`; digest `sha256:2f0013f3f51a6c7b47b8758de7929e97551e822eac045a94d1f37e458fe49def`), built from conda-forge `python=3.13.16 quarto=1.9.38 plotly=7.1.0 ipykernel=7.4.0 nbclient=0.11.0 pyyaml=6.0.3`. Singularity/Apptainer users get Nextflow's conversion of the Docker image, as for the SingleM modules; a native `.sif` build can be added if conversion is slow on HPC.
+- The module sources the image's conda activation scripts (`quarto.sh`, `deno_dom.sh`), sets `QUARTO_DENO_DOM` from `DENO_DOM_PLUGIN`, points `HOME`/`XDG_*` into the task directory, writes a minimal `_quarto.yml`, and renders a copy of the template rather than the staged symlink.
+- The report must open offline. Each Plotly figure is written with `fig.to_html(full_html=False)` inside a raw-HTML block (` ```{=html} `), with plotly.js inlined in the first figure only; MathJax is off (`html-math-method: plain`). The module fails if the HTML loads any `<script>` or `<link>` from `http(s)://`.
+- `--report_top_n` and `--report_stacked_bar_max_samples` (default 15 each) are pipeline parameters, passed to the data script through `conf/modules.config`.
+
+**Why / evidence (2026-10-27, Docker, renders run with `--network none --memory=3g`):**
+- A first image without `pyyaml` cannot render: Quarto's Jupyter runner (`share/quarto/jupyter/notebook.py`) imports `yaml`. `quarto check jupyter` still printed "OK" after that traceback, so only a real render is a valid test.
+- Plain `docker run` does not run conda activation scripts, so `quarto` cannot find its share directory or `deno` until `quarto.sh` is sourced (nf-core `quarto/notebook` does the same). `quarto.sh` sets `QUARTO_DENO_DOM` to a path in conda's build environment (`/home/conda/feedstock_root/...`), which logs "Error loading deno-dom-native"; the library is at `/opt/conda/lib/deno_dom.so`.
+- Plotly's notebook renderer (`fig.show()`) leaves jQuery, RequireJS, plotly.js and MathJax as CDN `<script src>` tags. Pandoc then tries to fetch them for `embed-resources` and fails (the image has no CA certificates; offline compute nodes would fail regardless).
+- Printing the inlined plotly.js with `output: asis` but **without** a raw-HTML block makes Pandoc parse ~4.5 MB of JavaScript as Markdown: killed at the 3 GB cap (exit 137). The same render without a cap exhausted WSL's 7.7 GB and stopped Docker Desktop.
+- With the raw-HTML block on the final image: exit 0 offline, one 6.05 MB HTML, 0 remote scripts or stylesheets, one plotly.js copy. The module's nf-test asserts the same properties on the real CI fixtures and md5-snapshots `report_data.json` (`16b642d60f53d932fdd17540e4f5de67`, identical in a hand run, the module test, and the pipeline test). The full-pipeline `-stub` run passes (20 tasks).
+- All package versions were first published on conda-forge more than two weeks before the build (anaconda.org API): quarto 1.9.38 2026-05-26, plotly 7.1.0 2026-09-22, ipykernel 7.4.0 2026-09-29, nbclient 0.11.0 2026-06-05, pyyaml 6.0.3 2025-09-26, python 3.13.16 2026-10-06 (3.13.17 and 3.13.18 were newer than that).
+- Python 3.10 is not possible in this image: plotly 7.1.0 and ipykernel 7.4.0 require Python ≥3.11 on conda-forge.
+
+**Sources:**
+- Quarto HTML `embed-resources` — https://quarto.org/docs/output-formats/html-publishing.html
+- Pandoc raw attribute (` ```{=html} `) — https://pandoc.org/MANUAL.html#extension-raw_attribute
+- nf-core `quarto/notebook` — https://github.com/nf-core/modules/tree/master/modules/nf-core/quarto/notebook
+- Wave build — https://wave.seqera.io/view/builds/bd-3bfdf2df398a5458_1
+
+---
+
+## 2026-10-27 — Hostile fetches only the Bowtie2 index (`--bowtie2`)
+
+**Decision:** `HOSTILE_FETCH` runs `hostile index fetch --bowtie2` (`ext.args` in `conf/modules.config`).
+
+**Why:** `hostile clean` aligns these paired short reads with Bowtie2 (MultiQC's Hostile table reports `aligner bowtie2`). Without a flag, `hostile index fetch` downloads the Bowtie2 index **and** the reference FASTA, from which it builds a Minimap2 `.mmi` that is never used.
+
+**Evidence (Hostile 2.0.2, `community.wave.seqera.io/library/hostile:2.0.2--a7f5e5d341b6b94b`, 2026-10-27):**
+- `test_full` with the default index `human-t2t-hla-argos985-mycob140` failed in `HOSTILE_FETCH`: after downloading the 940 MB FASTA (checksum verified), `minimap2 -x map-ont -d ….mmi` was killed (exit 137) under a 7 GB memory limit. CI never reached this: the `test-human-mit` index builds in seconds.
+- `hostile index fetch --name test-human-mit` wrote the `.bt2` files plus `test-human-mit.fa.gz` and `test-human-mit.mmi`; with `--bowtie2` it wrote only the six `.bt2` files.
+- With `--bowtie2`, the `PREPROCESS_READS` nf-test passes with no snapshot change, and `test_full` passes (`HOSTILE_FETCH` 3 min 28 s, 78 MB peak RSS).
+
+---
+
+## 2026-10-27 — envmetag report: Sankey flow, light/dark theme, layout
+
+**Decision:**
+- **Taxonomic flow (Sankey).** Built in `bin/envmetag_report_data.py` from `singlem summarise --output-taxonomic-profile-with-extras` (per-taxon `coverage` and `full_coverage`), one diagram per sample behind a menu. Taxa below 1% of a sample (`--sankey-min-percent`) flow into one "Other <rank>" node per rank; coverage assigned exactly at a node flows into "Unresolved below <rank>". A taxon never has more coverage than its parent, so a kept taxon's parent is always kept and each sample sums to 100%. The script checks `full_coverage ≈ coverage + Σ children` (2-decimal rounding tolerance) and fails otherwise.
+- **Labels.** Lineages are shown without rank prefixes (`Archaea › AGJL01 › … › Methanococcus`); the raw strings stay in the JSON. Sankey node labels: species as `M. maripaludis`, then names over 16 characters cut in the middle (`Sporolacto…aceae`), keeping the rank-bearing ending; full lineage on hover.
+- **Layout.** Table of contents on the left; the "How to read the numbers" callout is moved by inline JavaScript into Quarto's sticky right sidebar (it stays in the body without JavaScript). SingleM warnings appear verbatim on hover or keyboard focus of a badge in the overview table. The Sankey uses `column: page`; Quarto's own script hides the side panels while a full-width element is on screen.
+- **Theme.** The template is a folder, `assets/report/` (`envmetag_report.qmd`, `theme-light.scss`, `theme-dark.scss`), rendered with Quarto's light/dark pair and `respect-user-color-scheme: true`. Both themes set `$web-font-path: false`. Plotly figures and their menus are recoloured from the theme's CSS variables when the scheme changes.
+
+**Why:** requested after viewing the first renders (2026-10-27): the plain layout was hard to scan; long names overlapped in the Sankey; dark mode made the Plotly menus unreadable. Middle truncation was chosen over a plain cut because Desulfovibrionaceae and Desulfovibrionales would both become `Desulfovibriona…` in adjacent columns.
+
+**Evidence (2026-10-27):**
+- Quarto 1.9.38 themes: cosmo, flatly, darkly, cyborg and superhero import Google Fonts through `$web-font-path` (slate does not); `margin-header` exists only for websites, not single documents; `quarto.js` hides overlapped sidebars for `column-*` elements. All read from the report container.
+- Rendered HTML (module test and `test_full`): both theme stylesheets embedded (`--em-page` `#edf1f5` / `#0f141a`), no `googleapis` and no remote `@import`; 0 remote scripts or stylesheets (the module's offline check now also rejects remote CSS `@import`). Viewed by the user in a browser, light and dark.
+- Unit tests: 29 pass, including Sankey flows on the CI fixture (mic_coupon: Archaea 78.54%, flows from the root sum to 100%), 1% pooling, unresolved flows, and the consistency check. The `profile_extras` fixture was produced by `singlem summarise` 0.21.4 from the fixture profiles.
+
+---
+
+## 2026-10-27 — First `test_full` run
+
+**Run:** `-profile test_full,docker`, 1M-pair tier (local build `build_v3`, identical to Zenodo record 23679308), full GlobDB r232 metapackage, SingleM default assignment method, Nextflow 26.10.3, tasks capped at 4 CPUs / 7 GB. Code: `dev` at `9a80354` plus the uncommitted report, Hostile and Sankey changes committed with this entry.
+
+**Results:**
+
+| | apb_enrichment | mic_coupon |
+|---|---|---|
+| Dominant taxa (share of profile coverage) | *Sporolactobacillus nakayamae* 84.9% | *Methanococcus* MOTU40_004873 51.8%, *M. maripaludis* 30.4%, *Oleidesulfovibrio alaskensis* 10.9% |
+| Taxa in profile | 5 | 12 |
+| Coverage resolved to species | 92.5% | 95.2% |
+| Prokaryotic fraction | 58.43% (SingleM warning) | 77.72% |
+| PhiX reads removed (bowtie2) | 0.99% | 0.99% |
+| Host reads removed (Hostile) | 0.99% | 1.02% |
+
+- Taxa match the depth checks on raw reads (2026-10-25); removal rates match the 10,000 spiked PhiX and human-mitochondrion pairs per sample.
+- apb_enrichment's prokaryotic fraction is 58.43% on trimmed reads against 44.42% on raw reads in the earlier 1M-pair check. That run has ~52% adapter-containing reads; trimming removes those bases from the denominator. Consistent with "SingleM runs on fastp-trimmed reads", but large enough to state.
+- `level_coverage` used level **names** (7 levels present), the first real test of that path; the per-rank tables included `species` and non-zero `unassigned` (7.52% and 4.80% at species).
+- Peak RSS per task: Hostile clean 2.9 GB, FastQC/fastp ≤1.3 GB, SingleM pipe 1.0 GB (full GlobDB), report 0.86 GB, MultiQC 1.0 GB. Longest tasks: SingleM pipe 3–3.6 min, Hostile fetch 3.5 min (download). `conf/base.config` defaults are not yet tuned from this.

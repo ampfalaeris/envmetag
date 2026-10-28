@@ -105,6 +105,30 @@
                 }
             }
         },
+        "report_options": {
+            "title": "Report options",
+            "type": "object",
+            "fa_icon": "fas fa-chart-bar",
+            "description": "Layout of the envmetag HTML report.",
+            "properties": {
+                "report_top_n": {
+                    "type": "integer",
+                    "default": 15,
+                    "minimum": 1,
+                    "description": "Taxa per rank that get their own colour in the composition plot; the rest are pooled as 'Other'.",
+                    "help_text": "Taxa are ranked by their highest relative abundance in any one sample, so a taxon that dominates a single sample keeps its own colour.",
+                    "fa_icon": "fas fa-list-ol"
+                },
+                "report_stacked_bar_max_samples": {
+                    "type": "integer",
+                    "default": 15,
+                    "minimum": 1,
+                    "description": "Sample count above which the report notes that the stacked-bar layout may be hard to read.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-columns"
+                }
+            }
+        },
         "generic_options": {
             "title": "Generic options",
             "type": "object",
@@ -239,6 +263,9 @@
         },
         {
             "$ref": "#/$defs/singlem_options"
+        },
+        {
+            "$ref": "#/$defs/report_options"
         },
         {
             "$ref": "#/$defs/generic_options"

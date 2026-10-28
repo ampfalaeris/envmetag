@@ -37,6 +37,10 @@ FRACTION_COLUMNS = (
     "warning",
 )
 LEVEL_COVERAGE_HEADER = ["sample", "level", "coverage", "relative abundance (%)"]
+EXTRAS_HEADER = ["sample", "coverage", "full_coverage", "relative_abundance", "level", "taxonomy"]
+# `coverage` (assigned exactly at a node) and `full_coverage` (node plus descendants) are
+# rounded to 2 decimals, so a parent and its children can disagree by ~0.005 per value
+COVERAGE_TOLERANCE = 0.01
 
 
 class InputError(Exception):
@@ -95,7 +99,7 @@ def read_profiles(paths: list[Path], samples: list[str]) -> dict[str, list[dict]
         if sample in profiles:
             raise InputError(f"profiles: duplicate sample: {sample}")
         taxa = [
-            {"taxonomy": row[2], "coverage": to_float(row[1], path, "coverage")}
+            {"taxonomy": row[2], "lineage": pretty_lineage(row[2]), "coverage": to_float(row[1], path, "coverage")}
             for row in rows
         ]
         profiles[sample] = sorted(taxa, key=lambda t: (-t["coverage"], t["taxonomy"]))
@@ -131,10 +135,23 @@ def read_fractions(paths: list[Path], samples: list[str]) -> list[dict]:
     return [overview[sample] for sample in samples]
 
 
+def strip_rank_prefix(name: str) -> str:
+    """`g__Methanococcus` -> `Methanococcus` (a bare or empty-named field is kept as is)."""
+    name = name.strip()
+    return name.split("__", 1)[1] if "__" in name and name.split("__", 1)[1] else name
+
+
 def short_label(taxonomy: str) -> str:
-    """`Root; d__Bacteria; p__Bacillota` -> `Bacillota` (falls back to the raw last field)."""
-    last = taxonomy.split(";")[-1].strip()
-    return last.split("__", 1)[1] if "__" in last and last.split("__", 1)[1] else last
+    """`Root; d__Bacteria; p__Bacillota` -> `Bacillota`."""
+    return strip_rank_prefix(taxonomy.split(";")[-1])
+
+
+def pretty_lineage(taxonomy: str) -> str:
+    """`Root; d__Bacteria; p__Bacillota` -> `Bacteria › Bacillota` (for display only)."""
+    fields = [f.strip() for f in taxonomy.split(";")]
+    if fields and fields[0] == "Root":
+        fields = fields[1:]
+    return " › ".join(strip_rank_prefix(f) for f in fields) or "Root"
 
 
 def read_by_rank(path: Path, samples: list[str], top_n: int) -> dict:
@@ -188,7 +205,12 @@ def read_by_rank(path: Path, samples: list[str], top_n: int) -> dict:
     return {
         "available": True,
         "taxa": [
-            {"taxonomy": t["taxonomy"], "label": label, "values": {s: t["values"][s] for s in samples}}
+            {
+                "taxonomy": t["taxonomy"],
+                "lineage": pretty_lineage(t["taxonomy"]),
+                "label": label,
+                "values": {s: t["values"][s] for s in samples},
+            }
             for t, label in zip(kept, labels)
         ],
         "other": (
@@ -252,6 +274,108 @@ def read_level_coverage(path: Path, samples: list[str]) -> dict[str, dict]:
     return result
 
 
+def sankey_flows(tree: dict[str, dict], sample: str, min_percent: float) -> dict:
+    """Nodes and links for one sample's checked taxon tree (see `read_sankey`)."""
+    levels = ("root",) + RANKS
+    total = tree["Root"]["full"]
+    nodes: list[dict] = []
+    index: dict[str, int] = {}
+    links: dict[tuple[int, int], float] = {}
+
+    def node_id(key: str, label: str, rank: str, lineage: str) -> int:
+        if key not in index:
+            index[key] = len(nodes)
+            nodes.append({"label": label, "rank": rank, "lineage": lineage})
+        return index[key]
+
+    def link(source: int, target: int, value: float) -> None:
+        links[(source, target)] = links.get((source, target), 0.0) + value
+
+    def visit(taxonomy: str, source: int) -> None:
+        node = tree[taxonomy]
+        rank_index = levels.index(node["level"])
+        if node["coverage"] > 0 and rank_index < len(levels) - 1:
+            if taxonomy == "Root":
+                target = node_id("unresolved|root", "Unassigned at domain", "domain", "")
+            else:
+                target = node_id(
+                    f"unresolved|{node['level']}", f"Unresolved below {node['level']}", levels[rank_index + 1], ""
+                )
+            link(source, target, node["coverage"] / total * 100)
+        # children in a fixed order: largest first, ties by lineage
+        for child in sorted(node["children"], key=lambda c: (-tree[c]["full"], c)):
+            share = tree[child]["full"] / total * 100
+            child_level = tree[child]["level"]
+            if share >= min_percent:
+                target = node_id(child, short_label(child), child_level, pretty_lineage(child))
+                link(source, target, share)
+                visit(child, target)
+            else:
+                other = node_id(f"other|{child_level}", f"Other {child_level} (<{min_percent:g}%)", child_level, "")
+                link(source, other, share)
+
+    visit("Root", node_id("Root", sample, "sample", ""))
+    return {
+        "nodes": nodes,
+        "links": [{"source": s, "target": t, "value": round(v, 4)} for (s, t), v in links.items()],
+    }
+
+
+def read_sankey(path: Path, samples: list[str], min_percent: float) -> dict[str, dict]:
+    """Per-sample flows from domain down to the deepest rank, from `profile_extras.tsv`.
+
+    A link's value is the child's share of the sample's coverage (child plus descendants).
+    Children below `min_percent` flow into one "Other" node per rank; coverage assigned
+    exactly at a node (not resolved deeper) flows into an "Unresolved below <rank>" node.
+    A taxon never has more coverage than its parent, so a kept taxon's parent is always
+    kept, and every sample's flows out of the root sum to 100%.
+    """
+    header, rows = read_tsv(path)
+    if header != EXTRAS_HEADER:
+        raise InputError(f"{path.name}: expected header {EXTRAS_HEADER}, found {header}")
+    if not rows:
+        raise InputError(f"{path.name}: no rows")
+    levels = ("root",) + RANKS
+    nodes_by_sample: dict[str, dict[str, dict]] = {}
+    for row in rows:
+        sample, level, taxonomy = row[0], row[4], row[5]
+        if level not in levels:
+            raise InputError(f"{path.name}: unknown level {level!r}")
+        per_sample = nodes_by_sample.setdefault(sample, {})
+        if taxonomy in per_sample:
+            raise InputError(f"{path.name}: {sample} has {taxonomy} twice")
+        per_sample[taxonomy] = {
+            "level": level,
+            "coverage": to_float(row[1], path, "coverage"),
+            "full": to_float(row[2], path, "full_coverage"),
+            "children": [],
+        }
+    check_samples(list(nodes_by_sample), samples, path.name)
+
+    result = {}
+    for sample in samples:
+        tree = nodes_by_sample[sample]
+        if "Root" not in tree or tree["Root"]["full"] <= 0:
+            raise InputError(f"{path.name}: {sample} has no Root row with coverage")
+        for taxonomy, node in tree.items():
+            if taxonomy == "Root":
+                continue
+            parent = ";".join(taxonomy.split(";")[:-1]).strip()
+            if parent not in tree:
+                raise InputError(f"{path.name}: {sample}: parent of {taxonomy} is missing")
+            tree[parent]["children"].append(taxonomy)
+        for taxonomy, node in tree.items():
+            below = sum(tree[c]["full"] for c in node["children"])
+            if abs(node["full"] - below - node["coverage"]) > COVERAGE_TOLERANCE * (len(node["children"]) + 1):
+                raise InputError(
+                    f"{path.name}: {sample}: {taxonomy} full_coverage {node['full']} != its own coverage "
+                    f"{node['coverage']} + children {below:.2f}"
+                )
+
+        result[sample] = sankey_flows(tree, sample, min_percent)
+    return result
+
+
 def build(args: argparse.Namespace) -> dict:
     samples = sorted(args.samples)
     if not samples:
@@ -259,6 +383,8 @@ def build(args: argparse.Namespace) -> dict:
     check_samples(list(args.samples), samples, "--samples")
     if args.top_n < 1:
         raise InputError("--top-n must be at least 1")
+    if not 0 < args.sankey_min_percent < 100:
+        raise InputError("--sankey-min-percent must be between 0 and 100")
     return {
         "schema_version": SCHEMA_VERSION,
         "run": {
@@ -267,27 +393,34 @@ def build(args: argparse.Namespace) -> dict:
             "assignment_method": args.assignment_method,
             "top_n": args.top_n,
             "stacked_bar_max_samples": args.stacked_bar_max_samples,
+            "sankey_min_percent": args.sankey_min_percent,
         },
         "samples": read_fractions(args.fractions, samples),
         "ranks": read_ranks(args.by_rank, samples, args.top_n),
         "level_coverage": read_level_coverage(args.level_coverage, samples),
+        "sankey": read_sankey(args.extras, samples, args.sankey_min_percent),
         "profiles": read_profiles(args.profiles, samples),
         "links": {"multiqc": args.multiqc_link, "krona": args.krona_link},
     }
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
     parser.add_argument("--samples", nargs="+", required=True, help="sample ids from the samplesheet")
     parser.add_argument("--profiles", nargs="+", required=True, type=Path, help="per-sample SingleM profiles")
     parser.add_argument("--fractions", nargs="+", required=True, type=Path, help="prokaryotic_fraction TSVs")
     parser.add_argument("--by-rank", nargs="+", required=True, type=Path, help="singlem summarise by_rank-*.tsv")
     parser.add_argument("--level-coverage", required=True, type=Path, help="singlem summarise level coverage TSV")
+    parser.add_argument("--extras", required=True, type=Path, help="singlem summarise profile_extras TSV")
     parser.add_argument("--pipeline-version", required=True)
     parser.add_argument("--metapackage", required=True, help="metapackage name shown in the report")
     parser.add_argument("--assignment-method", default=None, help="SingleM --assignment-method, if not the default")
     parser.add_argument("--top-n", type=int, default=15, help="taxa per rank with their own colour")
     parser.add_argument("--stacked-bar-max-samples", type=int, default=15)
+    parser.add_argument(
+        "--sankey-min-percent", type=float, default=1.0,
+        help="taxa below this share of a sample's coverage are pooled as Other in the Sankey diagram",
+    )
     parser.add_argument("--multiqc-link", required=True, help="relative path from the report to MultiQC")
     parser.add_argument("--krona-link", required=True, help="relative path from the report to the Krona plot")
     parser.add_argument("--output", required=True, type=Path)

@@ -43,10 +43,14 @@ nextflow_pipeline {
                 { assert profile_rows(profile_by_id.mic_coupon).any { cols -> cols[2].contains('g__Methanococcus') } },
                 { assert profile_rows(profile_by_id.apb_enrichment).any { cols -> cols[2].contains('g__Sporolactobacillus') } },
                 { assert path("${params.outdir}/multiqc/multiqc_report.html").toFile().exists() },
+                // the report's HTML has generated ids; its data file is deterministic
+                { assert path("${params.outdir}/report/envmetag_report.html").text.contains('<title>envmetag report</title>') },
+                { assert path("${params.outdir}/report/report_data.json").json.samples*.id == ['apb_enrichment', 'mic_coupon'] },
                 { assert snapshot(
                     stable_path,
                     // SingleM profiles are deterministic (DECISIONS.md)
                     profiles.collect { row -> path(row.profile) },
+                    path("${params.outdir}/report/report_data.json"),
                     // tool versions per process; a container update changes this snapshot
                     path("${params.outdir}/pipeline_info/envmetag_software_mqc_versions.yml").readLines()
                 ).match() }

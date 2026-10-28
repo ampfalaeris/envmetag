@@ -1,0 +1,22 @@
+sample	coverage	full_coverage	relative_abundance	level	taxonomy
+apb_enrichment	0	4.2	100.0	root	Root
+apb_enrichment	0	4.2	100.0	domain	Root; d__Bacteria
+apb_enrichment	0	4.2	100.0	phylum	Root; d__Bacteria; p__Bacillota
+apb_enrichment	0	4.2	100.0	class	Root; d__Bacteria; p__Bacillota; c__Bacilli
+apb_enrichment	0	4.2	100.0	order	Root; d__Bacteria; p__Bacillota; c__Bacilli; o__Bacillales
+apb_enrichment	0	4.2	100.0	family	Root; d__Bacteria; p__Bacillota; c__Bacilli; o__Bacillales; f__Sporolactobacillaceae
+apb_enrichment	4.2	4.2	100.0	genus	Root; d__Bacteria; p__Bacillota; c__Bacilli; o__Bacillales; f__Sporolactobacillaceae; g__Sporolactobacillus
+mic_coupon	0	7.69	100.0	root	Root
+mic_coupon	0	6.04	78.54	domain	Root; d__Archaea
+mic_coupon	0	1.65	21.46	domain	Root; d__Bacteria
+mic_coupon	0	6.04	78.54	phylum	Root; d__Archaea; p__AGJL01
+mic_coupon	0	1.65	21.46	phylum	Root; d__Bacteria; p__Desulfobacterota
+mic_coupon	0	6.04	78.54	class	Root; d__Archaea; p__AGJL01; c__Methanococci
+mic_coupon	0	1.65	21.46	class	Root; d__Bacteria; p__Desulfobacterota; c__Desulfovibrionia
+mic_coupon	0	6.04	78.54	order	Root; d__Archaea; p__AGJL01; c__Methanococci; o__Methanococcales
+mic_coupon	0	1.65	21.46	order	Root; d__Bacteria; p__Desulfobacterota; c__Desulfovibrionia; o__Desulfovibrionales
+mic_coupon	0	6.04	78.54	family	Root; d__Archaea; p__AGJL01; c__Methanococci; o__Methanococcales; f__Methanococcaceae
+mic_coupon	0	1.65	21.46	family	Root; d__Bacteria; p__Desulfobacterota; c__Desulfovibrionia; o__Desulfovibrionales; f__Desulfovibrionaceae
+mic_coupon	6.04	6.04	78.54	genus	Root; d__Archaea; p__AGJL01; c__Methanococci; o__Methanococcales; f__Methanococcaceae; g__Methanococcus
+mic_coupon	0.55	0.55	7.15	genus	Root; d__Bacteria; p__Desulfobacterota; c__Desulfovibrionia; o__Desulfovibrionales; f__Desulfovibrionaceae; g__JACCQO01
+mic_coupon	1.1	1.1	14.3	genus	Root; d__Bacteria; p__Desulfobacterota; c__Desulfovibrionia; o__Desulfovibrionales; f__Desulfovibrionaceae; g__Oleidesulfovibrio

@@ -17,10 +17,14 @@ Initial release of ampfalaeris/envmetag, created with the [nf-core](https://nf-c
 - Software versions per process published to `pipeline_info/envmetag_software_mqc_versions.yml` and snapshotted in the pipeline test.
 - Citations for fastp, Bowtie 2, Hostile, SingleM, and GlobDB in `CITATIONS.md` and the MultiQC methods description.
 - CI downloads the SingleM CI metapackage from Zenodo (record 23679677), checks its md5, and caches it.
+- envmetag report (`ENVMETAG_REPORT`): one self-contained HTML file (`report/envmetag_report.html`) rendered with Quarto from `report/report_data.json`, which `bin/envmetag_report_data.py` builds from the SingleM outputs. New parameters `--report_top_n` and `--report_stacked_bar_max_samples`.
+- Unit tests for `bin/` scripts (`tests/bin`, pytest), run in CI by `.github/workflows/bin-tests.yml`.
+- envmetag report: taxonomic flow (Sankey) per sample, light/dark theme following the system setting, sticky "How to read" panel, SingleM warnings on hover. The template is now a folder, `assets/report/`.
 
 ### `Fixed`
 
 - MultiQC shows one General Statistics row per sample, with separate FastQC sections for raw and trimmed reads (previously six rows per sample).
+- `HOSTILE_FETCH` fetches only the Bowtie2 index (`--bowtie2`). Without it, Hostile also built an unused Minimap2 index of the human reference, which was killed for memory in `test_full`.
 
 ### `Changed`
 
@@ -38,5 +42,12 @@ Initial release of ampfalaeris/envmetag, created with the [nf-core](https://nf-c
 | Hostile | 2.0.2   |
 | FastQC  | 0.13.0  |
 | MultiQC | 1.35    |
+| Quarto  | 1.9.38  |
+| Plotly  | 7.1.0   |
+| Python (report container) | 3.13.16 |
+
+### `Tests`
+
+- 2026-10-27: `test_full` (1M read pairs per sample, full GlobDB r232, default SingleM assignment) passed after the Hostile fix: expected dominant species in both samples, 92–95% of coverage resolved to species, PhiX and host spikes removed (~1% each). Details in `DECISIONS.md`.
 
 ### `Deprecated`

@@ -39,6 +39,7 @@ def ci_argv(samples=SAMPLES, output="unused.json", **files):
         "--fractions", *map(str, inputs["fractions"]),
         "--by-rank", *map(str, inputs["by_rank"]),
         "--level-coverage", str(CI / "singlem.level_coverage.tsv"),
+        "--extras", str(CI / "singlem.profile_extras.tsv"),
         "--pipeline-version", "0.1.0dev",
         "--metapackage", "GlobDB_r232_ci3.smpkg",
         "--assignment-method", "diamond",
@@ -112,6 +113,33 @@ def test_ci_fixture_level_numbers_map_to_ranks():
 def test_ci_fixture_profiles_sorted_by_coverage():
     profiles = report_data.build(ci_args())["profiles"]
     assert [t["coverage"] for t in profiles["mic_coupon"]] == [6.04, 1.1, 0.55]
+    assert profiles["mic_coupon"][0]["lineage"] == (
+        "Archaea › AGJL01 › Methanococci › Methanococcales › Methanococcaceae › Methanococcus"
+    )
+
+
+def root_outflow(flows):
+    root = next(i for i, n in enumerate(flows["nodes"]) if n["rank"] == "sample")
+    return sum(link["value"] for link in flows["links"] if link["source"] == root)
+
+
+def flow(flows, source_label, target_label):
+    labels = [n["label"] for n in flows["nodes"]]
+    return next(
+        link["value"] for link in flows["links"]
+        if labels[link["source"]] == source_label and labels[link["target"]] == target_label
+    )
+
+
+def test_ci_fixture_sankey():
+    sankey = report_data.build(ci_args())["sankey"]
+    mic = sankey["mic_coupon"]
+    assert root_outflow(mic) == pytest.approx(100.0)
+    assert flow(mic, "mic_coupon", "Archaea") == pytest.approx(78.5436)
+    assert flow(mic, "Desulfovibrionaceae", "Oleidesulfovibrio") == pytest.approx(14.3043)
+    # genus is the deepest rank on the CI metapackage: genus coverage is not resolved to species
+    assert flow(mic, "Methanococcus", "Unresolved below genus") == pytest.approx(78.5436)
+    assert root_outflow(sankey["apb_enrichment"]) == pytest.approx(100.0)
 
 
 def test_output_is_deterministic(tmp_path):
@@ -158,6 +186,58 @@ def test_unassigned_species_and_named_levels(tmp_path):
     coverage = report_data.read_level_coverage(levels, ["s1"])
     assert coverage["s1"]["species"]["relative_abundance"] == 60.0
     assert coverage["s1"]["domain"]["relative_abundance"] == 0.0
+
+
+EXTRAS = ["sample", "coverage", "full_coverage", "relative_abundance", "level", "taxonomy"]
+
+
+def test_sankey_pools_small_taxa_and_unresolved(tmp_path):
+    # 10.0 total: 1.0 stops at Root (unassigned at domain); Bacteria 9.0 of which 0.5 stops at domain;
+    # phyla P1 8.45 and P2 0.05 (0.5%, below 1% -> Other phylum)
+    extras = write(tmp_path / "extras.tsv", tsv(
+        EXTRAS,
+        ["s1", 1.0, 10.0, 100.0, "root", "Root"],
+        ["s1", 0.5, 9.0, 90.0, "domain", "Root; d__Bacteria"],
+        ["s1", 8.45, 8.45, 84.5, "phylum", "Root; d__Bacteria; p__P1"],
+        ["s1", 0.05, 0.05, 0.5, "phylum", "Root; d__Bacteria; p__P2"],
+    ))
+    flows = report_data.read_sankey(extras, ["s1"], min_percent=1.0)["s1"]
+    assert root_outflow(flows) == pytest.approx(100.0)
+    assert flow(flows, "s1", "Unassigned at domain") == pytest.approx(10.0)
+    assert flow(flows, "Bacteria", "Unresolved below domain") == pytest.approx(5.0)
+    assert flow(flows, "Bacteria", "P1") == pytest.approx(84.5)
+    assert flow(flows, "Bacteria", "Other phylum (<1%)") == pytest.approx(0.5)
+    assert "P2" not in [n["label"] for n in flows["nodes"]]
+    assert flow(flows, "P1", "Unresolved below phylum") == pytest.approx(84.5)
+
+
+def test_sankey_inconsistent_coverage_fails(tmp_path):
+    extras = write(tmp_path / "extras.tsv", tsv(
+        EXTRAS,
+        ["s1", 0.0, 10.0, 100.0, "root", "Root"],
+        ["s1", 5.0, 5.0, 50.0, "domain", "Root; d__Bacteria"],
+    ))
+    with pytest.raises(report_data.InputError, match="full_coverage"):
+        report_data.read_sankey(extras, ["s1"], min_percent=1.0)
+
+
+def test_sankey_missing_parent_fails(tmp_path):
+    extras = write(tmp_path / "extras.tsv", tsv(
+        EXTRAS,
+        ["s1", 0.0, 1.0, 100.0, "root", "Root"],
+        ["s1", 1.0, 1.0, 100.0, "phylum", "Root; d__Bacteria; p__P1"],
+    ))
+    with pytest.raises(report_data.InputError, match="parent of"):
+        report_data.read_sankey(extras, ["s1"], min_percent=1.0)
+
+
+@pytest.mark.parametrize("taxonomy, expected", [
+    ("Root; d__Bacteria; p__Bacillota", "Bacteria › Bacillota"),
+    ("Root", "Root"),
+    ("Root; d__Archaea; s__Methanococcus maripaludis", "Archaea › Methanococcus maripaludis"),
+])
+def test_pretty_lineage(taxonomy, expected):
+    assert report_data.pretty_lineage(taxonomy) == expected
 
 
 def test_top_n_ranks_by_max_and_pools_the_rest(tmp_path):

@@ -107,6 +107,7 @@ workflow {
         ? file(params.multiqc_methods_description, checkIfExists: true)
         : file("${projectDir}/assets/methods_description_template.yml", checkIfExists: true)
     def multiqc_logo = params.multiqc_logo ? file(params.multiqc_logo, checkIfExists: true) : null
+    def report_template = file("${projectDir}/assets/report", checkIfExists: true)
 
     //
     // WORKFLOW: Run main workflow
@@ -118,7 +119,8 @@ workflow {
         metapackage,
         multiqc_config,
         multiqc_logo,
-        multiqc_methods
+        multiqc_methods,
+        report_template
     )
 
     //
@@ -138,6 +140,7 @@ workflow {
     singlem_profiles = run.singlem_profiles
     singlem_fractions = run.singlem_fractions
     singlem_summary = run.singlem_summary
+    envmetag_report = run.envmetag_report
     software_versions = run.software_versions
     multiqc_report = run.multiqc_report
 }
@@ -183,6 +186,13 @@ output {
         path 'singlem/summary'
         index {
             path 'singlem/summary.json'
+        }
+    }
+    envmetag_report {
+        // MultiQC and Krona links in the report are relative to report/ (conf/modules.config)
+        path { r ->
+            r.report >> 'report/'
+            r.data >> 'report/'
         }
     }
     software_versions {

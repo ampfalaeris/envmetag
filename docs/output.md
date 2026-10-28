@@ -10,6 +10,7 @@ Each result set has an **index file** (CSV or JSON) listing one entry per sample
 
 - [Read preprocessing](#read-preprocessing): FastQC (raw) → fastp → FastQC (trimmed) → PhiX removal (bowtie2) → host removal (Hostile)
 - [SingleM profiling](#singlem-profiling): read-based taxonomic profiles and prokaryotic fraction, computed on the **fastp-trimmed** reads
+- [envmetag report](#envmetag-report): community composition from the SingleM results, as one HTML file
 - [MultiQC](#multiqc): read QC and read accounting across all samples
 - [Pipeline information](#pipeline-information): run metrics and parameters
 
@@ -50,6 +51,18 @@ SingleM runs on the fastp-trimmed reads (adapters and poly-G tails removed, no s
 
 `relative_abundance` is a share of **prokaryotic marker-gene coverage**, not of all reads; read it together with `read_fraction`. Taxon presence is not evidence of activity.
 
+### envmetag report
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `report/envmetag_report.html`: self-contained HTML report (about 7.5 MB; opens offline, no external scripts or fonts).
+- `report/report_data.json`: every number shown in the report, in one JSON file (`schema_version` 1): run metadata, per-sample prokaryotic fraction, per-rank composition (top taxa, `Other`, `unassigned`), taxonomic flow (Sankey nodes and links; taxa under 1% of a sample pooled as `Other`), taxonomic resolution, and the per-sample profiles.
+
+</details>
+
+The report shows the SingleM results: a sample overview (prokaryotic fraction, average genome size, and SingleM's warning verbatim on hover), community composition from domain to species with a rank selector, a taxonomic flow (Sankey) diagram per sample, how far down each sample was resolved, and each sample's full profile. It follows the reader's light or dark system setting and has a toggle. Percentages are shares of **prokaryotic marker-gene coverage** (read-based), and coverage unresolved at a rank is always shown as *unassigned*. At each rank, the `--report_top_n` taxa (default 15) with the highest abundance in any one sample get their own colour; the rest are pooled as *Other*. A rank with no assignments in the run is listed as such. The report links to MultiQC and the Krona plot by relative path, so keep the output directory layout when moving it.
+
 ### MultiQC
 
 <details markdown="1">
@@ -59,7 +72,7 @@ SingleM runs on the fastp-trimmed reads (adapters and poly-G tails removed, no s
 
 </details>
 
-[MultiQC](http://multiqc.info) summarises FastQC (raw and trimmed), fastp, bowtie2 (PhiX), and Hostile, plus the SingleM prokaryotic-fraction estimate and its warning as General Statistics columns, and the software versions used. Community profiles are not in MultiQC; they are in the SingleM outputs above (and the envmetag report, planned).
+[MultiQC](http://multiqc.info) summarises FastQC (raw and trimmed), fastp, bowtie2 (PhiX), and Hostile, plus the SingleM prokaryotic-fraction estimate and its warning as General Statistics columns, and the software versions used. Community profiles are not in MultiQC; they are in the SingleM outputs and the envmetag report above.
 
 ### Pipeline information
 
