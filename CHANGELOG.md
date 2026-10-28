@@ -35,16 +35,16 @@ Initial release of ampfalaeris/envmetag, created with the [nf-core](https://nf-c
 
 ### `Dependencies`
 
-| Tool    | Version |
-| ------- | ------- |
-| SingleM | 0.21.4  |
-| fastp   | 1.4.0   |
-| bowtie2 | 2.5.5   |
-| Hostile | 2.0.2   |
-| FastQC  | 0.13.0  |
-| MultiQC | 1.35    |
-| Quarto  | 1.9.38  |
-| Plotly  | 7.1.0   |
+| Tool                      | Version |
+| ------------------------- | ------- |
+| SingleM                   | 0.21.4  |
+| fastp                     | 1.4.0   |
+| bowtie2                   | 2.5.5   |
+| Hostile                   | 2.0.2   |
+| FastQC                    | 0.13.0  |
+| MultiQC                   | 1.35    |
+| Quarto                    | 1.9.38  |
+| Plotly                    | 7.1.0   |
 | Python (report container) | 3.13.16 |
 
 ### `Tests`

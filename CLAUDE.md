@@ -64,7 +64,7 @@ nf-core pipelines lint                           # template checks; some nf-core
 - Every module and subworkflow gets nf-test coverage before it is wired into the main workflow.
 - **Stubs must be realistic**: create every declared output with the real filename and minimally valid content (correct headers for TSVs), so downstream parsers are exercised in `-stub` runs. A bare `touch` is not acceptable.
 - Snapshot `md5` only for deterministic outputs. For assemblers and other non-deterministic tools, snapshot properties: file exists, line/record counts, header line.
-- Test data is tiny and public. The marker-gene module needs **positive and negative controls**: reads simulated from genomes known to carry target markers (e.g., *bssA*, *dsrAB*) plus one genome carrying neither.
+- Test data is tiny and public. The marker-gene module needs **positive and negative controls**: reads simulated from genomes known to carry target markers (e.g., _bssA_, _dsrAB_) plus one genome carrying neither.
 - CI runs on PRs from `dev` into `master`. Work on `dev`.
 
 ## Failure handling

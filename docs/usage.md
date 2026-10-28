@@ -20,11 +20,11 @@ site_a,/data/site_a_R1.fastq.gz,/data/site_a_R2.fastq.gz
 site_b,/data/site_b_R1.fastq.gz,/data/site_b_R2.fastq.gz
 ```
 
-| Column    | Description                                                                                                         |
-| --------- | ------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Sample name. Must be unique and cannot contain spaces. It is used as the sample ID in every output and report.      |
-| `fastq_1` | Path to the gzipped forward reads (`.fastq.gz` or `.fq.gz`).                                                        |
-| `fastq_2` | Path to the gzipped reverse reads (`.fastq.gz` or `.fq.gz`). Required: envmetag accepts paired-end reads only.      |
+| Column    | Description                                                                                                    |
+| --------- | -------------------------------------------------------------------------------------------------------------- |
+| `sample`  | Sample name. Must be unique and cannot contain spaces. It is used as the sample ID in every output and report. |
+| `fastq_1` | Path to the gzipped forward reads (`.fastq.gz` or `.fq.gz`).                                                   |
+| `fastq_2` | Path to the gzipped reverse reads (`.fastq.gz` or `.fq.gz`). Required: envmetag accepts paired-end reads only. |
 
 Each sample has exactly one row. The pipeline does not merge multiple runs or lanes of the same sample; concatenate them before running (`cat lane1_R1.fastq.gz lane2_R1.fastq.gz > sample_R1.fastq.gz`, and the same for R2, in the same order). A duplicate `sample` value or a missing `fastq_2` fails validation before any task runs.
 

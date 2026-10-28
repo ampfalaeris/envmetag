@@ -60,9 +60,9 @@ See the [usage documentation](docs/usage.md) for all options and the [output doc
 
 The `test` and `test_full` profiles use reads subsampled from two public carbon-steel corrosion metagenomes, with simulated PhiX and human-mitochondrion reads added so the removal steps have a known target:
 
-| Run | BioProject | Sample | Study |
-| --- | --- | --- | --- |
-| [SRR12174148](https://www.ebi.ac.uk/ena/browser/view/SRR12174148) | PRJNA644413 | Carbon steel coupon biofilm exposed to oil field production water | [doi:10.1128/aem.01819-20](https://doi.org/10.1128/aem.01819-20) |
+| Run                                                               | BioProject   | Sample                                                              | Study                                                                        |
+| ----------------------------------------------------------------- | ------------ | ------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| [SRR12174148](https://www.ebi.ac.uk/ena/browser/view/SRR12174148) | PRJNA644413  | Carbon steel coupon biofilm exposed to oil field production water   | [doi:10.1128/aem.01819-20](https://doi.org/10.1128/aem.01819-20)             |
 | [SRR35816318](https://www.ebi.ac.uk/ena/browser/view/SRR35816318) | PRJNA1346464 | Acid-producing-bacteria enrichment biofilm on a carbon steel coupon | [doi:10.3389/fmicb.2026.1771929](https://doi.org/10.3389/fmicb.2026.1771929) |
 
 - Test reads: Zenodo record [23679308](https://zenodo.org/records/23679308) (CC BY 4.0), built by [`tests/testdata/build_testdata.sh`](tests/testdata/build_testdata.sh).
