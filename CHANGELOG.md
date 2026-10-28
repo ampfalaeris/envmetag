@@ -31,6 +31,7 @@ Initial release of ampfalaeris/envmetag, created with the [nf-core](https://nf-c
 - Samplesheet requires `fastq_2` (paired-end only) and unique `sample` values.
 - Outputs are published by the workflow `output {}` block; the template's `publishDir` defaults were removed.
 - Per-process CPU, memory and time sized from the first `test_full` run (`conf/base.config`): e.g. PhiX alignment no longer requests 72 GB, and SingleM (4 GB) and Hostile (6 GB) fit an 8 GB machine.
+- Containers only: `-profile conda` and `-profile mamba` now stop at startup with an error, because the local SingleM and report modules have no conda environments (previously tasks failed mid-run with `command not found`). CI no longer runs a conda leg, and the README conda badge is removed.
 - Without `--singlem_metapackage` or `--singlem_db_cache`, the metapackage is downloaded and extracted in the work directory with a warning (previously an error). `-profile test` downloads the CI metapackage from Zenodo and needs no environment variables.
 
 ### `Dependencies`

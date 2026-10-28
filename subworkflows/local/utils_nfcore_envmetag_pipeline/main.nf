@@ -41,6 +41,13 @@ workflow PIPELINE_INITIALISATION {
     ch_versions = channel.empty()
 
     //
+    // Local modules ship containers only (DECISIONS.md, 2026-10-28); under conda their tools would be missing mid-run
+    //
+    if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
+        error("ampfalaeris/envmetag does not support the conda or mamba profiles yet: the SingleM and report modules have no conda environments. Use a container profile such as -profile docker, singularity or apptainer.")
+    }
+
+    //
     // Print version and exit if required and dump pipeline parameters to JSON file
     //
     UTILS_NEXTFLOW_PIPELINE (

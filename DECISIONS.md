@@ -642,3 +642,18 @@ Memory and time are multiplied by `task.attempt`; the existing `errorStrategy` r
 **Evidence (2026-10-27):** peak RSS and run times from the `test_full` trace ("First `test_full` run"). A `-stub` run of `-profile test` recorded the requested resources per task, all as in the table (time shows the test profile's 1 h cap), and completed on this 7.7 GB machine **without** a memory-limit override; before this change it failed with "Task requirement exceeds available memory -- req: 15 GB". The full nf-test suite (`--ci`, Docker) then passed 18/18 with no snapshot change and **without** `NFT_MAX_MEMORY`, which every earlier local run on this machine needed.
 
 **Not measured:** memory on samples much deeper than 1M pairs. Bowtie2/Hostile and SingleM memory is dominated by the index or metapackage, but fastp and SingleM have not been profiled on, e.g., 20M+ pairs. Revisit with a real deep sample.
+
+---
+
+## 2026-10-28 — Containers only for v0.1; conda and mamba profiles stop at startup
+
+**Decision:** v0.1 supports container profiles only. `PIPELINE_INITIALISATION` calls `error()` when `-profile` includes `conda` or `mamba`, before any task runs. The CI matrix drops the conda leg, the README conda badge is removed, and `docs/usage.md` says conda is not supported yet. Conda support can return as its own change, with an `environment.yml` per local module.
+
+**Why:** the five local modules (`SINGLEM_PIPE`, `SINGLEM_PROKARYOTICFRACTION`, `SINGLEM_SUMMARISE`, `SINGLEM_PREPAREMETAPACKAGE`, `ENVMETAG_REPORT`) declare a `container` but no `conda` directive, so under conda their tools are simply absent from the task environment. The template still advertised conda, and a run failed deep into the pipeline with `command not found`. Failing at startup with a clear message follows "fail loudly". Adding conda now would mean SingleM and Quarto environments that cannot be tested on the development machine (no conda installed) and a separate code path in the report module, which sources activation scripts from the container's `/opt/conda`.
+
+**Evidence (2026-10-28):**
+
+- First PR run to `master` (PR #1; conda and Singularity run only on PRs to `master`): all 7 `conda | 26.10.0` shards failed with exit 127, `singlem: command not found` and `quarto: command not found`. Docker and Singularity on 26.10.0 passed all 14 shards. The `latest-everything` leg shows green regardless, because it runs with `continue-on-error`.
+- After the change: `nextflow run . -profile test,conda -stub` and `-profile test,mamba -stub` both exit 1 with the new message and `completed=0`. `nextflow lint .` has no errors; `nf-core pipelines lint --release` reports no new failure.
+
+**Not covered:** `-with-conda` on the command line without a conda profile is not caught by the profile check.
