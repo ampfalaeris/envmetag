@@ -1,0 +1,106 @@
+nextflow_process {
+
+    name "Test Process SINGLEM_SUMMARISE"
+    script "../main.nf"
+    process "SINGLEM_SUMMARISE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "singlem"
+    tag "singlem/summarise"
+
+    // SingleM runs on fastp-trimmed reads in the pipeline (DECISIONS.md, 2026-10-26), so the tests do too:
+    // the nf-core FASTP module with the pipeline's own (default) arguments, then SINGLEM_PIPE on its output
+    setup {
+        run("FASTP") {
+            script "../../../../nf-core/fastp/main.nf"
+            process {
+                """
+                input[0] = channel.of(
+                    tuple([id: 'mic_coupon', single_end: false], [
+                        file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                    ], []),
+                    tuple([id: 'apb_enrichment', single_end: false], [
+                        file(params.envmetag_testdata_base_path + 'SRR35816318_tiny_R1.fastq.gz', checkIfExists: true),
+                        file(params.envmetag_testdata_base_path + 'SRR35816318_tiny_R2.fastq.gz', checkIfExists: true)
+                    ], [])
+                )
+                input[1] = false
+                input[2] = false
+                input[3] = false
+                """
+            }
+        }
+        run("SINGLEM_PIPE") {
+            script "../../pipe/main.nf"
+            process {
+                """
+                input[0] = FASTP.out.reads.map { meta, reads ->
+                    record(
+                        id: meta.id,
+                        r1: reads.find { f -> f.name.endsWith('_R1.fastp.fastq.gz') },
+                        r2: reads.find { f -> f.name.endsWith('_R2.fastp.fastq.gz') }
+                    )
+                }
+                input[1] = file(params.singlem_ci_metapackage, checkIfExists: true)
+                """
+            }
+        }
+    }
+
+    test("two samples, tiny tier, CI metapackage") {
+
+        when {
+            process {
+                """
+                input[0] = SINGLEM_PIPE.out[0].map { p -> p.profile }.collect()
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            def r = process.out[0][0]
+            // summarise writes a rank table only for ranks with assignments; the 3-marker CI metapackage
+            // assigns nothing at species level, so there is no species table here (DECISIONS.md)
+            def ranks = ['class', 'domain', 'family', 'genus', 'order', 'phylum']
+            def genus = path(r.by_rank.find { f -> f.toString().endsWith('-genus.tsv') }).readLines()
+            assertAll(
+                { assert path(r.extras).readLines()[0] == 'sample\tcoverage\tfull_coverage\trelative_abundance\tlevel\ttaxonomy' },
+                { assert path(r.level_coverage).readLines()[0] == 'sample\tlevel\tcoverage\trelative abundance (%)' },
+                { assert path(r.combined).readLines()[0] == 'sample\tcoverage\ttaxonomy' },
+                { assert r.by_rank.collect { f -> path(f).fileName.toString() }.toSorted() == ranks.collect { k -> "singlem.by_rank-${k}.tsv".toString() } },
+                // site-by-rank tables: one column per sample, `unassigned` always first
+                { assert genus[0] == 'taxonomy\tapb_enrichment\tmic_coupon' },
+                { assert genus[1].startsWith('unassigned\t') },
+                { assert genus.any { line -> line.contains('g__Methanococcus') } },
+                { assert path(r.krona).text.contains('<html') },
+                { assert snapshot(path(r.extras), path(r.level_coverage), path(r.combined)).match() }
+            )
+        }
+    }
+
+    test("stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = SINGLEM_PIPE.out[0].map { p -> p.profile }.collect()
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            def r = process.out[0][0]
+            assertAll(
+                { assert path(r.extras).readLines()[0] == 'sample\tcoverage\tfull_coverage\trelative_abundance\tlevel\ttaxonomy' },
+                { assert path(r.level_coverage).readLines()[0] == 'sample\tlevel\tcoverage\trelative abundance (%)' },
+                { assert r.by_rank.size() == 7 }
+            )
+        }
+    }
+}

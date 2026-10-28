@@ -41,6 +41,13 @@ workflow PIPELINE_INITIALISATION {
     ch_versions = channel.empty()
 
     //
+    // Local modules ship containers only (DECISIONS.md, 2026-10-28); under conda their tools would be missing mid-run
+    //
+    if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
+        error("ampfalaeris/envmetag does not support the conda or mamba profiles yet: the SingleM and report modules have no conda environments. Use a container profile such as -profile docker, singularity or apptainer.")
+    }
+
+    //
     // Print version and exit if required and dump pipeline parameters to JSON file
     //
     UTILS_NEXTFLOW_PIPELINE (
@@ -180,25 +187,29 @@ def validateInputSamplesheet(input) {
 // Generate methods description for MultiQC
 //
 def toolCitationText() {
-    // TODO nf-core: Optionally add in-text citation tools to this list.
-    // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
-    // Uncomment function in methodsDescriptionText to render in MultiQC report
+    // Keep in step with CITATIONS.md
     def citation_text = [
             "Tools used in the workflow included:",
             "FastQC (Andrews 2010),",
-            "MultiQC (Ewels et al. 2016)",
-            "."
+            "fastp (Chen et al. 2018),",
+            "Bowtie 2 (Langmead and Salzberg 2012),",
+            "Hostile (Constantinides et al. 2023),",
+            "SingleM (Woodcroft et al. 2025) with the GlobDB metapackage (Speth et al. 2025),",
+            "MultiQC (Ewels et al. 2016)."
         ].join(' ').trim()
 
     return citation_text
 }
 
 def toolBibliographyText() {
-    // TODO nf-core: Optionally add bibliographic entries to this list.
-    // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
-    // Uncomment function in methodsDescriptionText to render in MultiQC report
+    // Keep in step with CITATIONS.md
     def reference_text = [
             "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
+            "<li>Chen S, Zhou Y, Chen Y, Gu J. (2018). fastp: an ultra-fast all-in-one FASTQ preprocessor. Bioinformatics, 34(17), i884–i890. doi: 10.1093/bioinformatics/bty560</li>",
+            "<li>Langmead B, Salzberg SL. (2012). Fast gapped-read alignment with Bowtie 2. Nature Methods, 9(4), 357–359. doi: 10.1038/nmeth.1923</li>",
+            "<li>Constantinides B, Hunt M, Crook DW. (2023). Hostile: accurate decontamination of microbial host sequences. Bioinformatics, 39(12), btad728. doi: 10.1093/bioinformatics/btad728</li>",
+            "<li>Woodcroft BJ, Aroney STN, Zhao R, Cunningham M, Mitchell JAM, Nurdiansyah R, Blackall L, Tyson GW. (2025). Comprehensive taxonomic identification of microbial species in metagenomic data using SingleM and Sandpiper. Nature Biotechnology, 44(6), 948–953. doi: 10.1038/s41587-025-02738-1</li>",
+            "<li>Speth DR, Pullen N, Aroney STN, Coltman BL, Osvatic J, Woodcroft BJ, Rattei T, Wagner M. (2025). GlobDB: a comprehensive species-dereplicated microbial genome resource. Bioinformatics Advances, 5(1), vbaf280. doi: 10.1093/bioadv/vbaf280</li>",
             "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"
         ].join(' ').trim()
 
@@ -226,12 +237,8 @@ def methodsDescriptionText(mqc_methods_yaml) {
     meta["nodoi_text"] = meta.manifest_map.doi ? "" : "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
 
     // Tool references
-    meta["tool_citations"] = ""
-    meta["tool_bibliography"] = ""
-
-    // TODO nf-core: Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
-    // meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
-    // meta["tool_bibliography"] = toolBibliographyText()
+    meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
+    meta["tool_bibliography"] = toolBibliographyText()
 
 
     def methods_text = mqc_methods_yaml.text

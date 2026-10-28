@@ -1,0 +1,433 @@
+---
+title: "envmetag report"
+subtitle: "Read-based community profile (SingleM)"
+format:
+  html:
+    embed-resources: true
+    html-math-method: plain
+    theme:
+      light: theme-light.scss
+      dark: theme-dark.scss
+    respect-user-color-scheme: true
+    toc: true
+    toc-depth: 2
+    toc-title: "Contents"
+    toc-location: left
+    include-in-header:
+      text: |
+        <style>
+          /* Colours come from theme-light.scss / theme-dark.scss (--em-* variables). System fonts only:
+             the report must not load anything from the network. */
+          body { background: var(--em-page); color: var(--em-ink); }
+          #title-block-header { background: linear-gradient(120deg, var(--em-banner-from), var(--em-banner-to));
+                                color: #fff; border-radius: 14px; padding: 1.4rem 1.6rem 1.1rem; margin-bottom: 1rem; }
+          #title-block-header h1.title { color: #fff; font-weight: 700; letter-spacing: -0.01em; margin-bottom: .2rem; }
+          #title-block-header .subtitle { color: rgba(255,255,255,.82); font-size: 1.05rem; }
+          main > section.level2, main > div > section.level2 {
+            background: var(--em-panel); border: 1px solid var(--em-line); border-radius: 14px;
+            padding: 1.1rem 1.4rem .9rem; margin: 1.2rem 0; box-shadow: 0 1px 3px rgba(16,24,40,.06); }
+          /* sections holding full-width figures (Quarto adds .page-full) keep the figure's own frame only */
+          main section.level2.page-full { background: none; border: none; box-shadow: none; padding-left: 0; padding-right: 0; }
+          section.level2 > h2 { font-weight: 650; border-bottom: 2px solid var(--em-line); padding-bottom: .35rem; margin-top: 0; }
+          .em-meta { color: var(--em-muted); font-size: .92rem; margin: .2rem 0 1rem; }
+          .em-meta b { color: var(--em-ink); font-weight: 600; }
+          .em-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: .8rem; margin: .6rem 0 1rem; }
+          .em-card { background: var(--em-panel); border: 1px solid var(--em-line); border-top: 4px solid var(--em-accent);
+                     border-radius: 10px; padding: .75rem 1rem; }
+          .em-card .v { font-size: 1.6rem; font-weight: 700; line-height: 1.2; color: var(--em-accent); }
+          .em-card .k { font-size: .76rem; color: var(--em-muted); text-transform: uppercase; letter-spacing: .05em; }
+          .em-card .n { font-size: .8rem; color: var(--em-muted); }
+          .em-links { color: var(--em-muted); font-size: .88rem; }
+          .em-links a { font-weight: 600; }
+          .em-links code { font-size: .8rem; color: var(--em-muted); background: none; }
+          table.em-table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .6rem 0 1rem; color: var(--em-ink); }
+          table.em-table th { background: var(--em-soft); color: var(--em-muted); font-weight: 600; text-align: left;
+                              border-bottom: 2px solid var(--em-line); padding: .45rem .6rem; font-size: .76rem;
+                              text-transform: uppercase; letter-spacing: .04em; }
+          table.em-table td { border-bottom: 1px solid var(--em-line); padding: .4rem .6rem; vertical-align: top; }
+          table.em-table td.num, table.em-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+          table.em-table tr:hover td { background: var(--em-soft); }
+          /* SingleM warning: verbatim text on hover or keyboard focus */
+          .em-badge { position: relative; display: inline-block; padding: .05rem .5rem; border-radius: 999px; font-size: .75rem;
+                      font-weight: 600; background: var(--em-warn-soft); color: var(--em-warn); cursor: help; }
+          .em-badge::after { content: attr(data-tip); position: absolute; right: 0; top: 140%; width: min(24rem, 80vw);
+                             background: var(--em-tip-bg); color: var(--em-tip-ink); font-weight: 400; font-size: .82rem;
+                             line-height: 1.4; padding: .6rem .75rem; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.25);
+                             white-space: normal; text-align: left; z-index: 20; opacity: 0; visibility: hidden;
+                             transition: opacity .12s; pointer-events: none; }
+          .em-badge:hover::after, .em-badge:focus::after { opacity: 1; visibility: visible; }
+          .em-lineage { color: var(--em-muted); font-size: .82rem; }
+          .em-lineage b { color: var(--em-ink); font-weight: 600; }
+          details.em-profile { border: 1px solid var(--em-line); border-radius: 8px; padding: .5rem .9rem; margin: .5rem 0; background: var(--em-soft); }
+          details.em-profile summary { cursor: pointer; font-weight: 600; }
+          details.em-profile summary span { color: var(--em-muted); font-weight: 400; }
+          .em-figure { border: 1px solid var(--em-line); border-radius: 10px; padding: .4rem; margin: .8rem 0 1.2rem; background: var(--em-panel); }
+          .em-note { color: var(--em-muted); font-size: .88rem; }
+          /* "How to read" card, moved into the sticky right sidebar by the script below */
+          #quarto-margin-sidebar #em-howto { font-size: .84rem; margin-top: 1rem; }
+          #quarto-margin-sidebar #em-howto ul { padding-left: 1.1rem; margin-bottom: 0; }
+        </style>
+        <script>
+          // Move the "How to read" card into the right sidebar, which Quarto keeps in view while scrolling.
+          // Without JavaScript the card stays in the page body.
+          document.addEventListener("DOMContentLoaded", function () {
+            var card = document.getElementById("em-howto");
+            var sidebar = document.getElementById("quarto-margin-sidebar");
+            if (card && sidebar) { sidebar.appendChild(card); }
+          });
+          // Plotly figures are static; recolour them when the page switches between light and dark
+          window.addEventListener("load", function () {
+            function apply() {
+              if (!window.Plotly) { return; }
+              var css = getComputedStyle(document.body);
+              var ink = css.getPropertyValue("--em-ink").trim() || "#1f2933";
+              var line = css.getPropertyValue("--em-line").trim() || "#e1e6ec";
+              var soft = css.getPropertyValue("--em-soft").trim() || "#f5f7fa";
+              document.querySelectorAll(".js-plotly-plot").forEach(function (plot) {
+                var update = { "font.color": ink, "paper_bgcolor": "rgba(0,0,0,0)", "plot_bgcolor": "rgba(0,0,0,0)" };
+                if (plot.layout && plot.layout.xaxis) { update["xaxis.gridcolor"] = line; update["yaxis.gridcolor"] = line; }
+                // dropdown menus keep their own colours unless set here (light text on a light menu in dark mode)
+                (plot.layout && plot.layout.updatemenus || []).forEach(function (_, i) {
+                  update["updatemenus[" + i + "].bgcolor"] = soft;
+                  update["updatemenus[" + i + "].bordercolor"] = line;
+                  update["updatemenus[" + i + "].font.color"] = ink;
+                });
+                window.Plotly.relayout(plot, update);
+              });
+            }
+            apply();
+            new MutationObserver(apply).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+          });
+        </script>
+execute:
+  echo: false
+jupyter: python3
+---
+
+```{python}
+#| output: asis
+# Every number in this report comes from report_data.json, written by bin/envmetag_report_data.py.
+# This document only formats it. Figures are emitted as raw HTML blocks: if pandoc parsed the
+# inlined plotly.js as markdown, it would need gigabytes of memory.
+import html
+import json
+import statistics
+
+import plotly.graph_objects as go
+
+with open("report_data.json") as handle:
+    data = json.load(handle)
+
+RANKS = ["domain", "phylum", "class", "order", "family", "genus", "species"]
+SAMPLES = [s["id"] for s in data["samples"]]
+run = data["run"]
+method = run["assignment_method"] or "SingleM default"
+
+# 15 distinguishable colours for the top taxa; "Other" and "unassigned" have fixed neutrals
+PALETTE = [
+    "#4c78a8", "#f58518", "#54a24b", "#e45756", "#72b7b2", "#b279a2", "#eeca3b", "#9d755d",
+    "#ff9da6", "#79706e", "#2f8f9d", "#bab0ac", "#8cd17d", "#d37295", "#86bcb6",
+]
+OTHER_COLOUR = "#cbd2d9"
+UNASSIGNED_COLOUR = "#52606d"
+DOMAIN_COLOURS = {"Bacteria": "#4c78a8", "Archaea": "#f58518"}
+FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+plotly_js_written = False
+
+
+def raw(markup):
+    print("\n```{=html}\n" + markup + "\n```\n")
+
+
+def figure(fig):
+    global plotly_js_written
+    fig.update_layout(template="plotly_white", font={"family": FONT, "size": 13, "color": "#1f2933"},
+                      paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+    raw('<div class="em-figure">'
+        + fig.to_html(full_html=False, include_plotlyjs=not plotly_js_written, config={"displaylogo": False})
+        + "</div>")
+    plotly_js_written = True
+
+
+def table(header, rows, numeric=()):
+    head = "".join(f'<th class="num">{h}</th>' if i in numeric else f"<th>{h}</th>" for i, h in enumerate(header))
+    body = "".join(
+        "<tr>" + "".join(f'<td class="num">{c}</td>' if i in numeric else f"<td>{c}</td>" for i, c in enumerate(row))
+        + "</tr>"
+        for row in rows
+    )
+    return f'<table class="em-table"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>'
+
+
+def lineage_html(lineage):
+    # the last field in bold, its ancestors muted
+    parts = [html.escape(p) for p in lineage.split(" › ")]
+    return '<span class="em-lineage">' + " › ".join(parts[:-1] + [f"<b>{parts[-1]}</b>"]) + "</span>"
+
+
+deepest = next((r for r in reversed(RANKS) if data["ranks"][r]["available"]), "none")
+fractions = [s["read_fraction"] for s in data["samples"]]
+genera = {t["taxonomy"] for t in data["ranks"]["genus"].get("taxa", [])} if data["ranks"]["genus"]["available"] else set()
+warned = sum(1 for s in data["samples"] if s["warning"])
+
+raw(f'''<div class="em-meta">
+  <b>Pipeline</b> ampfalaeris/envmetag {html.escape(run["pipeline_version"])} &nbsp;·&nbsp;
+  <b>Metapackage</b> {html.escape(run["metapackage"])} &nbsp;·&nbsp;
+  <b>Assignment</b> {html.escape(method)}
+</div>
+<div class="em-cards">
+  <div class="em-card"><div class="k">Samples</div><div class="v">{len(SAMPLES)}</div>
+    <div class="n">{warned} with a SingleM warning</div></div>
+  <div class="em-card"><div class="k">Prokaryotic fraction</div><div class="v">{statistics.median(fractions):.1f}%</div>
+    <div class="n">median; range {min(fractions):.1f}–{max(fractions):.1f}%</div></div>
+  <div class="em-card"><div class="k">Deepest rank assigned</div><div class="v">{deepest.capitalize()}</div>
+    <div class="n">across all samples</div></div>
+  <div class="em-card"><div class="k">Genera shown</div><div class="v">{len(genera)}</div>
+    <div class="n">top {run["top_n"]} by peak abundance</div></div>
+</div>''')
+
+links = data["links"]
+raw(f'''<div class="em-links em-note">Related reports (relative links; paths shown in case this file was moved):
+  <a href="{html.escape(links["multiqc"])}">MultiQC</a> <code>{html.escape(links["multiqc"])}</code> &nbsp;·&nbsp;
+  <a href="{html.escape(links["krona"])}">Krona</a> <code>{html.escape(links["krona"])}</code></div>''')
+```
+
+::: {#em-howto .callout-note}
+## How to read the numbers
+
+- All abundances are **read-based estimates from SingleM marker genes**. A percentage is a share of **prokaryotic marker-gene coverage**, not a share of reads and not a cell count.
+- **Unassigned** is coverage SingleM could not resolve at that rank. It is always shown and never redistributed to named taxa.
+- The **prokaryotic fraction** is SingleM's estimate of the share of (fastp-trimmed) read bases from Bacteria and Archaea. The rest may be eukaryotic, viral, host, or unknown. It is a genome-size-based estimate, capped at 100%.
+- Presence of a taxon is not evidence that it is active, and not evidence of corrosion or any other process.
+:::
+
+## Sample overview
+
+```{python}
+#| output: asis
+rows = [
+    [
+        f"<b>{html.escape(s['id'])}</b>",
+        f"{s['read_fraction']:.2f}",
+        f"{s['average_genome_size_bp'] / 1e6:.2f}",
+        f"{s['metagenome_size'] / 1e6:,.1f}",
+        (f'<span class="em-badge" tabindex="0" data-tip="{html.escape(s["warning"], quote=True)}" '
+         f'aria-label="SingleM warning: {html.escape(s["warning"], quote=True)}">warning</span>')
+        if s["warning"] else "",
+    ]
+    for s in data["samples"]
+]
+raw(table(["Sample", "Prokaryotic fraction (%)", "Avg. genome (Mbp)", "Read bases (Mbp)", "SingleM"], rows, numeric=(1, 2, 3)))
+if warned:
+    print('\n<p class="em-note">Hover over (or tab to) a <i>warning</i> badge for SingleM\'s message, shown verbatim.</p>\n')
+```
+
+## Community composition
+
+```{python}
+#| output: asis
+ranks = data["ranks"]
+available = [r for r in RANKS if ranks[r]["available"]]
+missing = [r for r in RANKS if not ranks[r]["available"]]
+
+print(f"Share of prokaryotic marker-gene coverage per sample (read-based). At each rank, the {run['top_n']} taxa with "
+      f"the highest abundance in any one sample have their own colour; the rest are pooled as *Other*. "
+      f"Use the menu to change rank; hover for the full lineage.\n")
+if missing:
+    print(f'\n<p class="em-note">No {", ".join(missing)}-level assignments in this run.</p>\n')
+if len(SAMPLES) > run["stacked_bar_max_samples"]:
+    print(f"\n*{len(SAMPLES)} samples is more than this layout is designed for "
+          f"({run['stacked_bar_max_samples']}); bars may be hard to read.*\n")
+
+fig = go.Figure()
+trace_rank = []
+for rank in available:
+    entry = ranks[rank]
+    for i, taxon in enumerate(entry["taxa"]):
+        fig.add_bar(
+            x=SAMPLES, y=[taxon["values"][s] for s in SAMPLES], name=taxon["label"],
+            marker_color=PALETTE[i % len(PALETTE)],
+            hovertemplate=f"<b>{html.escape(taxon['label'])}</b><br>{html.escape(taxon['lineage'])}"
+                          "<br>%{x}: %{y:.2f}%<extra></extra>",
+        )
+        trace_rank.append(rank)
+    if entry["other"] is not None:
+        fig.add_bar(
+            x=SAMPLES, y=[entry["other"][s] for s in SAMPLES], name=f"Other ({entry['other_count']} taxa)",
+            marker_color=OTHER_COLOUR, hovertemplate="<b>Other</b><br>%{x}: %{y:.2f}%<extra></extra>",
+        )
+        trace_rank.append(rank)
+    fig.add_bar(
+        x=SAMPLES, y=[entry["unassigned"][s] for s in SAMPLES], name=f"Unassigned at {rank}",
+        # Plotly placeholders kept out of the f-string: doubled braces trip nf-core lint's template check
+        marker_color=UNASSIGNED_COLOUR, hovertemplate=f"<b>Unassigned at {rank}</b><br>" + "%{x}: %{y:.2f}%<extra></extra>",
+    )
+    trace_rank.append(rank)
+
+default_rank = "genus" if "genus" in available else available[-1]
+for trace, rank in zip(fig.data, trace_rank):
+    trace.visible = rank == default_rank
+fig.update_layout(
+    barmode="stack", bargap=0.35,
+    yaxis={"title": "% of prokaryotic marker-gene coverage", "range": [0, 100.5], "ticksuffix": "%"},
+    xaxis={"title": None},
+    legend={"title": {"text": "Taxon"}, "traceorder": "normal"},
+    height=520, margin={"t": 70, "l": 70, "r": 20, "b": 50},
+    updatemenus=[{
+        "buttons": [
+            {"label": rank.capitalize(), "method": "update", "args": [{"visible": [r == rank for r in trace_rank]}]}
+            for rank in available
+        ],
+        "active": available.index(default_rank),
+        "x": 0, "xanchor": "left", "y": 1.14, "yanchor": "top",
+        "bgcolor": "#f5f7fa", "bordercolor": "#e4e7eb", "font": {"color": "#1f2933"},
+    }],
+)
+figure(fig)
+```
+
+## Taxonomic flow
+
+```{python}
+#| output: asis
+print(f"How each sample's coverage divides from domain down to the deepest rank. Band widths are shares of the "
+      f"sample's prokaryotic marker-gene coverage (read-based). Taxa below {run['sankey_min_percent']:g}% of a "
+      f"sample are pooled into *Other* at their rank; coverage SingleM could not resolve further ends in "
+      f"*Unresolved below* the rank where it stopped. Choose a sample from the menu.\n")
+```
+
+```{python}
+#| output: asis
+#| column: page
+# Full page width: eight rank columns need more room than the body column. Quarto hides the
+# table of contents and the sidebar card while this figure is on screen, so nothing overlaps.
+
+
+def node_colour(node):
+    if node["rank"] == "sample":
+        return "#1f2933"
+    if not node["lineage"]:
+        return UNASSIGNED_COLOUR if node["label"].startswith(("Unresolved", "Unassigned")) else OTHER_COLOUR
+    return DOMAIN_COLOURS.get(node["lineage"].split(" › ")[0], "#72b7b2")
+
+
+SANKEY_LABEL_CHARS = 16  # eight columns share the page width (~105 px each at 11 px text); longer names collide
+
+
+def short(label, rank):
+    # species as "M. maripaludis"; then cut from the middle, since the ending carries the rank
+    # (-aceae family, -ales order)
+    if rank == "species" and " " in label:
+        genus, epithet = label.split(" ", 1)
+        label = f"{genus[0]}. {epithet}"
+    if len(label) <= SANKEY_LABEL_CHARS:
+        return label
+    tail = 5
+    return label[: SANKEY_LABEL_CHARS - 1 - tail] + "…" + label[-tail:]
+
+
+def rgba(hex_colour, alpha):
+    h = hex_colour.lstrip("#")
+    return f"rgba({int(h[0:2], 16)}, {int(h[2:4], 16)}, {int(h[4:6], 16)}, {alpha})"
+
+
+fig = go.Figure()
+for n, sample in enumerate(SAMPLES):
+    flows = data["sankey"][sample]
+    nodes = flows["nodes"]
+    colours = [node_colour(node) for node in nodes]
+    fig.add_trace(go.Sankey(
+        visible=n == 0,
+        arrangement="snap",
+        valueformat=".2f", valuesuffix="%",
+        node={
+            # only taxon names are shortened; "Other …" and "Unresolved …" stay whole
+            "label": [short(node["label"], node["rank"]) if node["lineage"] else node["label"] for node in nodes],
+            "color": colours,
+            "customdata": [f'{node["label"]}<br>{node["lineage"]}' if node["lineage"] else node["label"] for node in nodes],
+            "hovertemplate": "%{customdata}<br><b>%{value}</b><extra></extra>",
+            "pad": 14, "thickness": 16, "line": {"width": 0},
+        },
+        link={
+            "source": [link["source"] for link in flows["links"]],
+            "target": [link["target"] for link in flows["links"]],
+            "value": [link["value"] for link in flows["links"]],
+            "color": [rgba(colours[link["target"]], 0.35) for link in flows["links"]],
+            "customdata": [f'{nodes[link["source"]]["label"]} → {nodes[link["target"]]["label"]}' for link in flows["links"]],
+            "hovertemplate": "%{customdata}<br><b>%{value}</b><extra></extra>",
+        },
+        textfont={"size": 11},
+    ))
+# height from the most crowded rank column across samples, so stacked nodes keep readable labels
+busiest = max(
+    max(sum(1 for node in data["sankey"][s]["nodes"] if node["rank"] == rank) for rank in ["sample"] + RANKS)
+    for s in SAMPLES
+)
+fig.update_layout(
+    height=max(480, 34 * busiest + 140), margin={"t": 70, "l": 10, "r": 10, "b": 20},
+    updatemenus=[{
+        "buttons": [
+            {"label": sample, "method": "update", "args": [{"visible": [s == sample for s in SAMPLES]}]}
+            for sample in SAMPLES
+        ],
+        "x": 0, "xanchor": "left", "y": 1.13, "yanchor": "top",
+        "bgcolor": "#f5f7fa", "bordercolor": "#e4e7eb", "font": {"color": "#1f2933"},
+    }],
+)
+figure(fig)
+```
+
+## Taxonomic resolution
+
+```{python}
+#| output: asis
+print("How far down SingleM resolved each sample: the share of marker-gene coverage whose deepest assignment is at "
+      "each rank. Coverage resolved only to a high rank appears as *unassigned* at every rank below it.\n")
+
+
+def shaded(value):
+    # cell background scales with the share, so the resolution profile reads at a glance
+    alpha = min(value, 100) / 100 * 0.55
+    return (f'<span style="display:block;margin:-.4rem -.6rem;padding:.4rem .6rem;'
+            f'background:rgba(var(--em-shade),{alpha:.3f})">{value:.2f}</span>')
+
+
+levels = data["level_coverage"]
+raw(table(
+    ["Sample"] + [r.capitalize() + " (%)" for r in RANKS],
+    [[f"<b>{html.escape(s)}</b>"] + [shaded(levels[s][r]["relative_abundance"]) for r in RANKS] for s in SAMPLES],
+    numeric=tuple(range(1, len(RANKS) + 1)),
+))
+```
+
+## Per-sample profiles
+
+```{python}
+#| output: asis
+print("The full SingleM profile of each sample. *Coverage* is SingleM's marker-gene coverage estimate for taxa "
+      "assigned exactly at that lineage, not a read count.\n")
+for sample in SAMPLES:
+    taxa = data["profiles"][sample]
+    total = sum(t["coverage"] for t in taxa)
+    rows = [[lineage_html(t["lineage"]), f"{t['coverage']:.2f}", f"{t['coverage'] / total * 100:.1f}"] for t in taxa]
+    raw(f'<details class="em-profile"><summary>{html.escape(sample)} <span>· {len(taxa)} taxa</span></summary>'
+        + table(["Lineage", "Coverage", "Share (%)"], rows, numeric=(1, 2)) + "</details>")
+```
+
+## Methods and attribution
+
+```{python}
+#| output: asis
+print(f"""
+Reads were adapter- and poly-G-trimmed with fastp (no sliding-window quality trimming) and profiled with
+SingleM (`singlem pipe`, `prokaryotic_fraction`, `summarise`) against the {html.escape(run['metapackage'])}
+metapackage ({html.escape(method)} assignment). PhiX and host reads were removed after profiling, for later
+steps; they remain in the prokaryotic-fraction denominator. Tool versions are in the MultiQC report and in
+`pipeline_info/envmetag_software_mqc_versions.yml`.
+
+Taxonomy is from the [GlobDB](https://globdb.org) r232 SingleM metapackage, licensed
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Please cite GlobDB
+(Speth et al. 2025, doi:10.1093/bioadv/vbaf280) and its [underlying data sources](https://globdb.org/citations),
+and SingleM (Woodcroft et al. 2025, doi:10.1038/s41587-025-02738-1).
+""")
+```

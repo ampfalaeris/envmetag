@@ -1,0 +1,118 @@
+nextflow_process {
+
+    name "Test Process SINGLEM_PROKARYOTICFRACTION"
+    script "../main.nf"
+    process "SINGLEM_PROKARYOTICFRACTION"
+
+    tag "modules"
+    tag "modules_local"
+    tag "singlem"
+    tag "singlem/prokaryoticfraction"
+
+    // SingleM runs on fastp-trimmed reads in the pipeline (DECISIONS.md, 2026-10-26), so the tests do too:
+    // the nf-core FASTP module with the pipeline's own (default) arguments, then SINGLEM_PIPE on its output
+    setup {
+        run("FASTP") {
+            script "../../../../nf-core/fastp/main.nf"
+            process {
+                """
+                input[0] = channel.of(
+                    tuple([id: 'mic_coupon', single_end: false], [
+                        file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R2.fastq.gz', checkIfExists: true)
+                    ], [])
+                )
+                input[1] = false
+                input[2] = false
+                input[3] = false
+                """
+            }
+        }
+        run("SINGLEM_PIPE") {
+            script "../../pipe/main.nf"
+            process {
+                """
+                input[0] = FASTP.out.reads.map { meta, reads ->
+                    record(
+                        id: meta.id,
+                        r1: reads.find { f -> f.name.endsWith('_R1.fastp.fastq.gz') },
+                        r2: reads.find { f -> f.name.endsWith('_R2.fastp.fastq.gz') }
+                    )
+                }
+                input[1] = file(params.singlem_ci_metapackage, checkIfExists: true)
+                """
+            }
+        }
+    }
+
+    test("tiny tier, CI metapackage") {
+
+        when {
+            process {
+                """
+                // the same trimmed reads that produced the profile (one sample, so combine pairs them)
+                input[0] = SINGLEM_PIPE.out[0].combine(FASTP.out.reads).map { p, _meta, reads ->
+                    record(
+                        id: p.id,
+                        r1: reads.find { f -> f.name.endsWith('_R1.fastp.fastq.gz') },
+                        r2: reads.find { f -> f.name.endsWith('_R2.fastp.fastq.gz') },
+                        profile: p.profile
+                    )
+                }
+                input[1] = file(params.singlem_ci_metapackage, checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            def r = process.out[0][0]
+            def lines = path(r.fraction).readLines()
+            def header = lines[0].split('\t') as List
+            def row = [header, lines[1].split('\t', -1) as List].transpose().collectEntries()
+            assertAll(
+                { assert r.id == 'mic_coupon' },
+                { assert lines.size() == 2 },
+                { assert header.take(6) == ['sample', 'bacterial_archaeal_bases', 'metagenome_size', 'read_fraction', 'average_bacterial_archaeal_genome_size', 'warning'] },
+                { assert row.sample == 'mic_coupon' },
+                // SingleM must count the bases of the reads it was given: the fastp output has 28,922,250 bases
+                // (fastp JSON after_filtering.total_bases and awk agree). Hardcoded because nf-test 0.9.4 does not
+                // expose setup outputs in `then`; a fastp version or argument change will change this number.
+                { assert row.metagenome_size as long == 28922250L },
+                // the value itself is meaningless on the 3-marker CI metapackage (DECISIONS.md); only its range is checked
+                { assert (row.read_fraction as double) >= 0 && (row.read_fraction as double) <= 100 }
+            )
+        }
+    }
+
+    test("stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = channel.of(
+                    record(
+                        id: 'mic_coupon',
+                        r1: file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R1.fastq.gz', checkIfExists: true),
+                        r2: file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R2.fastq.gz', checkIfExists: true),
+                        profile: file(params.envmetag_testdata_base_path + 'SRR12174148_tiny_R1.fastq.gz', checkIfExists: true)
+                    )
+                )
+                input[1] = file(params.singlem_ci_metapackage, checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            def lines = path(process.out[0][0].fraction).readLines()
+            assertAll(
+                { assert lines.size() == 2 },
+                { assert lines[0].startsWith('sample\tbacterial_archaeal_bases\tmetagenome_size\tread_fraction') },
+                { assert lines[1].split('\t')[0] == 'mic_coupon' }
+            )
+        }
+    }
+}

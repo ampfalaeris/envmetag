@@ -1,0 +1,86 @@
+nextflow_process {
+
+    name "Test Process ENVMETAG_REPORT"
+    script "../main.nf"
+    process "ENVMETAG_REPORT"
+
+    tag "modules"
+    tag "modules_local"
+    tag "envmetag"
+    tag "envmetag/report"
+
+    // inputs: real SingleM output from `-profile test` (tests/bin/fixtures/ci_two_samples, see tests/bin)
+
+    test("two samples, CI metapackage output") {
+
+        when {
+            process {
+                """
+                def fixtures = "${projectDir}/tests/bin/fixtures/ci_two_samples"
+                input[0] = channel.of('mic_coupon', 'apb_enrichment').collect()
+                input[1] = channel.fromPath("\${fixtures}/*.singlem_profile.tsv", checkIfExists: true).collect()
+                input[2] = channel.fromPath("\${fixtures}/*.singlem_prokaryotic_fraction.tsv", checkIfExists: true).collect()
+                input[3] = channel.fromPath("\${fixtures}/singlem.by_rank-*.tsv", checkIfExists: true).collect()
+                input[4] = file("\${fixtures}/singlem.level_coverage.tsv", checkIfExists: true)
+                input[5] = file("\${fixtures}/singlem.profile_extras.tsv", checkIfExists: true)
+                input[6] = 'GlobDB_r232_ci3.smpkg'
+                input[7] = file("${projectDir}/assets/report", checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            def r = process.out[0][0]
+            def report = path(r.report).text
+            def data = path(r.data).json
+            assertAll(
+                { assert data.samples*.id == ['apb_enrichment', 'mic_coupon'] },
+                { assert data.ranks.species.available == false },
+                { assert data.ranks.genus.taxa*.label.contains('Methanococcus') },
+                // HTML has generated ids, so check properties: sections, offline, one plotly.js copy
+                { assert report.contains('<title>envmetag report</title>') },
+                { assert ['How to read the numbers', 'Sample overview', 'Community composition', 'Taxonomic flow',
+                          'Taxonomic resolution', 'Per-sample profiles', 'Methods and attribution'].every { h -> report.contains(h) } },
+                { assert report.contains('No species-level assignments in this run.') },
+                { assert data.sankey.mic_coupon.links.size() > 0 },
+                { assert report.contains('Unassigned at genus') },
+                { assert !(report =~ /<(script|link)[^>]+(src|href)="https?:\/\//) },
+                // two figures (composition, flow), plotly.js inlined once
+                { assert report.count('Plotly.newPlot') == 2 },
+                { assert report.count('plotly.js v') == 1 },
+                { assert snapshot(path(r.data)).match() }
+            )
+        }
+    }
+
+    test("stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                def fixtures = "${projectDir}/tests/bin/fixtures/ci_two_samples"
+                input[0] = channel.of('mic_coupon', 'apb_enrichment').collect()
+                input[1] = channel.fromPath("\${fixtures}/*.singlem_profile.tsv", checkIfExists: true).collect()
+                input[2] = channel.fromPath("\${fixtures}/*.singlem_prokaryotic_fraction.tsv", checkIfExists: true).collect()
+                input[3] = channel.fromPath("\${fixtures}/singlem.by_rank-*.tsv", checkIfExists: true).collect()
+                input[4] = file("\${fixtures}/singlem.level_coverage.tsv", checkIfExists: true)
+                input[5] = file("\${fixtures}/singlem.profile_extras.tsv", checkIfExists: true)
+                input[6] = 'GlobDB_r232_ci3.smpkg'
+                input[7] = file("${projectDir}/assets/report", checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            def r = process.out[0][0]
+            assertAll(
+                { assert path(r.data).json.samples*.id == ['apb_enrichment', 'mic_coupon'] },
+                { assert path(r.report).text.contains('<title>envmetag report</title>') }
+            )
+        }
+    }
+}

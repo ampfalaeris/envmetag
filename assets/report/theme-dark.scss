@@ -1,0 +1,36 @@
+/*-- scss:defaults --*/
+// No web fonts: the report must open offline (Bootswatch themes import Google Fonts by default)
+$web-font-path: false;
+$font-family-sans-serif:
+  system-ui,
+  -apple-system,
+  "Segoe UI",
+  Roboto,
+  "Helvetica Neue",
+  Arial,
+  sans-serif;
+$body-bg: #0f141a;
+$body-color: #e4e7eb;
+$primary: #4cc38a;
+$link-color: #6fd3a3;
+$border-color: #2b3440;
+$table-color: #e4e7eb;
+
+/*-- scss:rules --*/
+// Same names as theme-light.scss, dark values
+:root {
+  --em-page: #0f141a;
+  --em-panel: #171e26;
+  --em-ink: #e4e7eb;
+  --em-muted: #9aa5b1;
+  --em-line: #2b3440;
+  --em-soft: #1e2630;
+  --em-accent: #6fd3a3;
+  --em-banner-from: #0e5a42;
+  --em-banner-to: #1a3c66;
+  --em-warn: #f5c451;
+  --em-warn-soft: #3a2f12;
+  --em-tip-bg: #e4e7eb;
+  --em-tip-ink: #0f141a;
+  --em-shade: 76, 195, 138;
+}

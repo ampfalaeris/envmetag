@@ -1,0 +1,15 @@
+{
+    "two MIC samples, tiny tier, CI metapackage": {
+        "content": [
+            [
+                "apb_enrichment.singlem_profile.tsv:md5,83cb7a37afb843904488fc88ae4dbe64",
+                "mic_coupon.singlem_profile.tsv:md5,39d5969df28cb937727cf7db5ccf8357"
+            ]
+        ],
+        "timestamp": "2026-10-26T18:31:40.452399216",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.3"
+        }
+    }
+}

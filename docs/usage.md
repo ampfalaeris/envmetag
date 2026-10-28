@@ -4,51 +4,39 @@
 
 ## Introduction
 
-<!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
+envmetag takes paired-end Illumina shotgun metagenomes, one read pair per sample. This page covers the samplesheet, the SingleM metapackage, and general Nextflow options; parameters are documented in the pipeline schema (`nextflow run ampfalaeris/envmetag --help`).
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+Pass a comma-separated samplesheet with a header row and three columns:
 
 ```bash
 --input '[path to samplesheet file]'
 ```
 
-### Multiple runs of the same sample
-
-The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes:
-
 ```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
+site_a,/data/site_a_R1.fastq.gz,/data/site_a_R2.fastq.gz
+site_b,/data/site_b_R1.fastq.gz,/data/site_b_R2.fastq.gz
 ```
 
-### Full samplesheet
+| Column    | Description                                                                                                    |
+| --------- | -------------------------------------------------------------------------------------------------------------- |
+| `sample`  | Sample name. Must be unique and cannot contain spaces. It is used as the sample ID in every output and report. |
+| `fastq_1` | Path to the gzipped forward reads (`.fastq.gz` or `.fq.gz`).                                                   |
+| `fastq_2` | Path to the gzipped reverse reads (`.fastq.gz` or `.fq.gz`). Required: envmetag accepts paired-end reads only. |
 
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
+Each sample has exactly one row. The pipeline does not merge multiple runs or lanes of the same sample; concatenate them before running (`cat lane1_R1.fastq.gz lane2_R1.fastq.gz > sample_R1.fastq.gz`, and the same for R2, in the same order). A duplicate `sample` value or a missing `fastq_2` fails validation before any task runs.
 
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
+An [example samplesheet](../assets/samplesheet.csv) is provided with the pipeline.
 
-```csv title="samplesheet.csv"
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz
-CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz
-TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,
-TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,
-```
+## SingleM metapackage
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+SingleM profiles reads against the GlobDB r232 metapackage (3.8 GB compressed, 17 GB extracted, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)). It must be on local or shared disk; SingleM cannot read it from object storage. Provide it in one of three ways:
 
-An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
+- `--singlem_metapackage /path/to/GlobDB_r232.metapackage_v4.smpkg`: an extracted copy you already have (preferred).
+- `--singlem_db_cache /path/to/cache`: the pipeline downloads `--singlem_metapackage_url` once and keeps the extracted copy there for later runs. The first run needs about 21 GB free in the cache directory and in `work/`.
+- Neither: the pipeline downloads the archive and extracts it in `work/` (about 21 GB). `-resume` reuses it, but a fresh run downloads it again, and it is removed when you clean `work/`. The run logs a warning in this case.
 
 ## Running the pipeline
 
@@ -122,10 +110,10 @@ To further assist in reproducibility, you can use share and reuse [parameter fil
 
 Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments.
 
-Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Apptainer, Conda) - see below.
+Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Apptainer) - see below.
 
 > [!IMPORTANT]
-> We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
+> The pipeline needs a container engine. Conda and Mamba are not supported yet: the SingleM and report modules have no conda environments, so `-profile conda` and `-profile mamba` stop with an error before any task runs. CI tests Docker and Singularity.
 
 Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
 They are loaded in sequence, so later profiles can overwrite earlier profiles.
@@ -149,8 +137,6 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
   - A generic configuration profile to be used with [Apptainer](https://apptainer.org/)
 - `wave`
   - A generic configuration profile to enable [Wave](https://seqera.io/wave/) containers. Use together with one of the above (requires Nextflow `24.03.0-edge` or later).
-- `conda`
-  - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter, Charliecloud, or Apptainer.
 
 ### `-resume`
 
@@ -172,9 +158,9 @@ To change the resource requests, please see the [max resources](https://nf-co.re
 
 ### Custom Containers
 
-In some cases, you may wish to change the container or conda environment used by a pipeline steps for a particular tool. By default, nf-core pipelines use containers and software from the [biocontainers](https://biocontainers.pro/) or [bioconda](https://bioconda.github.io/) projects. However, in some cases the pipeline specified version maybe out of date.
+In some cases, you may wish to change the container used by a pipeline step for a particular tool. The pipeline uses containers from [BioContainers](https://biocontainers.pro/) and [Seqera Containers](https://seqera.io/containers/), each pinned to an exact version.
 
-To use a different container from the default container or conda environment specified in a pipeline, please see the [updating tool versions](https://nf-co.re/docs/running/configuration/nextflow-for-your-system#update-tool-versions) section of the nf-core website.
+To use a different container from the default specified in the pipeline, please see the [updating tool versions](https://nf-co.re/docs/running/configuration/nextflow-for-your-system#update-tool-versions) section of the nf-core website.
 
 ### Custom Tool Arguments
 

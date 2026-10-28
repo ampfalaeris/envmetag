@@ -1,0 +1,14 @@
+{
+    "two samples, tiny tier, CI metapackage": {
+        "content": [
+            "singlem.profile_extras.tsv:md5,331d002d1a5bd906fca50262071e812c",
+            "singlem.level_coverage.tsv:md5,59e3817815c7fec1545cd913276c0ec7",
+            "singlem.profiles.tsv:md5,f192705d060177fa34bcb6418cfab16b"
+        ],
+        "timestamp": "2026-10-26T18:41:31.996788697",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.3"
+        }
+    }
+}

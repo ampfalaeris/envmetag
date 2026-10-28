@@ -5,18 +5,27 @@ Shotgun metagenomic profiling of environmental samples, with curated marker gene
 ## Roadmap (build in this order; don't jump ahead)
 
 1. **v0.1**: read preprocessing → SingleM profiling → HTML report. Typed, tested, CI green.
-2. **v0.2**: assembly → binning → CheckM2. GTDB-Tk optional and off by default (R232 needs ~140 GB RAM).
-3. **v0.3**: curated marker-gene module (CANT-HYD, SCycDB, MCycDB, NCycDB), read-based abundance normalized to genome equivalents.
-4. **v0.4**: write index files that feed nf-core/funcscan (`sample,fasta[,protein,gbk[,gff]]`).
+2. **v0.2**: curated marker-gene module (CANT-HYD, SCycDB, MCycDB, NCycDB), read-based abundance on the clean reads, normalized to genome equivalents from SingleM `prokaryotic_fraction`. Read-based counts are the primary quantification.
+3. **v0.3**: assembly → binning → CheckM2; contig-based marker calls as supporting evidence. GTDB-Tk optional and off by default (R232 needs ~140 GB RAM).
+4. **v0.4**: write index files that feed nf-core/funcscan (`sample,fasta[,protein,gbk[,gff]]`); needs v0.3 contigs.
+
+Order changed 2026-10-26 (markers before assembly); see DECISIONS.md.
 
 Centrifuger is an optional cloud-only profile (comprehensive indexes need tens of GB of RAM). SingleM runs locally (<4 GB RAM by default).
+
+- SingleM uses the GlobDB r232 metapackage (`--metapackage`), downloaded at runtime: 3.8 GB compressed, 17 GB extracted. Never bundled; CC BY-SA 4.0 with attribution.
+- SingleM runs on the **fastp-trimmed** reads, before PhiX and host removal (DECISIONS.md, 2026-10-26): raw-read adapter sequence hits adapter-contaminated GlobDB proteins, and the host reads stay in the prokaryotic-fraction denominator. fastp must not quality-trim (`--cut_*`); SingleM's docs warn that short, quality-trimmed reads fail. Clean (PhiX/host-removed) reads feed assembly and the marker module.
+- SingleM names samples from the forward-read filename; stage files as `${id}_R1...` or rewrite the column, and test that `sample == id`.
+- `test` profile (CI) = tiny reads + a 3-marker GlobDB CI metapackage (rplB, rplC, rpsB; no nucleotide SDB; ~1 GB) with `--assignment-method diamond` set in `conf/test.config`. It tests plumbing and formats, not biology (genus level only). Assert on known genera, headers, `sample == id`, and the profile md5 (deterministic); compare OTU tables only after sorting (row order varies).
+- The CI metapackage is a GlobDB adaptation: its own Zenodo record under CC BY-SA 4.0, separate from the CC BY 4.0 test-reads record, stating the changes and the SingleM version that built it. Rebuild it if SingleM's metapackage format changes.
+- `test_full` = 1M-pair reads + full GlobDB with the default assignment method (too big for free runners: 14 GB disk). Run it before every release (locally or via a manual larger-runner job), assert the known species, and note the run in `CHANGELOG.md`. It is the only test of the default smafa + nucleotide-SDB path.
 
 ## Environment
 
 - WSL2; repo lives in the Linux filesystem (`~/...`), never `/mnt/c` (executable bits and Docker mounts break there).
 - Nextflow `>=26.10.0` (`manifest.nextflowVersion = '!>=26.10.0'`). Strict syntax is the default parser.
 - Template: nf-core/tools 4.2.0, custom prefix `ampfalaeris`, `is_nfcore: false`. Not an nf-core pipeline; never call it `nf-core/envmetag`.
-- nf-test 0.9.4 in CI. Its handling of typed processes and record inputs is **unverified**; check before relying on it.
+- nf-test 0.9.4 in CI and locally (`~/.local/bin/nf-test`). Typed processes, typed subworkflows, record inputs, snapshots, `-stub`, and legacy nf-core modules through the record adapter all verified 2026-10-25 (see DECISIONS.md). In assertions, `path(x)` is a plain Java `Path`: use `.fileName.toString()`, not `.name`.
 - `uv` manages Python for local development of `bin/` scripts only. It does not provide runtime dependencies inside pipeline tasks.
 
 ## Commands
@@ -34,12 +43,13 @@ nf-core pipelines lint                           # template checks; some nf-core
 
 - All new scripts start with `nextflow.enable.types = true`. A typed script cannot also contain legacy process or workflow definitions.
 - Never use `PROCESS.out.x` or `WORKFLOW.out.x`. Assign the call: `def fq = FASTP(samples)`, then `fq.reads`.
-- Carry samples as **records** with named fields, not positional tuples or loose meta maps. Declare record types for every data shape that crosses a process boundary.
+- Carry samples as **records** with named fields, not positional tuples or loose meta maps. Declare record types for every data shape that crosses a process boundary, all in `types/main.nf`, and `include` them where used (record types are script-scoped).
+- Never give a local variable the same name as an `emit:` output. Lint passes, but the run fails with `Missing workflow output parameter`.
 - Annotate types on every workflow `take:` input, process input/output, and the `params` block.
 - Static-typing operator semantics: `map` does not drop nulls; `join` requires `by:`; `mix` takes one argument per call. Avoid `set`, `tap`, implicit `it`, `flatten`, and `.out`. `distinct` and `collectFile` on a `Value` failed typed lint in this repo.
 - **Legacy nf-core modules** (untyped) are allowed. Call them through a thin adapter: record → `tuple(meta, files)` before the call, outputs back to records immediately after. That boundary is not type-checked, so test it.
 - `workflows/envmetag.nf` still has the template's legacy software-versions/MultiQC block. Leave it untyped until it is deliberately rewritten. Don't "fix" it piecemeal.
-- Pipeline outputs go through the workflow `output {}` block with **index files** (CSV/JSON). Downstream steps and the report read index files, never by globbing output directories.
+- Pipeline outputs go through the workflow `output {}` block with **index files** (CSV/JSON). Users and downstream pipelines (e.g. funcscan) read index files, never by globbing output directories. Steps inside the same run, including the report, take records from channels: the index files are written when outputs are published, and no channel carries them.
 
 ## Module conventions
 
@@ -54,12 +64,12 @@ nf-core pipelines lint                           # template checks; some nf-core
 - Every module and subworkflow gets nf-test coverage before it is wired into the main workflow.
 - **Stubs must be realistic**: create every declared output with the real filename and minimally valid content (correct headers for TSVs), so downstream parsers are exercised in `-stub` runs. A bare `touch` is not acceptable.
 - Snapshot `md5` only for deterministic outputs. For assemblers and other non-deterministic tools, snapshot properties: file exists, line/record counts, header line.
-- Test data is tiny and public. The marker-gene module needs **positive and negative controls**: reads simulated from genomes known to carry target markers (e.g., *bssA*, *dsrAB*) plus one genome carrying neither.
+- Test data is tiny and public. The marker-gene module needs **positive and negative controls**: reads simulated from genomes known to carry target markers (e.g., _bssA_, _dsrAB_) plus one genome carrying neither.
 - CI runs on PRs from `dev` into `master`. Work on `dev`.
 
 ## Failure handling
 
-Fail loudly; never degrade silently. Validate inputs against schemas, error on empty or malformed outputs, and use explicit checks (e.g., `failOnMismatch` on joins). An unexplained empty result is a bug.
+Fail loudly; never degrade silently. Validate inputs against schemas, error on empty or malformed outputs, and use explicit checks. Typed `join` rejects `failOnMismatch` (only `by` and `remainder`) and silently drops unmatched items, so every join is `join(other, by: 'id', remainder: true)` followed by an inline `map` that calls `error(...)` when a field from either side is null. Call `error()` inline, not from an included function: from a function the message is hidden behind `InvocationTargetException`. Make a process output the `join` receiver (`proc_out.join(take_input, ...)`): nf-test feeds subworkflows legacy channels, which reject a typed channel as the join argument. An unexplained empty result is a bug.
 
 ## Data, licensing, and provenance
 

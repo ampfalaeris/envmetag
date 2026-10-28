@@ -43,6 +43,89 @@
                 }
             }
         },
+        "read_cleaning_options": {
+            "title": "Read cleaning options",
+            "type": "object",
+            "fa_icon": "fas fa-broom",
+            "description": "References used to remove PhiX and host reads. Both are fetched at runtime.",
+            "properties": {
+                "phix_fasta": {
+                    "type": "string",
+                    "default": "https://www.ebi.ac.uk/ena/browser/api/fasta/J02482.1",
+                    "description": "PhiX reference FASTA (local path or URL), indexed with bowtie2 at runtime.",
+                    "help_text": "Defaults to ENA J02482.1 (phiX174, 5,386 bp), the INSDC record RefSeq NC_001422.1 is derived from.",
+                    "fa_icon": "fas fa-dna"
+                },
+                "hostile_index": {
+                    "type": "string",
+                    "default": "human-t2t-hla-argos985-mycob140",
+                    "description": "Hostile index name, fetched at runtime with `hostile index fetch`.",
+                    "help_text": "The default human T2T + HLA index is masked against 985 bacterial and 140 mycobacterial genomes, so environmental bacteria are less likely to be removed as host. List available indexes with `hostile index list`.",
+                    "fa_icon": "fas fa-user-slash"
+                }
+            }
+        },
+        "singlem_options": {
+            "title": "SingleM options",
+            "type": "object",
+            "fa_icon": "fas fa-bacteria",
+            "description": "Read-based taxonomic profiling with SingleM on fastp-trimmed reads.",
+            "properties": {
+                "singlem_metapackage": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "exists": true,
+                    "description": "Path to an extracted SingleM metapackage (`.smpkg` directory). Preferred over downloading.",
+                    "help_text": "The GlobDB r232 metapackage is a 3.8 GB download and 17 GB extracted. It must be on local or shared disk: SingleM cannot read a metapackage from object storage. If not set, the pipeline downloads `--singlem_metapackage_url`, into `--singlem_db_cache` when that is set and otherwise into the work directory.",
+                    "fa_icon": "fas fa-database"
+                },
+                "singlem_metapackage_url": {
+                    "type": "string",
+                    "default": "https://fileshare.lisc.univie.ac.at/globdb/globdb_r232/taxonomic_profiling/GlobDB_r232.metapackage_v4.smpkg.tar.gz",
+                    "description": "Metapackage archive (`.smpkg.tar.gz`) to download when `--singlem_metapackage` is not set.",
+                    "help_text": "Default: GlobDB r232 (CC BY-SA 4.0; cite GlobDB and its underlying sources, see https://globdb.org/citations).",
+                    "fa_icon": "fas fa-cloud-download-alt"
+                },
+                "singlem_db_cache": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory to keep the downloaded, extracted metapackage across runs. Recommended when `--singlem_metapackage` is not set.",
+                    "help_text": "The first run needs ~21 GB free (archive staged in the work directory plus the extracted copy). Later runs reuse the cached copy and skip the download. Without it, the metapackage is extracted in the work directory and every fresh run downloads it again.",
+                    "fa_icon": "fas fa-hdd"
+                },
+                "singlem_assignment_method": {
+                    "type": "string",
+                    "description": "Override SingleM's taxonomic assignment method (`singlem pipe --assignment-method`).",
+                    "help_text": "Leave unset for SingleM's default. The test profile sets `diamond` because its 3-marker CI metapackage has no nucleotide database.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-sliders-h"
+                }
+            }
+        },
+        "report_options": {
+            "title": "Report options",
+            "type": "object",
+            "fa_icon": "fas fa-chart-bar",
+            "description": "Layout of the envmetag HTML report.",
+            "properties": {
+                "report_top_n": {
+                    "type": "integer",
+                    "default": 15,
+                    "minimum": 1,
+                    "description": "Taxa per rank that get their own colour in the composition plot; the rest are pooled as 'Other'.",
+                    "help_text": "Taxa are ranked by their highest relative abundance in any one sample, so a taxon that dominates a single sample keeps its own colour.",
+                    "fa_icon": "fas fa-list-ol"
+                },
+                "report_stacked_bar_max_samples": {
+                    "type": "integer",
+                    "default": 15,
+                    "minimum": 1,
+                    "description": "Sample count above which the report notes that the stacked-bar layout may be hard to read.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-columns"
+                }
+            }
+        },
         "generic_options": {
             "title": "Generic options",
             "type": "object",
@@ -142,6 +225,18 @@
                 "show_hidden": {
                     "type": "boolean",
                     "description": "Display hidden parameters in the help message (only works when --help or --help_full are provided)."
+                },
+                "config_profile_name": {
+                    "type": "string",
+                    "description": "Name of the active config profile, shown in the run summary.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-tag"
+                },
+                "config_profile_description": {
+                    "type": "string",
+                    "description": "Description of the active config profile, shown in the run summary.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-align-left"
                 }
             }
         }
@@ -149,6 +244,15 @@
     "allOf": [
         {
             "$ref": "#/$defs/input_output_options"
+        },
+        {
+            "$ref": "#/$defs/read_cleaning_options"
+        },
+        {
+            "$ref": "#/$defs/singlem_options"
+        },
+        {
+            "$ref": "#/$defs/report_options"
         },
         {
             "$ref": "#/$defs/generic_options"

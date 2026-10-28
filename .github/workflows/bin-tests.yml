@@ -1,0 +1,27 @@
+name: bin script tests
+# Unit tests for the Python scripts in bin/ (tests/bin). These scripts use only the standard
+# library; pytest is the only test dependency.
+on:
+  pull_request:
+    paths:
+      - "bin/**"
+      - "tests/bin/**"
+      - ".github/workflows/bin-tests.yml"
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # the Python minor version in the envmetag report container (python=3.13.16); uv picks the patch
+        python-version: ["3.13"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+
+      - name: Run pytest
+        run: uv run --no-project --python ${{ matrix.python-version }} --with pytest==9.1.1 pytest tests/bin -v

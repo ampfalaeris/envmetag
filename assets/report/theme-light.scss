@@ -1,0 +1,34 @@
+/*-- scss:defaults --*/
+// No web fonts: the report must open offline (Bootswatch themes import Google Fonts by default)
+$web-font-path: false;
+$font-family-sans-serif:
+  system-ui,
+  -apple-system,
+  "Segoe UI",
+  Roboto,
+  "Helvetica Neue",
+  Arial,
+  sans-serif;
+$body-bg: #edf1f5;
+$body-color: #1f2933;
+$primary: #0b6e4f;
+$link-color: #0b6e4f;
+
+/*-- scss:rules --*/
+// Colours used by the report's own rules (inline in envmetag_report.qmd); theme-dark.scss defines the same names
+:root {
+  --em-page: #edf1f5;
+  --em-panel: #ffffff;
+  --em-ink: #1f2933;
+  --em-muted: #616e7c;
+  --em-line: #e1e6ec;
+  --em-soft: #f5f7fa;
+  --em-accent: #0b6e4f;
+  --em-banner-from: #0b6e4f;
+  --em-banner-to: #1d4e89;
+  --em-warn: #8a5a00;
+  --em-warn-soft: #fff4d6;
+  --em-tip-bg: #1f2933;
+  --em-tip-ink: #ffffff;
+  --em-shade: 11, 110, 79;
+}

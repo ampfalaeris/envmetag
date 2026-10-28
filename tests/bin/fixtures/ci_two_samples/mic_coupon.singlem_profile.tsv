@@ -1,0 +1,4 @@
+sample	coverage	taxonomy
+mic_coupon	6.04	Root; d__Archaea; p__AGJL01; c__Methanococci; o__Methanococcales; f__Methanococcaceae; g__Methanococcus
+mic_coupon	0.55	Root; d__Bacteria; p__Desulfobacterota; c__Desulfovibrionia; o__Desulfovibrionales; f__Desulfovibrionaceae; g__JACCQO01
+mic_coupon	1.1	Root; d__Bacteria; p__Desulfobacterota; c__Desulfovibrionia; o__Desulfovibrionales; f__Desulfovibrionaceae; g__Oleidesulfovibrio

@@ -1,0 +1,2 @@
+sample	bacterial_archaeal_bases	metagenome_size	read_fraction	average_bacterial_archaeal_genome_size	warning	domain_relative_abundance	phylum_relative_abundance	class_relative_abundance	order_relative_abundance	family_relative_abundance	genus_relative_abundance	species_relative_abundance
+apb_enrichment	134145878	302000000	44.42	3532014		0.45	0.00	0.32	0.00	1.18	4.92	93.13

@@ -5,9 +5,34 @@
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
+                    "bowtie2/align": {
+                        "branch": "master",
+                        "git_sha": "8278e3c8a48427f7c26754128eba4907b8318878",
+                        "installed_by": ["modules"]
+                    },
+                    "bowtie2/build": {
+                        "branch": "master",
+                        "git_sha": "8278e3c8a48427f7c26754128eba4907b8318878",
+                        "installed_by": ["modules"]
+                    },
+                    "fastp": {
+                        "branch": "master",
+                        "git_sha": "1e31555fd8e5f4e959283d6db859a1f3a17fe25f",
+                        "installed_by": ["modules"]
+                    },
                     "fastqc": {
                         "branch": "master",
                         "git_sha": "18eb358065b06f2d3419e37383b002fe7db3da02",
+                        "installed_by": ["modules"]
+                    },
+                    "hostile/clean": {
+                        "branch": "master",
+                        "git_sha": "14295214ba15060cf1e65bdba3e0c4b3a450d5b1",
+                        "installed_by": ["modules"]
+                    },
+                    "hostile/fetch": {
+                        "branch": "master",
+                        "git_sha": "14295214ba15060cf1e65bdba3e0c4b3a450d5b1",
                         "installed_by": ["modules"]
                     },
                     "multiqc": {
