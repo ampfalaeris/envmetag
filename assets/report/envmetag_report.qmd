@@ -259,7 +259,8 @@ for rank in available:
         trace_rank.append(rank)
     fig.add_bar(
         x=SAMPLES, y=[entry["unassigned"][s] for s in SAMPLES], name=f"Unassigned at {rank}",
-        marker_color=UNASSIGNED_COLOUR, hovertemplate=f"<b>Unassigned at {rank}</b><br>%{{x}}: %{{y:.2f}}%<extra></extra>",
+        # Plotly placeholders kept out of the f-string: doubled braces trip nf-core lint's template check
+        marker_color=UNASSIGNED_COLOUR, hovertemplate=f"<b>Unassigned at {rank}</b><br>" + "%{x}: %{y:.2f}%<extra></extra>",
     )
     trace_rank.append(rank)
 

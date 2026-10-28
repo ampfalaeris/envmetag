@@ -556,3 +556,30 @@ Sample descriptions corrected 2026-10-25 from the BioSample records (earlier tex
 - apb_enrichment's prokaryotic fraction is 58.43% on trimmed reads against 44.42% on raw reads in the earlier 1M-pair check. That run has ~52% adapter-containing reads; trimming removes those bases from the denominator. Consistent with "SingleM runs on fastp-trimmed reads", but large enough to state.
 - `level_coverage` used level **names** (7 levels present), the first real test of that path; the per-rank tables included `species` and non-zero `unassigned` (7.52% and 4.80% at species).
 - Peak RSS per task: Hostile clean 2.9 GB, FastQC/fastp ≤1.3 GB, SingleM pipe 1.0 GB (full GlobDB), report 0.86 GB, MultiQC 1.0 GB. Longest tasks: SingleM pipe 3–3.6 min, Hostile fetch 3.5 min (download). `conf/base.config` defaults are not yet tuned from this.
+
+---
+
+## 2026-10-27 — Process resources sized from the first `test_full` run
+
+**Decision:** keep the nf-core label defaults in `conf/base.config`, and override by name the seven processes whose label is far from measured use:
+
+| Process | Label request | Peak RSS (test_full) | Now |
+|---|---|---|---|
+| BOWTIE2_BUILD (PhiX) | process_high: 12 CPU, 72 GB | 10 MB | 1 CPU, 1 GB, 1 h |
+| BOWTIE2_ALIGN (PhiX) | process_high: 12 CPU, 72 GB | 125 MB | 4 CPU, 2 GB, 4 h |
+| FASTP | process_medium: 6 CPU, 36 GB | 1.3 GB | 4 CPU, 4 GB, 4 h |
+| FASTQC_RAW / FASTQC_TRIMMED | process_low: 2 CPU, 12 GB | 0.74 GB | 2 CPU, 4 GB |
+| HOSTILE_CLEAN | process_low: 2 CPU, 12 GB | 2.9 GB | 4 CPU, 6 GB, 8 h |
+| SINGLEM_PIPE | process_medium: 6 CPU, 36 GB | 1.0 GB | 4 CPU, 4 GB, 8 h |
+| SINGLEM_PROKARYOTICFRACTION | process_low: 2 CPU, 12 GB | 0.23 GB | 2 CPU, 2 GB |
+
+Memory and time are multiplied by `task.attempt`; the existing `errorStrategy` retries once on exit codes 130–145 (137 = killed for memory), so a first miss gets double. Processes already close to their label (MultiQC, the report, SingleM summarise, metapackage preparation, Hostile fetch) are unchanged.
+
+**Why:**
+- A 72 GB request to align reads to a 5 kb genome waits in cluster queues for no reason, and oversized requests limit how many tasks run at once on a workstation.
+- Nextflow's local executor refuses a task that requests more memory than the machine has. Keeping SingleM at 4 GB and Hostile at 6 GB lets the pipeline run on an 8 GB laptop, as CLAUDE.md intends for SingleM.
+- Time limits allow ~50x the test_full depth (1M pairs), since run time grows with read count (SingleM 3.6 min per 1M pairs → ~3 h at 50M).
+
+**Evidence (2026-10-27):** peak RSS and run times from the `test_full` trace ("First `test_full` run"). A `-stub` run of `-profile test` recorded the requested resources per task, all as in the table (time shows the test profile's 1 h cap), and completed on this 7.7 GB machine **without** a memory-limit override; before this change it failed with "Task requirement exceeds available memory -- req: 15 GB". The full nf-test suite (`--ci`, Docker) then passed 18/18 with no snapshot change and **without** `NFT_MAX_MEMORY`, which every earlier local run on this machine needed.
+
+**Not measured:** memory on samples much deeper than 1M pairs. Bowtie2/Hostile and SingleM memory is dominated by the index or metapackage, but fastp and SingleM have not been profiled on, e.g., 20M+ pairs. Revisit with a real deep sample.
