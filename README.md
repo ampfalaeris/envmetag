@@ -15,7 +15,7 @@
 
 envmetag is built from the nf-core template but is not an nf-core pipeline.
 
-Current steps (v0.1, in development):
+Current steps (v0.1):
 
 1. Read QC of the raw reads ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Adapter and poly-G trimming ([fastp](https://github.com/OpenGene/fastp)), followed by FastQC on the trimmed reads
