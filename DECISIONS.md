@@ -657,3 +657,160 @@ Memory and time are multiplied by `task.attempt`; the existing `errorStrategy` r
 - After the change: `nextflow run . -profile test,conda -stub` and `-profile test,mamba -stub` both exit 1 with the new message and `completed=0`. `nextflow lint .` has no errors; `nf-core pipelines lint --release` reports no new failure.
 
 **Not covered:** `-with-conda` on the command line without a conda profile is not caught by the profile check.
+
+---
+
+## 2026-10-28 — Cycling database audit: what the files contain and where they disagree
+
+**Decision:** use SCycDB (`SCycDB_2020Mar.faa` + `id2gene.2020Mar.map`), MCycDB (`MCycDB_2021.faa` + `id2gene.map`) and NCyc (`NCyc_100_2019Jul.faa` + `id2gene.map.2019Jul`, with homolog labels from `NCyc_100.faa.gz` headers), downloaded from pinned commits, with the preparation rules in CLAUDE.md ("Marker module (v0.2) rules").
+
+**Evidence (2026-10-28, this machine; standard-library scripts `cycdb_audit.py`, `splitzip_extract.py`, `cycdb_overlap.py`, `cycdb_family_pairs.py`, kept outside the repository with the downloads):** commits SCycDB `f107be1a` (2025-04-01), MCycDB `ceba2187` (2026-01-12), NCyc `4ee9aad9` (2020-12-30). None of the repositories has a license file or license wording.
+
+|                                                  | SCycDB             | MCycDB                   | NCyc (2019Jul) |
+| ------------------------------------------------ | ------------------ | ------------------------ | -------------- |
+| FASTA records                                    | 911,805            | 923,847 (+24 with no ID) | 273,501        |
+| Unique IDs                                       | 906,636            | 851,188                  | 273,501        |
+| Duplicate IDs (all identical sequence)           | 5,169              | 71,519                   | 0              |
+| Map targets                                      | 579,056            | 610,147                  | 219,091        |
+| FASTA IDs absent from map (homologs by map rule) | 327,580            | 241,041                  | 54,410         |
+| Families in map                                  | 207                | 275 (README: 298)        | 69             |
+| Header says target (`gene=`) but not in map      | 0                  | 40,875 (219 genes)       | 0              |
+| Duplicate IDs annotated both target and homolog  | 3,980 (all in map) | 2,162 (2,161 in map)     | 0              |
+
+- **Extraction:** inflating each split-zip entry from the central directory matched the archive's size and CRC32 exactly (SCycDB 364,058,792 B, `298f37da`; MCycDB 380,449,265 B, `753c621e`). The NCyc 7z entry also matches its CRC32 (`cb5dc65b`). That Info-ZIP `unzip` leaves a partial SCycDB FASTA and Python's `zipfile` refuses the archive was observed in the claude.ai planning session, not rechecked here.
+- **NCyc files:** `NCyc_100.faa.gz` and `id2gene.map` are the original release (committed 2018-04-23). The 7z ("Duplicated records removed", 2019-07-28) and `id2gene.map.2019Jul` (2019-07-29) are the authors' cleanup. Both FASTAs hold the same 273,501 IDs with identical sequences; the 2018 file adds annotation headers and 441 duplicate records, the 2019 file has bare IDs. The 2018 map lists 99,288 IDs absent from the FASTA and gives 81 IDs two families; the 2019Jul map covers exactly the FASTA's targets, one family each, and adds `nasC`. Of single-label IDs, 243 changed from 2018 to 2019: `pmoA` → `amoA_B` 192, `amoA_A` → `amoA_B` 29, `amoA_B` → `pmoA` 22. The README and `NCycProfiler.PL` still point at the 2018 files.
+- **Map targets labelled homolog:** 18 IDs in the 2019Jul map have only `homolog` headers in `NCyc_100.faa` (e.g. `ureA homolog`, `nirS homolog`). By the map rule they are targets. SCycDB and MCycDB have none.
+- **Mixed-annotation duplicates are not conflicts:** SCycDB and MCycDB IDs that occur twice with the same sequence, once as a target and once as a homolog of the same gene under a different orthology group, are listed in the map as targets. One MCycDB exception, `59538.XP_005978769.1` (_fbp_), is in neither.
+- **SCycDB maps:** `id2gene.map.2021` drops 49,084 IDs across 192 families from `id2gene.2020Mar.map` and adds or relabels none (same 207 families). The README documents only 2020Mar.
+- **ID types** (share of unique IDs): UniProt accessions 7.2% / 20.2% / 65.8% (SCycDB / MCycDB / NCyc); RefSeq `WP_` 38.1% / 31.6% / 0; eggNOG `taxid.locus` 28.6% / 25.0% / 9.1%.
+- **Cross-database overlap** (identical IDs; target in both / one only / homolog in both): SCycDB–MCycDB 76,543 (43,447 / 12,576 / 20,520); MCycDB–NCyc 41,128 (39,867 / 579 / 682); SCycDB–NCyc 3,530 (1,429 / 1,792 / 309). By identical sequence: 73,683, 49,631 and 9,421. 29 shared IDs (14 MCycDB–NCyc, 15 SCycDB–NCyc) carry different sequences.
+
+**Open (to email the authors):** license; whether the 40,875 MCycDB `gene=` sequences are targets missing from the map (README 298 families and 610,208 sequences vs map 275 and 610,147); the 24 ID-less MCycDB records and `59538.XP_005978769.1`; which SCycDB map is current; whether the NCyc 2019Jul pair is the current release; the 18 NCyc targets labelled homolog; split-zip extraction.
+
+**Sources:**
+
+- SCycDB — https://github.com/qichao1984/SCycDB
+- MCycDB — https://github.com/qichao1984/MCycDB
+- NCyc — https://github.com/qichao1984/NCyc
+
+---
+
+## 2026-10-28 — One combined DIAMOND database for the three cycling databases
+
+**Decision:** search SCycDB, MCycDB and NCyc as one database: IDs prefixed by source, identical sequences collapsed with labels merged, target status winning over homolog across sources. A read is counted once per family; totals are never summed across cycles.
+
+**Why:** with separate searches a read can count in two databases. A combined database makes them compete for each read, and every database's homologs act as extra decoys for the others. The audit's overlap counts show the rules are needed: 12,576 SCycDB–MCycDB sequences are a target in one and only a homolog in the other, and 29 IDs mean different sequences in different databases.
+
+**Not yet verified:** that the combined database recovers each target family at least as well as its own database alone, on the positive controls. Check before v0.2 ships.
+
+---
+
+## 2026-10-28 — Canonical-family table keyed by (database, family); ambiguity groups
+
+**Decision:** families from the three databases are joined through a curated table in the repository, keyed by `(source_db, source_family)`. Each row gives a canonical family (KO-level where a KO exists), an ambiguity group, the cycles, a `core_metabolism` flag, and a note with the evidence. A shared KO is a candidate merge, except K10944–K10946 (copper membrane monooxygenase: methane and ammonia) and K00370/K00371 (nitrate reductase and nitrite oxidoreductase), whose families stay separate. Sequences carry a set of families; reads are resolved to one family, or counted once for the ambiguity group, as in CLAUDE.md.
+
+**Why:**
+
+- Names are not keys. MCycDB `mdh` (methanol dehydrogenase, COG1454) and `mdh-K00024` (malate dehydrogenase) differ; so do MCycDB `fdhA` (formate DH) and `fdhA-K00148` (formaldehyde DH). The KO suffixes exist to separate them, and NCyc splits `gdh` and `gs` into four KOs each.
+- Collapsing identical sequences leaves 48,763 of 1,711,123 sequences with two or more target families (114 within one database). Of the 171 family pairs that share sequences, 61 share at least 10 sequences and 1% of the smaller family (49,008 links); the other 110 (339 links) look like single mislabels and are resolved to one family in the table.
+- Of those 49,008 links, 76% join synonyms: one enzyme under two names (SCycDB `mdh` = MCycDB `mdh-K00024`, 25,853; MCycDB `amoA` = NCyc `amoA_B`, 8,207; SCycDB `gdh` = NCyc `gdh_K00262`, 2,278; _narG_/_narZ_; _narH_/_narY_). The rest form 14 groups of different enzymes on shared sequences, which labels cannot separate: the COG0437 Fe-S subunits (_ttrB_, _dmsB_, _phsB_, _psrB_, _soeB_, _nrfC_, ...), COG0243 molybdopterin subunits, _acs_/_prpE_, _acdB_/_dmdC_, _serA_/_slcC_, _sudA_/_gltD_, _torC_/_napC_, _nirA_/_sir_, and smaller ones.
+- Housekeeping families (malate and glutamate dehydrogenase, glutamate synthase) are large and nearly universal, so their abundance says little about a cycle; they are flagged and kept out of the cycle headline numbers.
+
+**Evidence (2026-10-28):** `cycdb_overlap.py` and `cycdb_family_pairs.py` on the files in the audit entry; dominant orthology groups per family from FASTA target headers; KO names and pathway links looked up once in the KEGG REST API. KEGG REST is "made available only for academic use by academic users", so the pipeline never calls it and the repository stores KO identifiers only. Working notes, the cluster chart, and the open questions are in the Claude Doc "envmetag cycling databases: gene family comparison".
+
+**To do:** build the table from the 21 clusters and the 339 weak links, recording each decision; confirm MCycDB `mdh` as K00093 from a sample of sequences; check the 1,653 SCycDB `gdh` sequences shared with no NCyc family.
+
+**Sources:**
+
+- KEGG REST API — https://www.kegg.jp/kegg/rest/
+
+---
+
+## 2026-10-28 — Read calls: score margin plus database-derived thresholds; ROCkOut for a short list
+
+**Decision:**
+
+- Every read hitting the combined database is called **target / homolog / ambiguous** from the margin between its best target and best homolog bitscore (DIAMOND `--top`), with per-family thresholds; reads whose target hits span families in one ambiguity group use a family-vs-family margin with per-group thresholds.
+- Thresholds are generated from the database itself during preparation: target and homolog proteins are cut into read-length fragments with simulated substitutions, aligned with the production DIAMOND settings excluding each fragment's own 95% cluster (MMseqs2), and the cutoff is chosen from the resulting score distributions. This adapts ROCker's approach without hand-curated genomes.
+- ROCkOut models (ROCker's Python successor) only for _dsrAB_, _mcrA_, _amoA_ vs _pmoA_, and _bssA_/_assA_ (v0.2.x).
+
+**Why:**
+
+- An e-value cannot separate a target from its homolog: both align with tiny e-values. ROCker reported ~60× lower false-discovery rate than fixed e-values, and for bacterial _amoA_ only ~10% of reads landed in the correct clade without negative references vs 81% with them (from the claude.ai planning session; not rechecked here).
+- Hand-built models for ~570 families would be unmaintainable; database-derived thresholds are rebuilt automatically when the database changes.
+- Protein fragments miss frame shifts, sequencing errors, and reads from non-coding flanks, so the derived thresholds are checked against genome-simulated control reads for 2–3 markers.
+- _amoA_ vs _pmoA_ joins the ROCkOut list because one KEGG KO (K10944) covers both, and the NCyc 2019 relabelling (243 IDs among `pmoA`, `amoA_A` and `amoA_B`) shows the curators correcting exactly this confusion.
+
+**Deferred:** a per-read posterior from a mixture model on margins. Bracken-style redistribution is rejected: it pushes reads from lineages missing in the database onto their nearest neighbour, inflating them.
+
+**Sources:**
+
+- ROCker (NAR, 2017) — https://academic.oup.com/nar/article/45/3/e14/2972200
+- ROCkOut — https://github.com/KGerhardt/ROCkOut
+- ROCkIn v1.0 — https://zenodo.org/records/14707993
+
+---
+
+## 2026-10-28 — Quantification unit, mate handling, and the single-copy calibrator
+
+**Decision:** marker abundance is gene coverage (aligned bases / gene length) divided by genome equivalents (`bacterial_archaeal_bases / average_bacterial_archaeal_genome_size` from SingleM). Mates are handled the same way SingleM handles them when it computes coverage. A universal single-copy gene (e.g. _rplB_ or _rpoB_) is searched alongside the markers with identical steps and must come out at about 1 copy per genome equivalent.
+
+**Why:** SingleM's coverage depends on how it pairs mates (coverage rose ~1.6× when Hostile's `/1` `/2` headers broke pairing), and that flows into the denominator. A numerator with a different pair convention biases copies per genome by up to ~2×, varying with insert size. Pair merging changes query length and merge rate by library, so it is tested, not assumed: run the calibrator with and without merging and keep the version that holds near 1 on both test libraries.
+
+**To do before coding:** read how SingleM 0.21.4 combines mates in its coverage calculation.
+
+---
+
+## 2026-10-28 — CANT-HYD and PCycDB move to v0.3 (protein level)
+
+**Decision:** CANT-HYD and PCycDB are used on predicted proteins from assemblies (v0.3), not on reads.
+
+**Evidence (claude.ai planning session, 2026-10-28; not rechecked in this repository):**
+
+- CANT-HYD (last commit 2022-07-14, GPL-3.0): 37 HMMs, each with a trusted (TC) and noise (NC) cutoff; the README runs `hmmsearch --cut_tc` / `--cut_nc` on protein FASTA. The cutoffs are full-length-protein bitscores (e.g. TmoA_BmoA TC 900, NC 810) that a ~50 aa read fragment cannot reach.
+- PCycDB: the paper assembled reads (MEGAHIT), called ORFs (Prodigal), and tuned its cutoffs on a simulated gene set and a 50-genome mock community. Its GitHub repository holds scripts and examples but no database FASTA, and no license.
+
+**Consequence:** until v0.3, anaerobic hydrocarbon activation markers (_bssA_, _assA_) have no read-level quantification unless the v0.2.x ROCkOut models exist.
+
+**Sources:**
+
+- CANT-HYD — https://github.com/dgittins/CANT-HYD-HydrocarbonBiodegradation
+- PCycDB paper — https://doi.org/10.1186/s40168-022-01292-1
+- PCycDB repository — https://github.com/ZengJiaxiong/Phosphorus-cycling-database
+
+---
+
+## 2026-10-28 — ROCkOut integration design (v0.2.x, blocked on license)
+
+**Decision:**
+
+- Model building (ROCkIn curation, then ROCkOut `download → build → refine`) is offline work in a build script, one model per marker, versioned and deposited; never a pipeline step.
+- The pipeline runs ROCkOut `align → filter → place` as **one module per sample**, placement switched by a parameter.
+- Inputs: clean reads converted to FASTA (`seqtk seq -a`); reads shorter than a model's shortest training read length are dropped (parameter, recorded per model).
+
+**Why one module:** `align` creates `alignments/` and `original_reads/` in the filter directory, `filter` writes `ROCkOut_passing_read_fastas/` into it, and `place` writes there too. Split across processes, a later task would write into an earlier task's work directory, breaking caching and resume. All three steps only read the model directory, so a shared cached copy is safe (confirm with a read-only mount in the module test).
+
+**Module must handle (from the ROCkOut source, read in the claude.ai planning session 2026-10-28; recheck before coding):**
+
+- `place` runs MAFFT, pplacer and guppy through `os.system()` without checking exit codes: the module checks every expected output exists and is non-empty.
+- ROCkOut treats each mate as a separate read: passing reads are collapsed by read ID so each fragment counts once.
+- `align` writes a second copy of the reads into the filter directory (disk on deep samples).
+- No releases: the container pins a commit hash.
+
+**Blocked:** ROCkOut has no license file (as of 2026-10-28; last commit 2025-07-02). A public container image or deposited models would redistribute it. ROCkIn (GPL-3.0) is usable now.
+
+**Placement confidence:** report clade counts with pplacer's likelihood weight ratio cutoff and the unplaced fraction; the cutoff and per-position accuracy are measured on simulated reads with known clades. Soft counts (likelihood weight summed per clade subtree) are the default; a placement agreeing with the DIAMOND best-hit clade is the confidence check.
+
+---
+
+## 2026-10-28 — Targeted assembly research stays outside envmetag
+
+**Decision:** HMM-guided targeted assembly on an FM-index of reads is a separate research repository. envmetag provides its seeds (v0.2 hits) and baseline (read-based counts). The headline comparison is PathRacer (shipped with SPAdes 4.0); Xander and MegaGTA are compared through the published results of the 2019 gene-targeted assembly review on its datasets, not rebuilt.
+
+**Why:** MegaGTA's last commit is 2016-06-16 and it depends on UCHIME (USEARCH, proprietary), RDPTools (Java) and per-gene Xander-format HMM resources; it is a comparator, not a component. PathRacer is maintained and directly tests graph search against index search.
+
+**Sources:**
+
+- Gene-targeted assembly review (Frontiers in Genetics, 2019) — https://doi.org/10.3389/fgene.2019.00957
+- PathRacer in SPAdes 4.0 — https://github.com/ablab/spades/releases/tag/v4.0.0
+- MegaGTA — https://github.com/HKU-BAL/megagta
