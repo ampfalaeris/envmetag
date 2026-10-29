@@ -1,0 +1,800 @@
+scope	key	field	value	reason	source
+row	SCycDB:mdh	canonical_family	mdh_K00024	malate DH; 25,853 sequences identical to MCycDB mdh-K00024	audit 2026-10-28 family_pairs.tsv
+row	MCycDB:mdh-K00024	canonical_family	mdh_K00024	malate DH; same sequences as SCycDB mdh	audit 2026-10-28 family_pairs.tsv
+row	MCycDB:mdh	canonical_family	mdh_methanol	methanol DH (Fe-type alcohol DH, COG1454), a different enzyme from SCycDB mdh; KO unconfirmed	audit 2026-10-28 families.tsv
+row	MCycDB:fdhA-K00148	canonical_family	fdhA_K00148	formaldehyde DH, not MCycDB fdhA (formate DH)	audit 2026-10-28 families.tsv
+row	MCycDB:amoA	canonical_family	amoA_B	bacterial amoA: 8,207 sequences identical to NCyc amoA_B, none to amoA_A	audit 2026-10-28 family_pairs.tsv
+row	MCycDB:amoB	canonical_family	amoB_B	bacterial amoB, as MCycDB amoA	audit 2026-10-28 families.tsv
+row	MCycDB:amoC	canonical_family	amoC_B	bacterial amoC, as MCycDB amoA	audit 2026-10-28 families.tsv
+row	SCycDB:gdh	canonical_family	gdh_K00262	NADP glutamate DH; 2,278 of 3,931 identical to NCyc gdh_K00262	audit 2026-10-28 family_pairs.tsv
+row	MCycDB:narG	canonical_family	narG_narZ	K00370 nitrate reductase alpha; databases split NarG/NarZ by operon inconsistently	audit 2026-10-28 families.tsv
+row	MCycDB:narZ	canonical_family	narG_narZ	K00370	audit 2026-10-28 families.tsv
+row	NCyc:narG	canonical_family	narG_narZ	K00370	audit 2026-10-28 families.tsv
+row	NCyc:narZ	canonical_family	narG_narZ	K00370	audit 2026-10-28 families.tsv
+row	MCycDB:narH	canonical_family	narH_narY	K00371 nitrate reductase beta	audit 2026-10-28 families.tsv
+row	MCycDB:narY	canonical_family	narH_narY	K00371	audit 2026-10-28 families.tsv
+row	NCyc:narH	canonical_family	narH_narY	K00371	audit 2026-10-28 families.tsv
+row	NCyc:narY	canonical_family	narH_narY	K00371	audit 2026-10-28 families.tsv
+row	NCyc:narI	canonical_family	narI_narV	K00374 nitrate reductase gamma	audit 2026-10-28 families.tsv
+row	NCyc:narV	canonical_family	narI_narV	K00374	audit 2026-10-28 families.tsv
+row	MCycDB:fmdB	canonical_family	fmdB_fwdB	K00201; Mo and W isoenzymes of one reaction	canonical-families review 2026-10-28
+row	MCycDB:fwdB	canonical_family	fmdB_fwdB	K00201	canonical-families review 2026-10-28
+row	MCycDB:fmdC	canonical_family	fmdC_fwdC	K00202; Mo and W isoenzymes	canonical-families review 2026-10-28
+row	MCycDB:fwdC	canonical_family	fmdC_fwdC	K00202	canonical-families review 2026-10-28
+row	MCycDB:frmB	canonical_family	fghA	K01070; same enzyme, two gene names	canonical-families review 2026-10-28
+row	MCycDB:vhcD	canonical_family	mvhD	K14127; isoenzyme of mvhD	canonical-families review 2026-10-28
+row	MCycDB:vhuD	canonical_family	mvhD	K14127; isoenzyme of mvhD (extends the review's vhcD call to vhuD)	audit 2026-10-28 families.tsv
+row	MCycDB:vhcA	canonical_family	mvhA	K14126; isoenzyme of mvhA (extends the review's vhcD call)	audit 2026-10-28 families.tsv
+row	MCycDB:vhuA	canonical_family	mvhA	K14126	audit 2026-10-28 families.tsv
+row	MCycDB:vhuG	canonical_family	mvhG	K14128; isoenzyme of mvhG (extends the review's vhcD call)	audit 2026-10-28 families.tsv
+row	SCycDB:hydA	canonical_family	hydA_shyA	K17993; sulfhydrogenase I and II subunits, 29-38 sequences each	canonical-families review 2026-10-28
+row	SCycDB:shyA	canonical_family	hydA_shyA	K17993	canonical-families review 2026-10-28
+row	SCycDB:hydB	canonical_family	hydB_shyB	K17996	canonical-families review 2026-10-28
+row	SCycDB:shyB	canonical_family	hydB_shyB	K17996	canonical-families review 2026-10-28
+row	SCycDB:hydD	canonical_family	hydD_shyD	K17994	canonical-families review 2026-10-28
+row	SCycDB:shyD	canonical_family	hydD_shyD	K17994	canonical-families review 2026-10-28
+row	SCycDB:hydG	canonical_family	hydG_shyC	K17995	canonical-families review 2026-10-28
+row	SCycDB:shyC	canonical_family	hydG_shyC	K17995	canonical-families review 2026-10-28
+canonical	mdh_methanol	ko		KO not confirmed from a sequence sample; K00093 suspected	audit 2026-10-28 families.tsv
+canonical	amoA_B	ko	K10944	KO headers too few to pass the 5-header rule (MCycDB 3, NCyc 1), all K10944	audit 2026-10-28 families.tsv
+canonical	nxrB	ko	K00371	inferred: NCyc nxrB has no KO headers; K00371 is the KO of its NarH homologs, and the KO exception list treats K00371 as spanning both	audit 2026-10-28 families.tsv (inferred)
+canonical	amoA_B	cycle	nitrogen	ammonia oxidation; MCycDB copy carries no methane step	canonical-families review 2026-10-28
+canonical	amoB_B	cycle	nitrogen	ammonia oxidation	canonical-families review 2026-10-28
+canonical	amoC_B	cycle	nitrogen	ammonia oxidation	canonical-families review 2026-10-28
+canonical	pmoA	cycle	methane	methane oxidation	canonical-families review 2026-10-28
+canonical	pmoB	cycle	methane	methane oxidation	canonical-families review 2026-10-28
+canonical	pmoC	cycle	methane	methane oxidation	canonical-families review 2026-10-28
+canonical	narG_narZ	cycle	nitrogen	MCycDB carries it for nitrate-dependent AOM; a read still only shows the nitrogen step	canonical-families review 2026-10-28
+canonical	narH_narY	cycle	nitrogen	as narG_narZ	canonical-families review 2026-10-28
+canonical	narB	cycle	nitrogen	assimilatory nitrate reduction	canonical-families review 2026-10-28
+canonical	nirK	cycle	nitrogen	as narG_narZ	canonical-families review 2026-10-28
+canonical	nirS	cycle	nitrogen	as narG_narZ	canonical-families review 2026-10-28
+canonical	nrfA	cycle	nitrogen	as narG_narZ	canonical-families review 2026-10-28
+canonical	nxrA	cycle	nitrogen	nitrite oxidation; MCycDB copies are Nitrospira and anammox genes	MCycDB id2gene.map KEGG gene IDs (nmv, nja, nio, kst)
+canonical	mtsA	cycle	methane	methanogenesis from methylated thiols	https://iubmb.qmul.ac.uk/enzyme/EC2/1/1/251.html
+canonical	mtsB	cycle	methane	methanogenesis from methylated thiols	https://iubmb.qmul.ac.uk/enzyme/EC2/1/1/251.html
+canonical	hdrA1	cycle	shared	methanogen HdrABC and the sulfur-oxidizer Hdr-like complex share these genes	https://elifesciences.org/articles/37439
+canonical	hdrA1	cycle_detail	methane;sulfur	as cycle	https://elifesciences.org/articles/37439
+canonical	hdrA2	cycle	shared	as hdrA1	https://elifesciences.org/articles/37439
+canonical	hdrA2	cycle_detail	methane;sulfur	as cycle	https://elifesciences.org/articles/37439
+canonical	hdrB1	cycle	shared	as hdrA1	https://elifesciences.org/articles/37439
+canonical	hdrB1	cycle_detail	methane;sulfur	as cycle	https://elifesciences.org/articles/37439
+canonical	hdrB2	cycle	shared	as hdrA1	https://elifesciences.org/articles/37439
+canonical	hdrB2	cycle_detail	methane;sulfur	as cycle	https://elifesciences.org/articles/37439
+canonical	hdrC1	cycle	shared	as hdrA1	https://elifesciences.org/articles/37439
+canonical	hdrC1	cycle_detail	methane;sulfur	as cycle	https://elifesciences.org/articles/37439
+canonical	hdrC2	cycle	shared	as hdrA1	https://elifesciences.org/articles/37439
+canonical	hdrC2	cycle_detail	methane;sulfur	as cycle	https://elifesciences.org/articles/37439
+canonical	hdrD	cycle	shared	PENDING: 135 of 156 SCycDB hdrD are identical to MCycDB hdrD; source taxa of the SCycDB copies not yet checked	audit 2026-10-28 same_name.tsv
+canonical	hdrD	cycle_detail	methane;sulfur	as cycle	audit 2026-10-28 same_name.tsv
+canonical	hdrE	cycle	shared	PENDING: 35 of 41 SCycDB hdrE identical to MCycDB hdrE; source taxa not yet checked	audit 2026-10-28 same_name.tsv
+canonical	hdrE	cycle_detail	methane;sulfur	as cycle	audit 2026-10-28 same_name.tsv
+canonical	tmm	cycle	shared	PENDING: TMA oxidation (methylotrophy) vs DMS oxidation; the DMS role is not verified; 371 of 382 SCycDB tmm identical to MCycDB tmm	audit 2026-10-28 same_name.tsv
+canonical	tmm	cycle_detail	c1;sulfur	as cycle	audit 2026-10-28 same_name.tsv
+canonical	acsC	cycle	none	bacterial acetogen CODH/ACS; not a methane step	canonical-families review 2026-10-28
+canonical	acsD	cycle	none	bacterial acetogen CODH/ACS; not a methane step	canonical-families review 2026-10-28
+canonical	narB	role	assimilatory	assimilatory nitrate reductase	canonical-families review 2026-10-28
+canonical	nasA	role	assimilatory	assimilatory nitrate reductase	canonical-families review 2026-10-28
+canonical	nirA	role	assimilatory	assimilatory nitrite reductase	canonical-families review 2026-10-28
+canonical	cysD	role	assimilatory	assimilatory sulfate reduction	canonical-families review 2026-10-28
+canonical	cysN	role	assimilatory	assimilatory sulfate reduction	canonical-families review 2026-10-28
+canonical	cysN_cysC	role	assimilatory	fused cysN/cysC; follows cysN and cysC	canonical-families review 2026-10-28 (rule extended)
+canonical	cysC	role	assimilatory	assimilatory sulfate reduction	canonical-families review 2026-10-28
+canonical	cysH	role	assimilatory	assimilatory sulfate reduction	canonical-families review 2026-10-28
+canonical	cysJ	role	assimilatory	assimilatory sulfite reductase flavoprotein	canonical-families review 2026-10-28
+canonical	cysI	role	assimilatory	assimilatory sulfite reductase hemoprotein	canonical-families review 2026-10-28
+canonical	sir	role	assimilatory	ferredoxin-sulfite reductase	canonical-families review 2026-10-28
+canonical	tauD	role	assimilatory	taurine desulfonation under sulfate limitation	canonical-families review 2026-10-28
+canonical	ssuD	role	assimilatory	alkanesulfonate desulfonation under sulfate limitation	canonical-families review 2026-10-28
+canonical	ssuE	role	assimilatory	FMN reductase partner of ssuD	canonical-families review 2026-10-28 (rule extended)
+canonical	sat	role	assimilatory	sulfate adenylyltransferase is shared by both pathways; the dissimilatory markers are aprAB, dsrAB, qmoABC and dsrMK	canonical-families review 2026-10-28
+canonical	cysA	role	transport	sulfate/thiosulfate ABC transporter	canonical-families review 2026-10-28
+canonical	cysU	role	transport	sulfate/thiosulfate ABC transporter	canonical-families review 2026-10-28
+canonical	cysW	role	transport	sulfate/thiosulfate ABC transporter	canonical-families review 2026-10-28
+canonical	sbp	role	transport	sulfate-binding protein	canonical-families review 2026-10-28
+canonical	cysP	role	transport	thiosulfate-binding protein of the same transporter	canonical-families review 2026-10-28 (rule extended)
+canonical	cysZ	role	transport	sulfate permease	canonical-families review 2026-10-28 (rule extended)
+canonical	sulP	role	transport	SulP-family anion permease	canonical-families review 2026-10-28 (rule extended)
+canonical	tauA	role	transport	taurine ABC transporter	canonical-families review 2026-10-28 (rule extended)
+canonical	tauB	role	transport	taurine ABC transporter	canonical-families review 2026-10-28 (rule extended)
+canonical	tauC	role	transport	taurine ABC transporter	canonical-families review 2026-10-28 (rule extended)
+canonical	ssuA	role	transport	alkanesulfonate ABC transporter	canonical-families review 2026-10-28 (rule extended)
+canonical	ssuB	role	transport	alkanesulfonate ABC transporter	canonical-families review 2026-10-28 (rule extended)
+canonical	ssuC	role	transport	alkanesulfonate ABC transporter	canonical-families review 2026-10-28 (rule extended)
+canonical	mdh_K00024	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	ackA	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	pta	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	acs	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	prpE	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	ppc	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	pps	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	eno	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	fbp	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	fbp3	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	fbaA	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	fbaB	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	glpX	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	pfkA	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	pfp	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	gpmI	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	gpmB	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	apgM	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	porA	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	porB	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	porD	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	porG	role	core	central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+canonical	gdh_K00260	role	core	ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+canonical	gdh_K00261	role	core	ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+canonical	gdh_K00262	role	core	ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+canonical	gdh_K15371	role	core	ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+canonical	gs_K00264	role	core	ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+canonical	gs_K00265	role	core	ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+canonical	gs_K00266	role	core	ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+canonical	gs_K00284	role	core	ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+canonical	glnA	role	core	ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+canonical	glyA	role	core	amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+canonical	serA	role	core	amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+canonical	serB	role	core	amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+canonical	serC	role	core	amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+canonical	thrH	role	core	amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+canonical	hprA	role	core	amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+canonical	folA	role	core	amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+canonical	metF	role	core	amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+canonical	cysK	role	core	cysteine and methionine biosynthesis	canonical-families review 2026-10-28
+canonical	cysM	role	core	cysteine and methionine biosynthesis	canonical-families review 2026-10-28
+canonical	cysE	role	core	cysteine and methionine biosynthesis	canonical-families review 2026-10-28
+canonical	metB	role	core	cysteine and methionine biosynthesis	canonical-families review 2026-10-28
+canonical	metC	role	core	cysteine and methionine biosynthesis	canonical-families review 2026-10-28
+canonical	metA	role	core	methionine biosynthesis; follows metB and metC	canonical-families review 2026-10-28 (rule extended)
+canonical	metX	role	core	methionine biosynthesis; follows metB and metC	canonical-families review 2026-10-28 (rule extended)
+canonical	metY	role	core	methionine biosynthesis; follows metB and metC	canonical-families review 2026-10-28 (rule extended)
+canonical	metZ	role	core	methionine biosynthesis; follows metB and metC	canonical-families review 2026-10-28 (rule extended)
+canonical	tusB	role	core	tRNA thiouridine synthesis (TusBCD), homologous to DsrEFH	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+canonical	tusC	role	core	tRNA thiouridine synthesis (TusBCD), homologous to DsrEFH	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+canonical	tusD	role	core	tRNA thiouridine synthesis (TusBCD), homologous to DsrEFH	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+canonical	dmdC	ambiguity_group	acyl_coa_dh_cog1960	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	acs	ambiguity_group	acyl_coa_synthetase_cog0365	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	prpE	ambiguity_group	acyl_coa_synthetase_cog0365	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	napC	ambiguity_group	cytc_napC_torC_cog3005	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	torC	ambiguity_group	cytc_napC_torC_cog3005	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	torY	ambiguity_group	cytc_napC_torC_cog3005	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	napA	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	narB	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	nasA	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	fdhA	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	fdoG	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	torA	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	torZ	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	dmsA	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	phsA	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	psrA	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	sreA	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	soeA	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	ttrA	ambiguity_group	mo_bispgd_reductase	molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+canonical	fbp	ambiguity_group	fbp_fbp3	shared sequences; same KO K03841	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	fbp3	ambiguity_group	fbp_fbp3	shared sequences; same KO K03841	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	dmsB	ambiguity_group	fes_subunit_cog0437	shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	dsrO	ambiguity_group	fes_subunit_cog0437	shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	fdhB	ambiguity_group	fes_subunit_cog0437	shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	fdoH	ambiguity_group	fes_subunit_cog0437	shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	nrfC	ambiguity_group	fes_subunit_cog0437	shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	phsB	ambiguity_group	fes_subunit_cog0437	shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	psrB	ambiguity_group	fes_subunit_cog0437	shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	soeB	ambiguity_group	fes_subunit_cog0437	shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	sreB	ambiguity_group	fes_subunit_cog0437	shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	ttrB	ambiguity_group	fes_subunit_cog0437	shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	gs_K00266	ambiguity_group	gltD_like_cog0493	shared sequences; COG0493	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	sudA	ambiguity_group	gltD_like_cog0493	shared sequences; COG0493	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	hdrA1	ambiguity_group	hdrA_qmoA_mvhD	shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	canonical-families review 2026-10-28
+canonical	hdrA2	ambiguity_group	hdrA_qmoA_mvhD	shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	canonical-families review 2026-10-28
+canonical	mvhD	ambiguity_group	hdrA_qmoA_mvhD	shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	canonical-families review 2026-10-28
+canonical	qmoA	ambiguity_group	hdrA_qmoA_mvhD	shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	canonical-families review 2026-10-28
+canonical	qmoB	ambiguity_group	hdrA_qmoA_mvhD	shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	canonical-families review 2026-10-28
+canonical	hprA	ambiguity_group	hydroxyacid_dh_cog0111	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	serA	ambiguity_group	hydroxyacid_dh_cog0111	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	slcC	ambiguity_group	hydroxyacid_dh_cog0111	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	mgsC	ambiguity_group	mgsC_nmo	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	nmo	ambiguity_group	mgsC_nmo	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	narH_narY	ambiguity_group	narH_nxrB	NxrB shares K00371 with NarH; narJ (COG2180 chaperone) removed	https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143
+canonical	nxrB	ambiguity_group	narH_nxrB	NxrB shares K00371 with NarH; narJ (COG2180 chaperone) removed	https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143
+canonical	narG_narZ	ambiguity_group	narG_nxrA	K00370 spans nitrate reductase and nitrite oxidoreductase	https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143
+canonical	nxrA	ambiguity_group	narG_nxrA	K00370 spans nitrate reductase and nitrite oxidoreductase	https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143
+canonical	nrfA	ambiguity_group	nrfA_nrfB	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	nrfB	ambiguity_group	nrfA_nrfB	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	nrfD	ambiguity_group	nrfD_psrC	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	psrC	ambiguity_group	nrfD_psrC	shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+canonical	nirA	ambiguity_group	siroheme_cog0155	shared sequences (nirA, sir); cysI added on COG0155	canonical-families review 2026-10-28
+canonical	sir	ambiguity_group	siroheme_cog0155	shared sequences (nirA, sir); cysI added on COG0155	canonical-families review 2026-10-28
+canonical	cysI	ambiguity_group	siroheme_cog0155	shared sequences (nirA, sir); cysI added on COG0155	canonical-families review 2026-10-28
+canonical	dsrK	ambiguity_group	dsrK_hdrD	DsrK is related to HdrD (COG0247); COG seed, pending simulation	https://pmc.ncbi.nlm.nih.gov/articles/PMC3008517
+canonical	hdrD	ambiguity_group	dsrK_hdrD	DsrK is related to HdrD (COG0247); COG seed, pending simulation	https://pmc.ncbi.nlm.nih.gov/articles/PMC3008517
+canonical	dsrE	ambiguity_group	dsrE_tusD	K07235; DsrE and TusD are homologs with different functions	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+canonical	tusD	ambiguity_group	dsrE_tusD	K07235; DsrE and TusD are homologs with different functions	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+canonical	dsrF	ambiguity_group	dsrF_tusC	K07236	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+canonical	tusC	ambiguity_group	dsrF_tusC	K07236	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+canonical	dsrH	ambiguity_group	dsrH_tusB	K07237	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+canonical	tusB	ambiguity_group	dsrH_tusB	K07237	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+canonical	acsC	ambiguity_group	acsC_cdhE	K00197; bacterial acetogen vs archaeal methanogen CODH/ACS	canonical-families review 2026-10-28
+canonical	cdhE	ambiguity_group	acsC_cdhE	K00197; bacterial acetogen vs archaeal methanogen CODH/ACS	canonical-families review 2026-10-28
+canonical	acsD	ambiguity_group	acsD_cdhD	K00194	canonical-families review 2026-10-28
+canonical	cdhD	ambiguity_group	acsD_cdhD	K00194	canonical-families review 2026-10-28
+canonical	amoA_B	ambiguity_group	amoA_pmoA	K10944; the NCyc 2019Jul cleanup moved 192 IDs pmoA to amoA_B and 22 back	audit 2026-10-28 (NCyc map comparison)
+canonical	pmoA	ambiguity_group	amoA_pmoA	K10944; the NCyc 2019Jul cleanup moved 192 IDs pmoA to amoA_B and 22 back	audit 2026-10-28 (NCyc map comparison)
+canonical	amoB_B	ambiguity_group	amoB_pmoB	K10945	canonical-families review 2026-10-28
+canonical	pmoB	ambiguity_group	amoB_pmoB	K10945	canonical-families review 2026-10-28
+canonical	amoC_B	ambiguity_group	amoC_pmoC	K10946	canonical-families review 2026-10-28
+canonical	pmoC	ambiguity_group	amoC_pmoC	K10946	canonical-families review 2026-10-28
+canonical	tbuB	ambiguity_group	tbuB_tmoC_touC	K15762; PENDING sequence check (merge candidates)	canonical-families review 2026-10-28
+canonical	tmoC	ambiguity_group	tbuB_tmoC_touC	K15762; PENDING sequence check (merge candidates)	canonical-families review 2026-10-28
+canonical	touC	ambiguity_group	tbuB_tmoC_touC	K15762; PENDING sequence check (merge candidates)	canonical-families review 2026-10-28
+canonical	tbuC	ambiguity_group	tbuC_touF	K15765; PENDING sequence check (merge candidate)	canonical-families review 2026-10-28
+canonical	touF	ambiguity_group	tbuC_touF	K15765; PENDING sequence check (merge candidate)	canonical-families review 2026-10-28
+link	narB|cysJ	resolution	sequence	260 distinct shared sequences (171 with NCyc narB, 126 with MCycDB narB, some with both); the cysJ side carries COG0369/K00380 on all, the MCycDB narB side COG0369 on all 126; assign_shared_sequences.py puts 242 in cysJ and leaves 18 unresolved (NCyc m5nr SS22328 headers only)	audit 2026-10-28 shared_evidence.tsv; sequence_assignments.tsv
+link	narH_narY|narJ	resolution	sequence	145 of 147 shared sequences carry COG2180 (NarJ) headers on the MCycDB narH side; relabel them narJ	audit 2026-10-28 shared_evidence.tsv
+link	rnfB|sudA	resolution	sequence	placed per sequence by header and similarity (assign_shared_sequences.py); header groups are ignored here because rnfB has header_evidence insufficient: similarity puts these sequences in rnfB despite their COG0493 tags	audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+link	gs_K00266|rnfB	resolution	sequence	as rnfB|sudA	audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+link	gs_K00266|porD	resolution	sequence	placed per sequence; porD has header_evidence insufficient: similarity puts these sequences in porD (ratio about 2) despite COG0493 tags	audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+link	cooF|dmsB	resolution	sequence	placed per sequence; cooF has header_evidence insufficient. Similarity agrees with the header call (dmsB) for 37 of 41 and puts 4 in cooF	audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+link	cooF|ttrB	resolution	sequence	as cooF|dmsB: similarity agrees for 7 of 9, puts 2 in cooF	audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+link	cooF|nrfC	resolution	sequence	as cooF|dmsB; these sequences carry three Fe-S families and were grouped by header alone before, now decided by similarity	audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+link	cooF|gs_K00266	resolution	sequence	placed per sequence by similarity (7 cooF, 2 gs_K00266, 1 unplaced in the first clean run)	audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+link	fdhA|sudA	resolution	sequence	each side collected the 24 shared sequences by its own group (fdhA COG3383, sudA COG0493), consistent with two-domain proteins; unresolved, keep a pair label	audit 2026-10-28 shared_evidence.tsv
+canonical	napH	cycle	nitrogen	nitrogen gene carried by MCycDB; a read shows the nitrogen step	canonical-families review 2 2026-10-28
+canonical	nrfH	cycle	nitrogen	nitrogen gene carried by MCycDB; a read shows the nitrogen step	canonical-families review 2 2026-10-28
+canonical	nod	cycle	shared	NO dismutase of nitrite-dependent methane oxidation (n-DAMO)	canonical-families review 2 2026-10-28
+canonical	nod	cycle_detail	methane;nitrogen	as cycle	canonical-families review 2 2026-10-28
+canonical	comA	cycle	methane	coenzyme M biosynthesis of methanogens and ANME	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+canonical	comA	role	accessory	cofactor biosynthesis for a methane pathway	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+canonical	comB	cycle	methane	coenzyme M biosynthesis of methanogens and ANME	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+canonical	comB	role	accessory	cofactor biosynthesis for a methane pathway; PENDING: 3,311 sequences (COG2045) is large for an archaeal pathway, contents not checked	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+canonical	comC	cycle	methane	coenzyme M biosynthesis of methanogens and ANME	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+canonical	comC	role	accessory	cofactor biosynthesis for a methane pathway	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+canonical	comD	cycle	methane	coenzyme M biosynthesis of methanogens and ANME	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+canonical	comD	role	accessory	cofactor biosynthesis for a methane pathway	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+canonical	comE	cycle	methane	coenzyme M biosynthesis of methanogens and ANME	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+canonical	comE	role	accessory	cofactor biosynthesis for a methane pathway	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+canonical	tbuB	cycle	none	toluene monooxygenase component; no source yet for a sulfur role; overlaps CANT-HYD (v0.3)	canonical-families review 2 2026-10-28
+canonical	tbuC	cycle	none	toluene monooxygenase component; no source yet for a sulfur role; overlaps CANT-HYD (v0.3)	canonical-families review 2 2026-10-28
+canonical	tmoC	cycle	none	toluene monooxygenase component; no source yet for a sulfur role; overlaps CANT-HYD (v0.3)	canonical-families review 2 2026-10-28
+canonical	tmoF	cycle	none	toluene monooxygenase component; no source yet for a sulfur role; overlaps CANT-HYD (v0.3)	canonical-families review 2 2026-10-28
+canonical	touC	cycle	none	toluene monooxygenase component; no source yet for a sulfur role; overlaps CANT-HYD (v0.3)	canonical-families review 2 2026-10-28
+canonical	touF	cycle	none	toluene monooxygenase component; no source yet for a sulfur role; overlaps CANT-HYD (v0.3)	canonical-families review 2 2026-10-28
+canonical	dfrA1	role	other	trimethoprim-resistance dihydrofolate reductase (mobile elements); kept in the search database as a competitor for folA	canonical-families review 2 2026-10-28
+canonical	dfrA10	role	other	trimethoprim-resistance dihydrofolate reductase (mobile elements); kept in the search database as a competitor for folA	canonical-families review 2 2026-10-28
+canonical	dfrA12	role	other	trimethoprim-resistance dihydrofolate reductase (mobile elements); kept in the search database as a competitor for folA	canonical-families review 2 2026-10-28
+canonical	dfrA19	role	other	trimethoprim-resistance dihydrofolate reductase (mobile elements); kept in the search database as a competitor for folA	canonical-families review 2 2026-10-28
+canonical	betA	role	other	choline to glycine betaine (osmoprotectant); no sulfur step	canonical-families review 2 2026-10-28
+canonical	betB	role	other	betaine aldehyde DH (osmoprotectant); 18,511 sequences collected via COG1012, the aldehyde DH superfamily	canonical-families review 2 2026-10-28
+canonical	betC	role	assimilatory	PENDING source: choline-O-sulfate sulfatase, sulfur scavenging like tauD/ssuD	canonical-families review 2 2026-10-28
+canonical	glpE	role	core	single-domain rhodanese, widespread, role unclear	canonical-families review 2 2026-10-28
+canonical	sseA	role	core	3-mercaptopyruvate sulfurtransferase, cysteine catabolism	canonical-families review 2 2026-10-28
+canonical	nrnA	role	core	mainly an oligoribonuclease; PAP phosphatase is a side activity	canonical-families review 2 2026-10-28
+canonical	tusE	role	core	tRNA thiolation relay	canonical-families review 2 2026-10-28
+canonical	tusA	role	core	tRNA thiolation relay; also a sulfur carrier to DsrEFH in Allochromatium vinosum, but DsrEFH/DsrC are the markers	https://pmc.ncbi.nlm.nih.gov/articles/PMC4007435
+canonical	cysQ	role	assimilatory	PAP phosphatase of the PAPS pathway	canonical-families review 2 2026-10-28
+canonical	sqdB	role	assimilatory	sulfolipid biosynthesis (sulfur into biomass)	canonical-families review 2 2026-10-28
+canonical	sqdD	role	assimilatory	sulfolipid biosynthesis (sulfur into biomass)	canonical-families review 2 2026-10-28
+canonical	sqdX	role	assimilatory	sulfolipid biosynthesis (sulfur into biomass)	canonical-families review 2 2026-10-28
+canonical	pqqA	cycle	c1	PQQ cofactor for MxaF/XoxF and other dehydrogenases	canonical-families review 2 2026-10-28
+canonical	pqqA	role	accessory	cofactor biosynthesis	canonical-families review 2 2026-10-28
+canonical	pqqB	cycle	c1	PQQ cofactor for MxaF/XoxF and other dehydrogenases	canonical-families review 2 2026-10-28
+canonical	pqqB	role	accessory	cofactor biosynthesis	canonical-families review 2 2026-10-28
+canonical	pqqC	cycle	c1	PQQ cofactor for MxaF/XoxF and other dehydrogenases	canonical-families review 2 2026-10-28
+canonical	pqqC	role	accessory	cofactor biosynthesis	canonical-families review 2 2026-10-28
+canonical	pqqD	cycle	c1	PQQ cofactor for MxaF/XoxF and other dehydrogenases	canonical-families review 2 2026-10-28
+canonical	pqqD	role	accessory	cofactor biosynthesis	canonical-families review 2 2026-10-28
+canonical	pqqE	cycle	c1	PQQ cofactor for MxaF/XoxF and other dehydrogenases	canonical-families review 2 2026-10-28
+canonical	pqqE	role	accessory	cofactor biosynthesis	canonical-families review 2 2026-10-28
+canonical	pqqF	cycle	c1	PQQ cofactor for MxaF/XoxF and other dehydrogenases	canonical-families review 2 2026-10-28
+canonical	pqqF	role	accessory	cofactor biosynthesis	canonical-families review 2 2026-10-28
+canonical	rnfA	cycle	none	widespread Fd:NAD oxidoreductase; Methanosarcina uses it, but most reads will be bacterial (as pta/ackA)	canonical-families review 2 2026-10-28
+canonical	rnfA	role	accessory	electron-transfer complex used by many organisms	canonical-families review 2 2026-10-28
+canonical	rnfB	cycle	none	widespread Fd:NAD oxidoreductase; Methanosarcina uses it, but most reads will be bacterial (as pta/ackA)	canonical-families review 2 2026-10-28
+canonical	rnfB	role	accessory	electron-transfer complex used by many organisms	canonical-families review 2 2026-10-28
+canonical	rnfC	cycle	none	widespread Fd:NAD oxidoreductase; Methanosarcina uses it, but most reads will be bacterial (as pta/ackA)	canonical-families review 2 2026-10-28
+canonical	rnfC	role	accessory	electron-transfer complex used by many organisms	canonical-families review 2 2026-10-28
+canonical	rnfD	cycle	none	widespread Fd:NAD oxidoreductase; Methanosarcina uses it, but most reads will be bacterial (as pta/ackA)	canonical-families review 2 2026-10-28
+canonical	rnfD	role	accessory	electron-transfer complex used by many organisms	canonical-families review 2 2026-10-28
+canonical	rnfE	cycle	none	widespread Fd:NAD oxidoreductase; Methanosarcina uses it, but most reads will be bacterial (as pta/ackA)	canonical-families review 2 2026-10-28
+canonical	rnfE	role	accessory	electron-transfer complex used by many organisms	canonical-families review 2 2026-10-28
+canonical	rnfG	cycle	none	widespread Fd:NAD oxidoreductase; Methanosarcina uses it, but most reads will be bacterial (as pta/ackA)	canonical-families review 2 2026-10-28
+canonical	rnfG	role	accessory	electron-transfer complex used by many organisms	canonical-families review 2 2026-10-28
+canonical	fdhA	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	fdhA	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	fdhB	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	fdhB	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	fdhF	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	fdhF	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	fdoG	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	fdoG	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	fdoH	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	fdoH	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	fdoI	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	fdoI	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	fdsD	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	fdsD	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	fdwB	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	fdwB	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	fdwE	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	fdwE	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	fdm	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	fdm	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	fdhA_K00148	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	fdhA_K00148	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	frmA	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	frmA	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	fghA	cycle	none	formate/formaldehyde oxidation or detoxification is widespread, not methane-specific	canonical-families review 2 2026-10-28
+canonical	fghA	role	accessory	as cycle	canonical-families review 2 2026-10-28
+canonical	torA	cycle	none	TMAO respiration; not a methane step	canonical-families review 2 2026-10-28
+canonical	torC	cycle	none	TMAO respiration; not a methane step	canonical-families review 2 2026-10-28
+canonical	torY	cycle	none	TMAO respiration; not a methane step	canonical-families review 2 2026-10-28
+canonical	torZ	cycle	none	TMAO respiration; not a methane step	canonical-families review 2 2026-10-28
+canonical	torD	cycle	none	TorA chaperone	canonical-families review 2 2026-10-28
+canonical	torD	role	accessory	TorA chaperone	canonical-families review 2 2026-10-28
+canonical	asnB	role	core	amino-acid metabolism	canonical-families review 2 2026-10-28
+canonical	glsA	role	core	amino-acid metabolism	canonical-families review 2 2026-10-28
+canonical	ansB	role	core	amino-acid metabolism	canonical-families review 2 2026-10-28
+canonical	NR	role	assimilatory	assimilatory nitrate reduction (NR is the eukaryotic enzyme)	canonical-families review 2 2026-10-28
+canonical	nasB	role	assimilatory	assimilatory nitrate reduction (NR is the eukaryotic enzyme)	canonical-families review 2 2026-10-28
+canonical	nasC	role	assimilatory	assimilatory nitrate reduction (NR is the eukaryotic enzyme)	canonical-families review 2 2026-10-28
+canonical	mxaA	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mxaC	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mxaD	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mxaF	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mxaG	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mxaI	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mxaJ	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mxaK	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mxaL	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	xoxF1	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	xoxF2	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	xoxF4	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	xoxF5	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mauA	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mauB	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mauC	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mauD	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mauE	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mauF	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mgsA	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mgsB	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mgsC	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mgdA	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mgdB	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mgdD	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	qhpA	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	hxlA	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	hxlB	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	gfa	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mcl	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation; PENDING: check for citrate lyase citE inside	canonical-families review 2 2026-10-28
+canonical	gck	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mdh_methanol	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	dcmA	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	dcmR	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	fae	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	fae-hps	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mtdA	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	mtdB	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	fchA	cycle	c1	methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+canonical	pfkB	role	core	central carbon metabolism	canonical-families review 2 2026-10-28
+canonical	pfkC	role	core	central carbon metabolism	canonical-families review 2 2026-10-28
+canonical	fbp-SEBP	role	core	central carbon metabolism	canonical-families review 2 2026-10-28
+canonical	glpX.SEBP	role	core	central carbon metabolism	canonical-families review 2 2026-10-28
+canonical	acsC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	acsD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	acuI	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	acuK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	acuN	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	amoA_A	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	amoA_B	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	amoB_A	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	amoB_B	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	amoC_A	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	amoC_B	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	anfG	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	aprA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	aprB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	asrA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	asrB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	asrC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	cdhA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	cdhB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	cdhC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	cdhD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	cdhE	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	cooF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	cooS	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	cuyA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	cuyZ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	cysO	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	cytC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dcmA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dcmR	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dddA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dddC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dddD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dddK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dddL	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dddP	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dddQ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dddT	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dddW	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dddY	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ddhA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ddhB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ddhC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dmdA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dmdB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dmdC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dmdD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dmoA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dmsA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dmsB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dmsC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	doxA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	doxD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrE	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrH	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrJ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrL	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrM	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrN	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrO	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrP	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsrT	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	dsyB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	echA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	echB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	echC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	echD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	echE	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	echF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaE	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaG	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaH	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaI	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaJ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaL	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaM	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaN	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaO	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaP	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaQ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehaR	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbE	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbG	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbH	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbI	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbJ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbL	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbM	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbN	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbO	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbP	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ehbQ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fae	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fae-hps	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fccA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fccB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fchA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fmdB_fwdB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fmdC_fwdC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fpoA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fpoB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fpoC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fpoD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fpoF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fpoH	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fpoI	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fpoJ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fpoK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fpoO	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fqoA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fqoD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fqoF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fqoH	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fqoJ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fqoK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fqoL	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fqoM	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fqoN	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	frhA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	frhB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	frhD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	frhG	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fsr	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ftr	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fwdE	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fwdF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fwdG	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	fwdH	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	gck	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	gfa	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hao	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hcp	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hdh	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hdrA1	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hdrA2	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hdrB1	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hdrB2	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hdrC1	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hdrC2	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hdrD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hdrE	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hmd	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hpsK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hpsL	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hpsM	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hpsN	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hpsO	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hpsP	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hxlA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hxlB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hydA_shyA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hydB_shyB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hydD_shyD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hydG_shyC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hzo	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hzsA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hzsB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	hzsC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	iseJ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	iseK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	iseL	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	iseM	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	isfD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mauA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mauB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mauC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mauD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mauE	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mauF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mbhJ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mbhK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mbhL	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mccA	role	dissimilatory	octaheme cytochrome c sulfite reductase (MccA/SirA, Wolinella-type), dissimilatory sulfite reduction: 13 of 15 sequences carry 7 CXXCH plus 1 CX15CH heme motifs. NAME COLLISION: unrelated to B. subtilis MccA/MccB (methionine-to-cysteine conversion, SCycDB mccB); do not align their roles	Hermann et al. 2015 Nature 520:706 (PMID 25642962, abstract)
+canonical	mccB	role	core	B. subtilis MccB (formerly YrhB) has cystathionine lyase and homocysteine gamma-lyase activities in methionine-to-cysteine conversion; no CXXCH motifs in any of the 1,238 sequences. Not related to SCycDB mccA (octaheme sulfite reductase): same name, different gene systems	Hullo et al. 2007 J Bacteriol 189:187 (PMID 17056751, abstract)
+canonical	mch	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mcl	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mcrA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mcrB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mcrC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mcrD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mcrG	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mddA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mdh_methanol	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mdo	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mer	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mgdA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mgdB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mgdD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mgsA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mgsB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mgsC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mmoB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mmoC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mmoD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mmoX	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mmoY	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mmoZ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	msmA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	msmB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtaA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtaB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtaC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtbA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtbB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtbC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtd	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtdA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtdB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtmB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtmC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtoX	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtrA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtrB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtrC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtrD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtrE	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtrF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtrG	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtrH	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtsA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mtsB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mttB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mttC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mvhA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mvhD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mvhG	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mxaA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mxaC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mxaD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mxaF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mxaG	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mxaI	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mxaJ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mxaK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	mxaL	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nao	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	napA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	napB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	napC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	napH	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	narC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	narG_narZ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	narH_narY	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	narI_narV	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	narJ	role	accessory	nitrate reductase assembly chaperone, by the rule used for torD	canonical-families review 4 2026-10-28
+canonical	narW	role	accessory	nitrate reductase assembly chaperone, by the rule used for torD	canonical-families review 4 2026-10-28
+canonical	nifD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nifH	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nifK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nifW	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nirK	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nirS	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nmo	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nod	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	norB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	norC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nosZ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nrfA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nrfB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nrfC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nrfD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nrfH	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nxrA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	nxrB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	otr	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	phsA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	phsB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	phsC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	pmoA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	pmoB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	pmoC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	psp	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	psrA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	psrB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	psrC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	qhpA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	qmoA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	qmoB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	qmoC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	rdlA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	rdsr	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sfnG	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sgpA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sgpB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sgpC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	slcC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	slcD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	soeA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	soeB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	soeC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sor	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sorA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sorB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	soxA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	soxB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	soxC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	soxD	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	soxL	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	soxX	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	soxY	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	soxZ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sqr	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sreA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sreB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sreC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sudA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	sudB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	suyA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	suyB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tauE	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tauX	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tauY	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tauZ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tbuB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tbuC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tetH	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tmm	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tmoC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tmoF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	toa	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	torA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	torC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	torY	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	torZ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	touC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	touF	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tpa	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tsdA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	tsdB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ttrA	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ttrB	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	ttrC	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	vhcG	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	vhtG	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	vhuU	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	xoxF1	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	xoxF2	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	xoxF4	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	xoxF5	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	xsc	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+canonical	yihQ	role	dissimilatory		seeded 2026-10-28 from the earlier default; not individually reviewed
+split	MCycDB:mtkA	keep_ontologies	K14067	malyl-CoA ligase beta keeps only sequences whose own headers carry K14067 (48 records); 2,054 records were collected via COG0045 (SucC)	audit 2026-10-28 (header ontology counts)
+split	MCycDB:mtkA	rest_canonical	sucC	the COG0045-collected rest is succinyl-CoA synthetase beta	audit 2026-10-28 (header ontology counts)
+split	MCycDB:mtkB	keep_ontologies	K08692	malyl-CoA ligase alpha keeps only K08692 sequences (44 records); 2,824 records were collected via COG0074 (SucD)	audit 2026-10-28 (header ontology counts)
+split	MCycDB:mtkB	rest_canonical	sucD	the COG0074-collected rest is succinyl-CoA synthetase alpha	audit 2026-10-28 (header ontology counts)
+split	MCycDB:acdA	keep_ontologies	arCOG01707	ADP-forming acetyl-CoA synthetase keeps only arCOG01707 sequences (124 records); 8,398 records were collected via COG1960 (acyl-CoA DH)	audit 2026-10-28 (header ontology counts)
+split	MCycDB:acdA	rest_canonical	acyl_coa_dh	the COG1960-collected rest (and unlabelled RefSeq gene=acdA records) is acyl-CoA dehydrogenase	audit 2026-10-28 (header ontology counts)
+row	MCycDB:acdB	canonical_family	acyl_coa_dh	no acetyl-CoA synthetase in it: 2,375 target records COG1960 (acyl-CoA DH), 536 unlabelled RefSeq records	audit 2026-10-28 (header ontology counts)
+canonical	mtkA	cycle	c1	serine-cycle malyl-CoA ligase (methylotrophy)	canonical-families review 3 2026-10-28
+canonical	mtkB	cycle	c1	serine-cycle malyl-CoA ligase (methylotrophy)	canonical-families review 3 2026-10-28
+canonical	mtkA	role	dissimilatory		
+canonical	mtkB	role	dissimilatory		
+canonical	sucC	role	core	TCA-cycle succinyl-CoA synthetase, found in most genomes	canonical-families review 3 2026-10-28
+canonical	sucD	role	core	TCA-cycle succinyl-CoA synthetase, found in most genomes	canonical-families review 3 2026-10-28
+canonical	acyl_coa_dh	role	core	acyl-CoA dehydrogenase (fatty-acid oxidation), found in most genomes	canonical-families review 3 2026-10-28
+canonical	acdA	cycle	none	ADP-forming acetyl-CoA synthetase (archaeal acetate metabolism); not methane-specific	canonical-families review 3 2026-10-28
+canonical	acdA	role	accessory	PENDING: whether MCycDB lists it for a methane pathway; homologous to SucCD (NDP-forming acyl-CoA synthetases), not grouped until the simulation	canonical-families review 3 2026-10-28
+canonical	mtkA	ambiguity_group	mtkA_sucC	MtkA and SucC are homologs (malyl-CoA ligase / succinyl-CoA synthetase beta)	audit 2026-10-28 (header ontology counts)
+canonical	sucC	ambiguity_group	mtkA_sucC	MtkA and SucC are homologs (malyl-CoA ligase / succinyl-CoA synthetase beta)	audit 2026-10-28 (header ontology counts)
+canonical	mtkB	ambiguity_group	mtkB_sucD	MtkB and SucD are homologs (alpha subunits)	audit 2026-10-28 (header ontology counts)
+canonical	sucD	ambiguity_group	mtkB_sucD	MtkB and SucD are homologs (alpha subunits)	audit 2026-10-28 (header ontology counts)
+canonical	acyl_coa_dh	ambiguity_group	acyl_coa_dh_cog1960	shared sequences; COG1960	audit 2026-10-28 (header ontology counts)
+canonical	ureA	role	assimilatory	urease: in most bacteria nitrogen acquisition for growth, not an energy step, and not a redox reaction; shown as its own ureolysis row (relevant to MIC through pH rise and carbonate precipitation), not in the headline. NCyc lists it under organic degradation and synthesis	https://academic.oup.com/bioinformatics/article/35/6/1040/5085377
+canonical	ureB	role	assimilatory	urease: in most bacteria nitrogen acquisition for growth, not an energy step, and not a redox reaction; shown as its own ureolysis row (relevant to MIC through pH rise and carbonate precipitation), not in the headline. NCyc lists it under organic degradation and synthesis	https://academic.oup.com/bioinformatics/article/35/6/1040/5085377
+canonical	ureC	role	assimilatory	urease: in most bacteria nitrogen acquisition for growth, not an energy step, and not a redox reaction; shown as its own ureolysis row (relevant to MIC through pH rise and carbonate precipitation), not in the headline. NCyc lists it under organic degradation and synthesis	https://academic.oup.com/bioinformatics/article/35/6/1040/5085377
+canonical	ureC	marker_step	ureolysis	catalytic subunit; one marker per step	canonical-families review 3 2026-10-28
+canonical	nirB	role	assimilatory	NirBD serves assimilation and fermentative nitrite detoxification; nrfA is the respiratory DNRA marker. Departs from NCyc, which lists nirBD under dissimilatory nitrate reduction	https://academic.oup.com/bioinformatics/article/35/6/1040/5085377
+canonical	nirD	role	assimilatory	NirBD serves assimilation and fermentative nitrite detoxification; nrfA is the respiratory DNRA marker. Departs from NCyc, which lists nirBD under dissimilatory nitrate reduction	https://academic.oup.com/bioinformatics/article/35/6/1040/5085377
+canonical	fpoL	role	accessory	related to complex I NuoL/M/N and to Mrp antiporter subunits; MCycDB's competitors include Nuo/Ndh but only 6 Mrp-type records (K05565, fpoL homolog), so antiporter reads would land here	audit 2026-10-28 (homolog ontology counts); Mathiesen & Hagerhall 2003 FEBS Lett 549:7
+canonical	fpoM	role	accessory	related to complex I NuoL/M/N and to Mrp antiporter subunits; MCycDB's competitors include Nuo/Ndh but only 6 Mrp-type records (K05565, fpoL homolog), so antiporter reads would land here	audit 2026-10-28 (homolog ontology counts); Mathiesen & Hagerhall 2003 FEBS Lett 549:7
+canonical	fpoN	role	accessory	related to complex I NuoL/M/N and to Mrp antiporter subunits; MCycDB's competitors include Nuo/Ndh but only 6 Mrp-type records (K05565, fpoL homolog), so antiporter reads would land here	audit 2026-10-28 (homolog ontology counts); Mathiesen & Hagerhall 2003 FEBS Lett 549:7
+canonical	amoA_A	marker_step	ammonia oxidation	one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 3 2026-10-28
+canonical	amoA_B	marker_step	ammonia oxidation	one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 3 2026-10-28
+canonical	nxrA	marker_step	nitrite oxidation	one marker per step	canonical-families review 3 2026-10-28
+canonical	napA	marker_step	nitrate reduction	one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 3 2026-10-28
+canonical	narG_narZ	marker_step	nitrate reduction	one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 3 2026-10-28
+canonical	nirK	marker_step	nitrite reduction to NO	one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 3 2026-10-28
+canonical	nirS	marker_step	nitrite reduction to NO	one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 3 2026-10-28
+canonical	norB	marker_step	NO reduction	one marker per step	canonical-families review 3 2026-10-28
+canonical	nosZ	marker_step	N2O reduction	one marker per step	canonical-families review 3 2026-10-28
+canonical	nrfA	marker_step	nitrite reduction to ammonium (DNRA)	one marker per step	canonical-families review 3 2026-10-28
+canonical	nifH	marker_step	nitrogen fixation	one marker per step	canonical-families review 3 2026-10-28
+canonical	hzsA	marker_step	anammox	one marker per step	canonical-families review 3 2026-10-28
+canonical	dsrA	marker_step	dissimilatory sulfite reductase (reductive or oxidative; not separated until v0.2.x)	one marker per step	canonical-families review 3 2026-10-28
+canonical	aprA	marker_step	APS reductase	one marker per step	canonical-families review 3 2026-10-28
+canonical	soxB	marker_step	thiosulfate oxidation (Sox)	one marker per step	canonical-families review 3 2026-10-28
+canonical	sqr	marker_step	sulfide oxidation (SQR)	one marker per step	canonical-families review 3 2026-10-28
+canonical	mcrA	marker_step	methanogenesis / anaerobic methane oxidation	one marker per step	canonical-families review 3 2026-10-28
+canonical	pmoA	marker_step	aerobic methane oxidation	one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 3 2026-10-28
+canonical	mmoX	marker_step	aerobic methane oxidation	one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 3 2026-10-28
+canonical	rnfB	header_evidence	insufficient	similarity to header-confirmed references places the rnfB|sudA and rnfB|gs_K00266 sequences in rnfB (score ratio about 2) although their headers carry COG0493: the COG tags come from shared Fe-S/NADH-binding domains	audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+canonical	porD	header_evidence	insufficient	similarity places the gs_K00266|porD sequences in porD (ratio about 2) against their COG0493 header tags; same cause as rnfB	audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+canonical	cooF	header_evidence	insufficient	similarity disagrees with the header call on 6 of 53 cooF-related sequences; multi-domain Fe-S protein, same cause as rnfB	audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+canonical	cysK	ambiguity_group	cysK_cysM	moderately diverged paralogs (cysteine synthase A/B) with close scores; same role and cycle, so ambiguity is a family-level property	audit 2026-10-28 placement/placements2.tsv
+canonical	cysM	ambiguity_group	cysK_cysM	moderately diverged paralogs (cysteine synthase A/B) with close scores; same role and cycle, so ambiguity is a family-level property	audit 2026-10-28 placement/placements2.tsv
+canonical	metB	ambiguity_group	metB_metC_mccB	PLP-dependent cystathionine enzymes with close scores; the leave-one-out test never brought mccB/metB misassignment under 1% (mccB/metC needs a ratio of 2.15); same role and cycle, so ambiguity is a family-level property	audit 2026-10-28 placement/loo_thresholds.tsv
+canonical	metC	ambiguity_group	metB_metC_mccB	PLP-dependent cystathionine enzymes with close scores; the leave-one-out test never brought mccB/metB misassignment under 1% (mccB/metC needs a ratio of 2.15); same role and cycle, so ambiguity is a family-level property	audit 2026-10-28 placement/loo_thresholds.tsv
+canonical	narJ	ambiguity_group	narJ_narW	chaperones of the NarGHI and NarZYV operons with close scores; same role and cycle	audit 2026-10-28 placement/placements2.tsv
+canonical	narW	ambiguity_group	narJ_narW	chaperones of the NarGHI and NarZYV operons with close scores; same role and cycle	audit 2026-10-28 placement/placements2.tsv
+canonical	mccB	ambiguity_group	metB_metC_mccB	PLP-dependent cystathionine enzymes with close scores; the leave-one-out test never brought mccB/metB misassignment under 1% (mccB/metC needs a ratio of 2.15); same role and cycle, so ambiguity is a family-level property	audit 2026-10-28 placement/loo_thresholds.tsv

@@ -657,3 +657,306 @@ Memory and time are multiplied by `task.attempt`; the existing `errorStrategy` r
 - After the change: `nextflow run . -profile test,conda -stub` and `-profile test,mamba -stub` both exit 1 with the new message and `completed=0`. `nextflow lint .` has no errors; `nf-core pipelines lint --release` reports no new failure.
 
 **Not covered:** `-with-conda` on the command line without a conda profile is not caught by the profile check.
+
+---
+
+## 2026-10-28 — Cycling database audit: what the files contain and where they disagree
+
+**Decision:** use SCycDB (`SCycDB_2020Mar.faa` + `id2gene.2020Mar.map`), MCycDB (`MCycDB_2021.faa` + `id2gene.map`) and NCyc (`NCyc_100_2019Jul.faa` + `id2gene.map.2019Jul`, with homolog labels from `NCyc_100.faa.gz` headers), downloaded from pinned commits, with the preparation rules in CLAUDE.md ("Marker module (v0.2) rules").
+
+**Evidence (2026-10-28, this machine; standard-library scripts `cycdb_audit.py`, `splitzip_extract.py`, `cycdb_overlap.py`, `cycdb_family_pairs.py`, kept outside the repository with the downloads):** commits SCycDB `f107be1a` (2025-04-01), MCycDB `ceba2187` (2026-01-12), NCyc `4ee9aad9` (2020-12-30). None of the repositories has a license file or license wording.
+
+|                                                  | SCycDB             | MCycDB                   | NCyc (2019Jul) |
+| ------------------------------------------------ | ------------------ | ------------------------ | -------------- |
+| FASTA records                                    | 911,805            | 923,847 (+24 with no ID) | 273,501        |
+| Unique IDs                                       | 906,636            | 851,188                  | 273,501        |
+| Duplicate IDs (all identical sequence)           | 5,169              | 71,519                   | 0              |
+| Map targets                                      | 579,056            | 610,147                  | 219,091        |
+| FASTA IDs absent from map (homologs by map rule) | 327,580            | 241,041                  | 54,410         |
+| Families in map                                  | 207                | 275 (README: 298)        | 69             |
+| Header says target (`gene=`) but not in map      | 0                  | 40,875 (219 genes)       | 0              |
+| Duplicate IDs annotated both target and homolog  | 3,980 (all in map) | 2,162 (2,161 in map)     | 0              |
+
+- **Extraction:** inflating each split-zip entry from the central directory matched the archive's size and CRC32 exactly (SCycDB 364,058,792 B, `298f37da`; MCycDB 380,449,265 B, `753c621e`). The NCyc 7z entry also matches its CRC32 (`cb5dc65b`). That Info-ZIP `unzip` leaves a partial SCycDB FASTA and Python's `zipfile` refuses the archive was observed in the claude.ai planning session, not rechecked here.
+- **NCyc files:** `NCyc_100.faa.gz` and `id2gene.map` are the original release (committed 2018-04-23). The 7z ("Duplicated records removed", 2019-07-28) and `id2gene.map.2019Jul` (2019-07-29) are the authors' cleanup. Both FASTAs hold the same 273,501 IDs with identical sequences; the 2018 file adds annotation headers and 441 duplicate records, the 2019 file has bare IDs. The 2018 map lists 99,288 IDs absent from the FASTA and gives 81 IDs two families; the 2019Jul map covers exactly the FASTA's targets, one family each, and adds `nasC`. Of single-label IDs, 243 changed from 2018 to 2019: `pmoA` → `amoA_B` 192, `amoA_A` → `amoA_B` 29, `amoA_B` → `pmoA` 22. The README and `NCycProfiler.PL` still point at the 2018 files.
+- **Map targets labelled homolog:** 18 IDs in the 2019Jul map have only `homolog` headers in `NCyc_100.faa` (e.g. `ureA homolog`, `nirS homolog`). By the map rule they are targets. SCycDB and MCycDB have none.
+- **Mixed-annotation duplicates are not conflicts:** SCycDB and MCycDB IDs that occur twice with the same sequence, once as a target and once as a homolog of the same gene under a different orthology group, are listed in the map as targets. One MCycDB exception, `59538.XP_005978769.1` (_fbp_), is in neither.
+- **SCycDB maps:** `id2gene.map.2021` drops 49,084 IDs across 192 families from `id2gene.2020Mar.map` and adds or relabels none (same 207 families). The README documents only 2020Mar.
+- **ID types** (share of unique IDs): UniProt accessions 7.2% / 20.2% / 65.8% (SCycDB / MCycDB / NCyc); RefSeq `WP_` 38.1% / 31.6% / 0; eggNOG `taxid.locus` 28.6% / 25.0% / 9.1%.
+- **Cross-database overlap** (identical IDs; target in both / one only / homolog in both): SCycDB–MCycDB 76,543 (43,447 / 12,576 / 20,520); MCycDB–NCyc 41,128 (39,867 / 579 / 682); SCycDB–NCyc 3,530 (1,429 / 1,792 / 309). By identical sequence: 73,683, 49,631 and 9,421. 29 shared IDs (14 MCycDB–NCyc, 15 SCycDB–NCyc) carry different sequences.
+
+**Open (emailed to the authors 2026-10-28; no reply yet):** license, or permission to use a small attributed subset as test data; whether the 40,875 MCycDB `gene=` sequences are targets missing from the map (README 298 families and 610,208 sequences vs map 275 and 610,147); the 24 ID-less MCycDB records and `59538.XP_005978769.1`; which SCycDB map is current; whether the NCyc 2019Jul pair is the current release, and whether its family moves (192 IDs pmoA → amoA_B, 29 amoA_A → amoA_B, 22 amoA_B → pmoA) are corrections; the 18 NCyc targets labelled homolog; where PCycDB's database FASTA is and under what license; split-zip extraction (suggested a single `.gz` or published checksums).
+
+**Sources:**
+
+- SCycDB — https://github.com/qichao1984/SCycDB
+- MCycDB — https://github.com/qichao1984/MCycDB
+- NCyc — https://github.com/qichao1984/NCyc
+
+---
+
+## 2026-10-28 — One combined DIAMOND database for the three cycling databases
+
+**Decision:** search SCycDB, MCycDB and NCyc as one database: IDs prefixed by source, identical sequences collapsed with labels merged, target status winning over homolog across sources. A read is counted once per family; totals are never summed across cycles.
+
+**Why:** with separate searches a read can count in two databases. A combined database makes them compete for each read, and every database's homologs act as extra decoys for the others. The audit's overlap counts show the rules are needed: 12,576 SCycDB–MCycDB sequences are a target in one and only a homolog in the other, and 29 IDs mean different sequences in different databases.
+
+**Not yet verified:** that the combined database recovers each target family at least as well as its own database alone, on the positive controls. Check before v0.2 ships.
+
+---
+
+## 2026-10-28 — Canonical-family table keyed by (database, family); ambiguity groups
+
+**Decision:** families from the three databases are joined through a curated table in the repository, keyed by `(source_db, source_family)`. Each row gives a canonical family (KO-level where a KO exists), an ambiguity group, the cycles, a `core_metabolism` flag, and a note with the evidence. A shared KO is a candidate merge, except K10944–K10946 (copper membrane monooxygenase: methane and ammonia) and K00370/K00371 (nitrate reductase and nitrite oxidoreductase), whose families stay separate. Sequences carry a set of families; reads are resolved to one family, or counted once for the ambiguity group, as in CLAUDE.md.
+
+**Why:**
+
+- Names are not keys. MCycDB `mdh` (methanol dehydrogenase, COG1454) and `mdh-K00024` (malate dehydrogenase) differ; so do MCycDB `fdhA` (formate DH) and `fdhA-K00148` (formaldehyde DH). The KO suffixes exist to separate them, and NCyc splits `gdh` and `gs` into four KOs each.
+- Collapsing identical sequences leaves 48,763 of 1,711,123 sequences with two or more target families (114 within one database). Of the 171 family pairs that share sequences, 61 share at least 10 sequences and 1% of the smaller family (49,008 links); the other 110 (339 links) look like single mislabels and are resolved to one family in the table.
+- Of those 49,008 links, 76% join synonyms: one enzyme under two names (SCycDB `mdh` = MCycDB `mdh-K00024`, 25,853; MCycDB `amoA` = NCyc `amoA_B`, 8,207; SCycDB `gdh` = NCyc `gdh_K00262`, 2,278; _narG_/_narZ_; _narH_/_narY_). The rest form 14 groups of different enzymes on shared sequences, which labels cannot separate: the COG0437 Fe-S subunits (_ttrB_, _dmsB_, _phsB_, _psrB_, _soeB_, _nrfC_, ...), COG0243 molybdopterin subunits, _acs_/_prpE_, _acdB_/_dmdC_, _serA_/_slcC_, _sudA_/_gltD_, _torC_/_napC_, _nirA_/_sir_, and smaller ones.
+- Housekeeping families (malate and glutamate dehydrogenase, glutamate synthase) are large and nearly universal, so their abundance says little about a cycle; they are flagged and kept out of the cycle headline numbers.
+
+**Evidence (2026-10-28):** `cycdb_overlap.py` and `cycdb_family_pairs.py` on the files in the audit entry; dominant orthology groups per family from FASTA target headers; KO names and pathway links looked up once in the KEGG REST API. KEGG REST is "made available only for academic use by academic users", so the pipeline never calls it and the repository stores KO identifiers only. Working notes, the cluster chart, and the open questions are in the Claude Doc "envmetag cycling databases: gene family comparison".
+
+**To do:** build the table from the 21 clusters and the 339 weak links, recording each decision; confirm MCycDB `mdh` as K00093 from a sample of sequences; check the 1,653 SCycDB `gdh` sequences shared with no NCyc family.
+
+**Superseded in part (2026-10-28):** the `cycles` and `core_metabolism` columns, the KO exception list and the handling of weak links are replaced by "Canonical-family table: roles, cycles, one marker per step" and "Shared sequences: assigned per sequence from header groups and similarity" below.
+
+**Sources:**
+
+- KEGG REST API — https://www.kegg.jp/kegg/rest/
+
+---
+
+## 2026-10-28 — Read calls: score margin plus database-derived thresholds; ROCkOut for a short list
+
+**Decision:**
+
+- Every read hitting the combined database is called **target / homolog / ambiguous** from the margin between its best target and best homolog bitscore (DIAMOND `--top`), with per-family thresholds; reads whose target hits span families in one ambiguity group use a family-vs-family margin with per-group thresholds.
+- Thresholds are generated from the database itself during preparation: target and homolog proteins are cut into read-length fragments with simulated substitutions, aligned with the production DIAMOND settings excluding each fragment's own 95% cluster (MMseqs2), and the cutoff is chosen from the resulting score distributions. This adapts ROCker's approach without hand-curated genomes.
+- ROCkOut models (ROCker's Python successor) only for _dsrAB_, _mcrA_, _amoA_ vs _pmoA_, and _bssA_/_assA_ (v0.2.x).
+
+**Why:**
+
+- An e-value cannot separate a target from its homolog: both align with tiny e-values. ROCker reported ~60× lower false-discovery rate than fixed e-values, and for bacterial _amoA_ only ~10% of reads landed in the correct clade without negative references vs 81% with them (from the claude.ai planning session; not rechecked here).
+- Hand-built models for ~570 families would be unmaintainable; database-derived thresholds are rebuilt automatically when the database changes.
+- Protein fragments miss frame shifts, sequencing errors, and reads from non-coding flanks, so the derived thresholds are checked against genome-simulated control reads for 2–3 markers.
+- _amoA_ vs _pmoA_ joins the ROCkOut list because one KEGG KO (K10944) covers both, and the NCyc 2019 relabelling (243 IDs among `pmoA`, `amoA_A` and `amoA_B`) shows the curators correcting exactly this confusion.
+
+**Deferred:** a per-read posterior from a mixture model on margins. Bracken-style redistribution is rejected: it pushes reads from lineages missing in the database onto their nearest neighbour, inflating them.
+
+**Sources:**
+
+- ROCker (NAR, 2017) — https://academic.oup.com/nar/article/45/3/e14/2972200
+- ROCkOut — https://github.com/KGerhardt/ROCkOut
+- ROCkIn v1.0 — https://zenodo.org/records/14707993
+
+---
+
+## 2026-10-28 — Quantification unit, mate handling, and the single-copy calibrator
+
+**Decision:** marker abundance is gene coverage (aligned bases / gene length) divided by genome equivalents (`bacterial_archaeal_bases / average_bacterial_archaeal_genome_size` from SingleM). Mates are handled the same way SingleM handles them when it computes coverage. A universal single-copy gene (e.g. _rplB_ or _rpoB_) is searched alongside the markers with identical steps and must come out at about 1 copy per genome equivalent.
+
+**Why:** SingleM's coverage depends on how it pairs mates (coverage rose ~1.6× when Hostile's `/1` `/2` headers broke pairing), and that flows into the denominator. A numerator with a different pair convention biases copies per genome by up to ~2×, varying with insert size. Pair merging changes query length and merge rate by library, so it is tested, not assumed: run the calibrator with and without merging and keep the version that holds near 1 on both test libraries.
+
+**To do before coding:** read how SingleM 0.21.4 combines mates in its coverage calculation.
+
+---
+
+## 2026-10-28 — CANT-HYD and PCycDB move to v0.3 (protein level)
+
+**Decision:** CANT-HYD and PCycDB are used on predicted proteins from assemblies (v0.3), not on reads.
+
+**Evidence (claude.ai planning session, 2026-10-28; not rechecked in this repository):**
+
+- CANT-HYD (last commit 2022-07-14, GPL-3.0): 37 HMMs, each with a trusted (TC) and noise (NC) cutoff; the README runs `hmmsearch --cut_tc` / `--cut_nc` on protein FASTA. The cutoffs are full-length-protein bitscores (e.g. TmoA_BmoA TC 900, NC 810) that a ~50 aa read fragment cannot reach.
+- PCycDB: the paper assembled reads (MEGAHIT), called ORFs (Prodigal), and tuned its cutoffs on a simulated gene set and a 50-genome mock community. Its GitHub repository holds scripts and examples but no database FASTA, and no license.
+
+**Consequence:** until v0.3, anaerobic hydrocarbon activation markers (_bssA_, _assA_) have no read-level quantification unless the v0.2.x ROCkOut models exist.
+
+**Sources:**
+
+- CANT-HYD — https://github.com/dgittins/CANT-HYD-HydrocarbonBiodegradation
+- PCycDB paper — https://doi.org/10.1186/s40168-022-01292-1
+- PCycDB repository — https://github.com/ZengJiaxiong/Phosphorus-cycling-database
+
+---
+
+## 2026-10-28 — ROCkOut integration design (v0.2.x; license resolved 2026-10-29)
+
+**Decision:**
+
+- Model building (ROCkIn curation, then ROCkOut `download → build → refine`) is offline work in a build script, one model per marker, versioned and deposited; never a pipeline step.
+- The pipeline runs ROCkOut `align → filter → place` as **one module per sample**, placement switched by a parameter.
+- Inputs: clean reads converted to FASTA (`seqtk seq -a`); reads shorter than a model's shortest training read length are dropped (parameter, recorded per model).
+
+**Why one module:** `align` creates `alignments/` and `original_reads/` in the filter directory, `filter` writes `ROCkOut_passing_read_fastas/` into it, and `place` writes there too. Split across processes, a later task would write into an earlier task's work directory, breaking caching and resume. All three steps only read the model directory, so a shared cached copy is safe (confirm with a read-only mount in the module test).
+
+**Module must handle (from the ROCkOut source, read in the claude.ai planning session 2026-10-28; recheck before coding):**
+
+- `place` runs MAFFT, pplacer and guppy through `os.system()` without checking exit codes: the module checks every expected output exists and is non-empty.
+- ROCkOut treats each mate as a separate read: passing reads are collapsed by read ID so each fragment counts once.
+- `align` writes a second copy of the reads into the filter directory (disk on deep samples).
+- No releases: the container pins a commit hash, at or after `d701c05` (the first licensed commit).
+
+**License (resolved 2026-10-29):** ROCkOut had no license file (last commit 2025-07-02), which ruled out a public container image, a pinned copy, or deposited models. Asked in https://github.com/KGerhardt/ROCkOut/issues/1, suggesting the licenses of its relatives (ROCker Artistic-2.0, ROCkIn GPL-3.0). The author added GPL-3.0 the same day (commit `d701c053878867acc3d7145448a5ab0f6cf8030d`: `LICENSE` plus a README License section; GitHub detects GPL-3.0) and replied on the issue, which we then closed. Citation: the repository with its commit, as the author suggested; a paper is in preparation, so recheck before each release. The license of deposited models is decided when they are built: they also contain reference sequences, whose own terms apply (UniProt: CC BY 4.0).
+
+**Placement confidence:** report clade counts with pplacer's likelihood weight ratio cutoff and the unplaced fraction; the cutoff and per-position accuracy are measured on simulated reads with known clades. Soft counts (likelihood weight summed per clade subtree) are the default; a placement agreeing with the DIAMOND best-hit clade is the confidence check.
+
+---
+
+## 2026-10-28 — Targeted assembly research stays outside envmetag
+
+**Decision:** HMM-guided targeted assembly on an FM-index of reads is a separate research repository. envmetag provides its seeds (v0.2 hits) and baseline (read-based counts). The headline comparison is PathRacer (shipped with SPAdes 4.0); Xander and MegaGTA are compared through the published results of the 2019 gene-targeted assembly review on its datasets, not rebuilt.
+
+**Why:** MegaGTA's last commit is 2016-06-16 and it depends on UCHIME (USEARCH, proprietary), RDPTools (Java) and per-gene Xander-format HMM resources; it is a comparator, not a component. PathRacer is maintained and directly tests graph search against index search.
+
+**Sources:**
+
+- Gene-targeted assembly review (Frontiers in Genetics, 2019) — https://doi.org/10.3389/fgene.2019.00957
+- PathRacer in SPAdes 4.0 — https://github.com/ablab/spades/releases/tag/v4.0.0
+- MegaGTA — https://github.com/HKU-BAL/megagta
+
+---
+
+## 2026-10-28 — Canonical-family table: roles, cycles, one marker per step
+
+**Decision:** the table (`assets/cycdb/canonical_families.tsv`) is built by `dev/cycdb/build_canonical_families.py` from the audit tables and `dev/cycdb/curation_overrides.tsv`, in which every hand decision is one row with a reason and a source. It replaces the draft's `cycles` and `core_metabolism` columns with:
+
+- `source_databases` (provenance only);
+- `cycle`: `sulfur`, `methane` (methanogenesis, AOM, aerobic methane oxidation), `nitrogen`, `c1` (methylotrophy and other C1 compounds), `shared` (with `cycle_detail`, e.g. `methane;sulfur`) or `none`;
+- `role`: `dissimilatory`, `assimilatory`, `transport`, `accessory` (needed by a cycle pathway but not specific to it: cofactors, chaperones, widespread electron-transfer complexes), `core` (central metabolism found in most genomes; its presence says nothing about a cycle process) or `other` (no cycle role, e.g. antibiotic resistance);
+- `marker_step`: the one family reported per cycle step, in copies per genome equivalent (nitrogen: _amoA_, _nxrA_, _napA_/_narG_, _nirK_/_nirS_, _norB_, _nosZ_, _nrfA_, _nifH_, _hzsA_; sulfur: _dsrA_, _aprA_, _soxB_, _sqr_; methane: _mcrA_, _pmoA_/_mmoX_; plus _ureC_ for a separate ureolysis row). Families are never summed into a cycle total: summing would count multi-subunit enzymes several times and let long pathways outweigh one-gene steps;
+- `group_cycle` (computed): where a marker read left unresolved within its ambiguity group is shown. It is set only when every member has that cycle and role `dissimilatory`; otherwise such reads appear only on the unresolved/ambiguous line;
+- `selector`: a source family split by the ontology groups on each sequence's own headers (below);
+- `header_evidence`: `insufficient` for families whose header ontology groups do not identify their sequences (next entry).
+
+Families of every role stay in the search database as competitors: removing, say, the trimethoprim-resistance `dfrA` sequences would send their reads to `folA`.
+
+Calls made in review (each with its reason in the overrides file):
+
+- The source database's cycle is provenance, not biology: MCycDB carries _amoA_, _narG_, _nirK_/_nirS_, _nrfA_, _nxrA_, _napH_, _nrfH_ (nitrogen), SCycDB carries _comA_–_comE_ (coenzyme M biosynthesis: methane, accessory), and MCycDB _nod_ is `shared` methane;nitrogen. A check flags any family whose name marks another cycle's gene.
+- Assimilatory sulfur genes (_cysDNCHJI_, _sir_, _sat_, _tauD_, _ssuD_, ...) are among SCycDB's largest families (_cysK_ 32,047 sequences, _cysE_ 21,382, _cysC_ 20,875 against _dsrA_ 5,453 and _aprA_ 307); they are `assimilatory`, `transport` or `core`, never headline.
+- 39 MCycDB methylotrophy and C1 families (_mxa_, _xoxF_, _mau_, _mgs_, _mgd_, _hxl_, ...), _pqqA_–_F_ and the serine-cycle _mtkA_/_mtkB_ (47 in all) move to `c1`, so a methylotroph's _xoxF_ is not reported as methane cycling.
+- Urease (_ureABC_): nitrogen, `assimilatory`, its own ureolysis row with _ureC_ as marker. In most bacteria it supplies nitrogen for growth and it is not a redox step; it is shown because ureolysis raises pH and drives carbonate precipitation (relevant to MIC), with the usual "presence is not activity" wording. NCyc lists it under organic degradation and synthesis.
+- _nirB_/_nirD_: `assimilatory`, departing from NCyc, which lists them under dissimilatory nitrate reduction; _nrfA_ is the respiratory DNRA marker.
+- Families collected with a broader COG are split by each sequence's own header: MCycDB _mtkA_ keeps its 48 K14067 sequences and _mtkB_ its 44 K08692 sequences, the rest (2,044 and 2,822, collected via the SucC/SucD COGs) become `sucC`/`sucD` (`core`), each pair in an ambiguity group; _acdA_ keeps its 144 arCOG01707 sequences and 10,188 acyl-CoA dehydrogenases (COG1960) move to `acyl_coa_dh` (`core`), as does all of _acdB_.
+- _fpoL_/_M_/_N_ are `accessory`: they resemble complex I NuoL/M/N and Mrp antiporter subunits, and MCycDB's competitors include Nuo/Ndh but only 6 Mrp-type records.
+- KOs that span different functions are never merged and always one ambiguity group: K10944–K10946, K00370/K00371, and K07235–K07237 (DsrEFH vs TusBCD).
+- Same name, different gene systems: SCycDB _mccA_ is the octaheme cytochrome c sulfite reductase (13 of 15 sequences carry 7 CXXCH plus 1 CX15CH heme motifs, matching the structure in Hermann et al. 2015) and stays sulfur `dissimilatory`; SCycDB _mccB_ (1,238 sequences, no heme motifs) is the _B. subtilis_ cystathionine lyase of methionine-to-cysteine conversion (Hullo et al. 2007) and is `core`, grouped with _metB_/_metC_. The collision is written into both reasons so neither is "fixed" to match the other.
+
+**Role required:** every canonical family needs a `role` row, so a family added by a database update fails the build instead of entering the headline. The 362 families that previously took `dissimilatory` by default were seeded as explicit rows marked "not individually reviewed"; 355 remain. The check fails if that count rises.
+
+**Not yet resolved:** whether the large broad-COG families are the whole list (a sweep of families whose dominant header group is a different enzyme is planned); _hdrD_, _hdrE_ and _tmm_ cycles (source organisms of the SCycDB copies unchecked); _comB_ size (3,311); _mcl_ vs citrate lyase; a source for _betC_; MCycDB _mdh_ as K00093.
+
+**Sources:**
+
+- Lücker et al. 2010, PNAS 107:13479 (two NXR types) — https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143
+- Cao et al. 2018, eLife 7:e37439 (Hdr-like complex in sulfur oxidizers) — https://elifesciences.org/articles/37439
+- Cort et al. 2008, J Mol Biol 382:692 (DsrEFH–TusBCD) — https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+- Grein, Pereira & Dahl 2010, J Bacteriol 192:6369 (DsrK related to HdrD) — https://pmc.ncbi.nlm.nih.gov/articles/PMC3008517
+- Wu et al. 2022, PNAS 119:e2207190119 (CoM biosynthesis) — https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+- Stockdreher et al. 2014, J Biol Chem 289:12390 (TusA in _A. vinosum_) — https://pmc.ncbi.nlm.nih.gov/articles/PMC4007435
+- Hullo et al. 2007, J Bacteriol 189:187 (MccA/MccB in _B. subtilis_; abstract) — https://doi.org/10.1128/jb.01273-06
+- Hermann et al. 2015, Nature 520:706 (octaheme MccA sulfite reductase; abstract) — https://doi.org/10.1038/nature14109
+- Tu et al. 2019, Bioinformatics 35:1040 (NCycDB categories) — https://academic.oup.com/bioinformatics/article/35/6/1040/5085377
+- IUBMB EC 2.1.1.251 (MtsA/MtsB) — https://iubmb.qmul.ac.uk/enzyme/EC2/1/1/251.html
+
+---
+
+## 2026-10-28 — Shared sequences: assigned per sequence from header groups and similarity
+
+**Decision:** `dev/cycdb/assign_shared_sequences.py` writes `assets/cycdb/sequence_assignments.tsv`: one row per sequence (md5 of the uppercase sequence) that carries more than one canonical family, plus the sequences moved by a split. `CYCDB_PREPARE` reads it so that no sequence keeps two family labels. In order:
+
+1. all of a sequence's families are in one ambiguity group → that group;
+2. shorter than 60 amino acids → unresolved (a fragment is never given a family, but stays in the search database as a competitor);
+3. two lines of evidence, each of which decides or is silent:
+   - **header**: the KO/COG on the sequence's own target headers matches exactly one candidate's signature (or several in one group). Silent when any candidate has `header_evidence = insufficient`;
+   - **similarity**: DIAMOND blastp against header-confirmed, single-family references of the candidate families; candidates in one ambiguity group compete as one unit; decides when the best unit scores at least T times the runner-up, with T measured per family pair (below);
+4. both decide and agree, or only one decides → that call; both decide and disagree, or neither decides → `unresolved:<a>|<b>`, which counts toward no family, group or cycle and is reported on the unresolved/ambiguous line, never dropped.
+
+Pairs with the same role and cycle whose scores stay close (_cysK_/_cysM_, _metB_/_metC_/_mccB_, _narJ_/_narW_) are ambiguity groups instead: ambiguity there is a family-level property, and read-length fragments will not separate them either. They are moderately diverged paralogs, not near-identical sequences.
+
+**Header groups alone are not enough evidence for Fe-S and other multi-domain families.** Similarity to header-confirmed references put the _rnfB_/_sudA_ and _porD_/_gs_K00266_ sequences in _rnfB_ and _porD_ (score ratio about 2) although their headers carry COG0493: the COG tags come from shared Fe-S/NADH-binding domains. For _cooF_, similarity agreed with the header call on 47 of 53 sequences and disagreed on 6. These three families have `header_evidence = insufficient`. Header calls agreed with similarity elsewhere: 226 _narB_ → _cysJ_ and 144 _narH_ → _narJ_ relabels were confirmed.
+
+**Threshold, measured (leave-cluster-out, 2026-10-29):** `dev/cycdb/loo_threshold.py` took up to 300 header-confirmed references per family as queries (22,561 queries, 95 families) and searched them against the full reference set (157,220 sequences). Hits to the query and to members of its own family in its 95% cluster are left out (34,045 hits), so near-identical relatives cannot vouch for it; members of other families in that cluster stay, as they would compete for a real query. Clusters: MMseqs2 release 18-8cc5c, `easy-cluster --min-seq-id 0.95 -c 0.8` (116,569 clusters, largest 96 members). For every pair of canonical families that occur together on a sequence in `multi_family_sequences.tsv`, it finds the lowest score ratio (0.05 grid, 1.00–3.00) at which misassigned/placed ≤ 1%; a tie is never placed.
+
+- **Which pairs:** all 128 co-occurring pairs, each on at least 20 queries (smallest 26). The pair set comes from the databases and the table only. Until 2026-10-29 it came from the assignments (pairs still unresolved after the header step), which made the result depend on itself: feeding the final assignments back in flipped 48 rows on every pass between two states (76 and 92 unresolved sequences). README step 6 now reruns steps 2–4 on the final assignments and requires byte-identical output.
+- **Pooled:** at 1.0, 549 of 55,501 queries misassigned (0.99%, 99% placed); at 1.25, 187 of 53,282 (0.35%).
+- **Above 1.25, with the share of queries placed at that threshold:**
+
+  | Pair                | T    | Placed | Units                         |
+  | ------------------- | ---- | ------ | ----------------------------- |
+  | _nrfC_/_phsB_       | 2.4  | 9%     | both in `fes_subunit_cog0437` |
+  | _fdhA_K00148_/_fdm_ | 2.15 | 11%    | different                     |
+  | _hdrC1_/_hdrC2_     | 2.0  | 20%    | different                     |
+  | _nao_/_nmo_         | 1.65 | 78%    | different                     |
+  | _nrfC_/_psrB_       | 1.65 | 27%    | both in `fes_subunit_cog0437` |
+  | _cysN_/_cysN_cysC_  | 1.6  | 26%    | different                     |
+  | _cysK_/_cysM_       | 1.55 | 68%    | both in `cysK_cysM`           |
+  | _fdhA_/_nasA_       | 1.3  | 97%    | both in `mo_bispgd_reductase` |
+  | _nirA_/_sir_        | 1.3  | 64%    | both in `siroheme_cog0155`    |
+
+- **Never under 1%** (similarity never decides): _dmsB_/_nrfC_, _nrfC_/_ttrB_, _gs_K00266_/_sudA_, _hdrA1_/_hdrA2_, _narB_/_nasA_. All five are inside one ambiguity group already, where members compete as one unit, so leave-cluster-out added no new group. In the first (leave-one-out) run, _mccB_/_metB_ never reached 1% and _mccB_/_metC_ needed 2.15; _mccB_ then joined _metB_/_metC_.
+- **Group candidates, not grouped:** _fdhA_K00148_/_fdm_, _hdrC1_/_hdrC2_ and _cysN_/_cysN_cysC_ have the same role and cycle and separate only by placing 11–26% of queries. Only 17 database sequences carry one of these pairs (15 unresolved, 2 assigned to _cysN_cysC_ by similarity), so grouping changes little here; whether they are grouped is decided on the simulated controls at read length, with the other merge-or-not calls.
+- **Sensitivity, 90% clusters** (93,977 clusters, largest 202; 102,427 hits left out): 3 of 128 thresholds change, none by more than 0.2 (_nao_/_nmo_ 1.65 → 1.85, _cooF_/_gs_K00266_ 1.05 → 1.1, _pfkA_/_pfp_ 1.0 → 1.05); pooled 426 misassigned at 1.05, 197 of 53,118 at 1.25. The 95% thresholds are used.
+- **Mixed-family clusters:** 59 of the 95% clusters hold header-confirmed references of two families (111 at 90%), all in hard pairs. Twelve such pairs are already in one ambiguity group (most: _gs_K00266_/_sudA_ 17 clusters, _narB_/_nasA_ 7, _cysK_/_cysM_ 6, _nrfC_/_ttrB_ 5). Six are not: _fdhA_K00148_/_fdm_ (6 clusters), _cooF_/_gs_K00266_ (2), and one each for _cysN_/_cysN_cysC_, _cysJ_/_narB_, _fdhA_/_gs_K00266_ and _pfkA_/_pfp_. At 95% identity the two labels are either the same enzyme under two names or a mislabelled sequence; the cross-cycle cases (_cysJ_/_narB_, _cooF_/_gs_K00266_) are to be checked by hand before the simulated controls.
+- **Hit lists:** a fixed hit count can cut off a competitor, so queries whose list was full were rerun: 18,655 of 22,561 returned the full 500 hits and were rerun with `-k 2000`; 10,808 of those were still full and were rerun with `--top 67`. The threshold table records, per pair, how many queries came from each run (`query_modes`); 121 of 128 pairs mix them.
+- **Slightly conservative:** under `--top`, the leave-cluster-out floor is 0.34 × the best hit as DIAMOND reported it, which is usually the self-hit or a near-identical cluster member. After those are left out, the best remaining own-family hit is lower than a real neighbour would be, so ratios against an absent competitor come out lower than at assignment time, and the measured thresholds are somewhat stricter than the assignment step needs. Matching them exactly would mean searching a database with each query's cluster physically removed.
+
+**Similarity search with `--top`:** step 4 now uses DIAMOND `--top 67` instead of `--max-target-seqs 500`, matching the read-level rule in CLAUDE.md. `--top` keeps every alignment within a percentage of the query's best score, with no count limit.
+
+- **Semantics, tested 2026-10-29 on DIAMOND 2.1.10,** whose binary prints no option help (`blastp --help` is rejected). With `--top 10`, three queries returned 9, 2 and 5 hits, all at ≥ 0.907 × best: a percentage window, not a hit count.
+- **Completeness:** compared with `-k` runs of the same queries (step 4 against `-k 500`, 807 queries; leave-one-out against `-k 2000`, 10,808 queries), no family's best score was lower in the `--top 67` run.
+- **Fuzzy edge:** in bitscore the edge is fuzzy by about 0.001 × best. Families absent from `--top` scored at most 0.3299 × best; families present scored as low as 0.3288 × best. DIAMOND appears to apply `--top` to the raw score.
+- **Floor:** a family absent from a cut list scores the bound it fell under, not 0: the window edge plus a margin (0.34 × best) for `--top`, the lowest reported score for a full `-k` list. Every candidate scores at least that floor, so "below the window" means the same whether or not DIAMOND reported the hit. Both `place_unresolved.py` and `loo_threshold.py` apply this, so thresholds are measured under the rule they are applied with. A ratio against the floor is at most about 2.94, so a measured threshold above 2.94 means similarity never decides that pair; the highest finite threshold measured is 2.4.
+- **Effect of the old cap:** 580 of the 768 shared-sequence queries with hits had full 500-hit lists. None of the 26 similarity calls made against a runner-up scoring 0 was on a full list: the lowest-reported floor already covered those. The cap could only make ratios look smaller and silence calls, not invent them. Switching to `--top 67` changed no assignment.
+
+**Ties and thin margins:** a measured threshold of 1.0 means any higher score decides; an exact tie never does (fixed 2026-10-29, after a _porD_/_sudA_ tie at 719 bits had gone to _porD_ by name order). Pairs measured on fewer than 20 queries use the stricter of their measurement and 1.25 (none are, at present); unmeasured pairs use 1.25. A floor on T (measured thresholds may only raise the 1.25 default) was simulated and rejected: it unresolved 45 more sequences but made 33 calls _more_ specific (28 `group:narJ_narW` → _narJ_, one `unresolved:nirK|nirS` → _nirS_), because a silent similarity leaves the header call to decide alone. Fourteen similarity decisions rest on a unit score ratio below 1.05, nearly all among Fe-S/NADH and Mo-bisPGD multi-domain families (_sudA_, _gs_K00266_, _fdhA_, _porD_, _dsrL_) and _narH_narY_/_narW_; most land in groups shown only on the unresolved line.
+
+**Result (rebuilt from scratch 2026-10-29, leave-cluster-out thresholds, `--top 67`):** of 26,839 rows, 15,054 come from splits and 10,978 are structural groups. Of the other 807: 402 decided by both methods agreeing, 319 by similarity only, 10 by header only; 3 unresolved because the methods disagreed, 43 because neither decided, and 30 as fragments. 76 sequences on 49 labels stay unresolved. Leave-cluster-out, the all-pairs measurement and `--top` changed no assignment against the intermediate leave-one-out, `-k 500` run: the thresholds that decide cross-unit calls moved little, and the pairs whose thresholds rose most are inside groups.
+
+**Reproducibility (2026-10-29):** the README commands, run from the pinned archives (SHA-256 checked) into a new directory, reproduced `canonical_families.tsv` byte for byte. DIAMOND 2.1.10 with the README settings (query chunks of 500, 250 and 100 at `--threads 2`) gave identical scores for every shared-sequence query common to the 2026-10-28 run. The README step-6 fixed-point check passed: steps 2–4 rerun on the final assignments gave byte-identical queries, references, similarity scores, thresholds and assignments. Against the 2026-10-28 file, `sequence_assignments.tsv` changed in two rows:
+
+- **A stale threshold file:** the 2026-10-28 assignments had been written from leave-one-out thresholds scored before the _mccB_ merge, so the _cooF_/_nrfC_ pair was unmeasured and a _cooF_/_nrfC_/_ttrB_ sequence stayed unresolved; it is now in `fes_subunit_cog0437`.
+- **The tie above:** the _porD_/_sudA_ tie became unresolved.
+
+**Caveat:** This separates **database sequences**, which are full-length proteins. Reads are 30–50 amino acids, and many families that separate here won't separate at read level. That's the job of the planned simulation, so these assignments mark which family a sequence belongs to, not which reads can be told apart.
+
+**Provisional:** the 60-aa minimum length (chosen to catch fragments shorter than about two reads; to be revisited on the simulated controls, which are small) and the 1.25 default for unmeasured pairs.
+
+---
+
+## 2026-10-28 — Full-depth showcase runs do not fit this workstation; SingleM memory at depth
+
+**Decision:** the showcase report is built from 5M-pair subsamples of the two full samples (seqtk 1.4 `sample -s 20261028`, fractions 0.0689 and 0.1654; mates verified to stay paired by read name). Full-depth runs belong on a larger machine.
+
+**Evidence:** at full depth (72.6M and 30.2M pairs), `SINGLEM_PIPE` on `apb_enrichment` was killed by its container's 4 GB limit (`constraint=CONSTRAINT_MEMCG`, DIAMOND inside SingleM at 1.87 GB RSS) after about 5 hours. SingleM caught the kill and exited 1, so the template's retry-with-more-memory (exit codes 130–145) did not trigger. A second attempt at 7 GB, and a later 4-thread DIAMOND job, took down the 8–10 GB WSL VM. At 5M pairs every task fit its default resources (20 of 20 succeeded).
+
+**To do (v0.2):** retry `SINGLEM_PIPE` on memory exhaustion even when SingleM exits 1 (detect the kill in its log), and size its memory from a deep run on a larger machine.
+
+---
+
+## 2026-10-28 — First real-data check of SingleM's prokaryotic fraction (provisional)
+
+**Finding:** on the 5M-pair `apb_enrichment` showcase sample, SingleM's `prokaryotic_fraction` reports 58.4%, but at least ~73% of the reads are prokaryotic. The headline number is at least ~15 points low on this sample. The cause of the remaining ~27% is open.
+
+**Evidence (2026-10-28):**
+
+- Host DNA is ruled out: SingleM runs before host removal, and Hostile removed 254 of 9,908,760 reads.
+- A genome-size error is ruled out as the main cause: _S. nakayamae_ has no species entry in the GlobDB r232 metapackage's `taxon_genome_lengths` table, so SingleM used the _Sporolactobacillus_ genus mean (3.34 Mbp); the type-strain genome (GCF_900113325.1) is 3.54 Mbp, about 6% larger.
+- bowtie2 (pipeline container, default end-to-end) mapped 67.8% of the clean reads to the _S. nakayamae_ and _C. luticellarii_ type strains (GCF_900113325.1, GCF_002995845.1): 61.5% and 6.3%. If SingleM's 58.4% were right, about 54% should map (0.584 × the two species' 84.5% + 8.3% of coverage).
+- SingleM 0.21.4 on the 1,630,967 unmapped pairs gives 16.9% prokaryotic, mostly _Clostridium_ spp. with no reference genome here: about 5.4% of all reads.
+
+**Why the rest stays open:** SingleM counts single-copy markers, and those were mapped away with the rest of each genome. Reads from strain-specific genes, or reads too divergent for end-to-end alignment, look marker-free although they are prokaryotic; phage, plasmid or contamination would look the same.
+
+**Consequences:**
+
+- The report gets a "less reliable in simple communities" caveat, shown when a few taxa hold most of the coverage. SingleM's own warning cannot fire here, because 94–98% of coverage is resolved to species. SingleM's documentation says the estimate is least reliable in simple communities.
+- Next check: assemble the unmapped pairs (MEGAHIT), split contigs by coverage and GC, and identify the largest by BLAST. Contigs at the _S. nakayamae_ coverage (~170×) would mean strain DNA and a wrong headline; a separate cluster would be a finding about the sample.
+
+**Sources:**
+
+- SingleM `prokaryotic_fraction` — https://wwood.github.io/singlem/tools/prokaryotic_fraction
+- _S. nakayamae_ ATCC 700379 — https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_900113325.1/
+- _C. luticellarii_ DSM 29923 — https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_002995845.1/

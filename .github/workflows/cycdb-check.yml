@@ -1,0 +1,29 @@
+name: cycling-database curation check
+# Checks the checked-in canonical-family table and sequence assignments (assets/cycdb).
+# CI cannot rebuild them: SCycDB, MCycDB and NCyc have no license and are never stored here
+# (dev/cycdb/README.md). The check script uses only the standard library.
+on:
+  pull_request:
+    paths:
+      - "assets/cycdb/**"
+      - "dev/cycdb/**"
+      - ".github/workflows/cycdb-check.yml"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+
+      - name: Check canonical families and sequence assignments
+        working-directory: dev/cycdb
+        # the Python minor version used to build the tables locally; uv picks the patch
+        run: >
+          uv run --no-project --python 3.14 python -I check_canonical_families.py
+          ../../assets/cycdb/canonical_families.tsv
+          --assignments ../../assets/cycdb/sequence_assignments.tsv
+          --overrides curation_overrides.tsv
