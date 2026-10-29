@@ -1,0 +1,555 @@
+source_db	source_family	selector	canonical_family	ko	ambiguity_group	group_cycle	marker_step	header_evidence	source_databases	cycle	cycle_detail	role	n_sequences	cog	reason	source
+MCycDB	acdA	ontology:arCOG01707	acdA						MCycDB	none		accessory	10332	COG1960	keep_ontologies: ADP-forming acetyl-CoA synthetase keeps only arCOG01707 sequences (124 records); 8,398 records were collected via COG1960 (acyl-CoA DH); rest_canonical: the COG1960-collected rest (and unlabelled RefSeq gene=acdA records) is acyl-CoA dehydrogenase; cycle: ADP-forming acetyl-CoA synthetase (archaeal acetate metabolism); not methane-specific; role: PENDING: whether MCycDB lists it for a methane pathway; homologous to SucCD (NDP-forming acyl-CoA synthetases), not grouped until the simulation	audit 2026-10-28 (header ontology counts); canonical-families review 3 2026-10-28
+MCycDB	acdA	rest	acyl_coa_dh		acyl_coa_dh_cog1960				MCycDB	none		core	10332	COG1960	keep_ontologies: ADP-forming acetyl-CoA synthetase keeps only arCOG01707 sequences (124 records); 8,398 records were collected via COG1960 (acyl-CoA DH); rest_canonical: the COG1960-collected rest (and unlabelled RefSeq gene=acdA records) is acyl-CoA dehydrogenase; role: acyl-CoA dehydrogenase (fatty-acid oxidation), found in most genomes; ambiguity_group: shared sequences; COG1960	audit 2026-10-28 (header ontology counts); canonical-families review 3 2026-10-28
+MCycDB	acdB		acyl_coa_dh		acyl_coa_dh_cog1960				MCycDB	none		core	2916	COG1960	canonical_family: no acetyl-CoA synthetase in it: 2,375 target records COG1960 (acyl-CoA DH), 536 unlabelled RefSeq records; role: acyl-CoA dehydrogenase (fatty-acid oxidation), found in most genomes; ambiguity_group: shared sequences; COG1960	audit 2026-10-28 (header ontology counts); canonical-families review 3 2026-10-28
+MCycDB	ackA		ackA	K00925					MCycDB	none		core	28581	COG0282	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	acs		acs	K01895	acyl_coa_synthetase_cog0365				MCycDB	none		core	21679	COG0365	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process; ambiguity_group: shared sequences	canonical-families review 2026-10-28; audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+MCycDB	acsC		acsC	K00197	acsC_cdhE				MCycDB	none		dissimilatory	92	COG1456	cycle: bacterial acetogen CODH/ACS; not a methane step; ambiguity_group: K00197; bacterial acetogen vs archaeal methanogen CODH/ACS	canonical-families review 2026-10-28
+MCycDB	acsD		acsD	K00194	acsD_cdhD				MCycDB	none		dissimilatory	92	COG2069	cycle: bacterial acetogen CODH/ACS; not a methane step; ambiguity_group: K00194	canonical-families review 2026-10-28
+MCycDB	amoA		amoA_B	K10944	amoA_pmoA		ammonia oxidation		MCycDB,NCyc	nitrogen		dissimilatory	11156		canonical_family: bacterial amoA: 8,207 sequences identical to NCyc amoA_B, none to amoA_A; ko: KO headers too few to pass the 5-header rule (MCycDB 3, NCyc 1), all K10944; cycle: ammonia oxidation; MCycDB copy carries no methane step; ambiguity_group: K10944; the NCyc 2019Jul cleanup moved 192 IDs pmoA to amoA_B and 22 back; marker_step: one marker per step; alternatives for one step are different organisms' enzymes	audit 2026-10-28 family_pairs.tsv; audit 2026-10-28 families.tsv; canonical-families review 2026-10-28; audit 2026-10-28 (NCyc map comparison); canonical-families review 3 2026-10-28
+MCycDB	amoB		amoB_B	K10945	amoB_pmoB				MCycDB,NCyc	nitrogen		dissimilatory	90		canonical_family: bacterial amoB, as MCycDB amoA; cycle: ammonia oxidation; ambiguity_group: K10945	audit 2026-10-28 families.tsv; canonical-families review 2026-10-28
+MCycDB	amoC		amoC_B	K10946	amoC_pmoC				MCycDB,NCyc	nitrogen		dissimilatory	33	arCOG08699	canonical_family: bacterial amoC, as MCycDB amoA; cycle: ammonia oxidation; ambiguity_group: K10946	audit 2026-10-28 families.tsv; canonical-families review 2026-10-28
+MCycDB	apgM		apgM	K15635					MCycDB	none		core	1586	COG3635	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	cdhA		cdhA	K00192					MCycDB	methane		dissimilatory	276	arCOG02428		
+MCycDB	cdhB		cdhB	K00195					MCycDB	methane		dissimilatory	179	arCOG04408		
+MCycDB	cdhC		cdhC	K00193					MCycDB	methane		dissimilatory	384	COG1614		
+MCycDB	cdhD		cdhD	K00194	acsD_cdhD				MCycDB	methane		dissimilatory	245	arCOG01980	ambiguity_group: K00194	canonical-families review 2026-10-28
+MCycDB	cdhE		cdhE	K00197	acsC_cdhE				MCycDB	methane		dissimilatory	213	arCOG01979	ambiguity_group: K00197; bacterial acetogen vs archaeal methanogen CODH/ACS	canonical-families review 2026-10-28
+MCycDB	cooF		cooF	K00196				insufficient	MCycDB	methane		dissimilatory	696	COG1142	header_evidence: similarity disagrees with the header call on 6 of 53 cooF-related sequences; multi-domain Fe-S protein, same cause as rnfB	audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+MCycDB	cooS		cooS	K00198					MCycDB	methane		dissimilatory	1098	COG0369		
+MCycDB	cytC		cytC						MCycDB	methane		dissimilatory	24	arCOG06549		
+MCycDB	dcmA		dcmA						MCycDB	c1		dissimilatory	15	COG0625	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	dcmR		dcmR						MCycDB	c1		dissimilatory	1		cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	dfrA1		dfrA1	K18589					MCycDB	none		other	235	COG0262	role: trimethoprim-resistance dihydrofolate reductase (mobile elements); kept in the search database as a competitor for folA	canonical-families review 2 2026-10-28
+MCycDB	dfrA10		dfrA10						MCycDB	none		other	2		role: trimethoprim-resistance dihydrofolate reductase (mobile elements); kept in the search database as a competitor for folA	canonical-families review 2 2026-10-28
+MCycDB	dfrA12		dfrA12	K18590					MCycDB	none		other	33	COG0262	role: trimethoprim-resistance dihydrofolate reductase (mobile elements); kept in the search database as a competitor for folA	canonical-families review 2 2026-10-28
+MCycDB	dfrA19		dfrA19						MCycDB	none		other	2		role: trimethoprim-resistance dihydrofolate reductase (mobile elements); kept in the search database as a competitor for folA	canonical-families review 2 2026-10-28
+MCycDB	echA		echA	K14086					MCycDB	methane		dissimilatory	77	COG1009		
+MCycDB	echB		echB	K14087					MCycDB	methane		dissimilatory	68	COG0650		
+MCycDB	echC		echC	K14088					MCycDB	methane		dissimilatory	73	COG3260		
+MCycDB	echD		echD						MCycDB	methane		dissimilatory	3	arCOG01551		
+MCycDB	echE		echE	K14090					MCycDB	methane		dissimilatory	201	COG3261		
+MCycDB	echF		echF						MCycDB	methane		dissimilatory	3	arCOG01543		
+MCycDB	ehaA		ehaA						MCycDB	methane		dissimilatory	28	arCOG05035		
+MCycDB	ehaB		ehaB						MCycDB	methane		dissimilatory	51	arCOG04828		
+MCycDB	ehaC		ehaC						MCycDB	methane		dissimilatory	27	arCOG03190		
+MCycDB	ehaD		ehaD						MCycDB	methane		dissimilatory	22	arCOG04829		
+MCycDB	ehaE		ehaE						MCycDB	methane		dissimilatory	36	arCOG04830		
+MCycDB	ehaF		ehaF						MCycDB	methane		dissimilatory	38	arCOG04831		
+MCycDB	ehaG		ehaG						MCycDB	methane		dissimilatory	47	arCOG04832		
+MCycDB	ehaH		ehaH						MCycDB	methane		dissimilatory	47	arCOG04833		
+MCycDB	ehaI		ehaI						MCycDB	methane		dissimilatory	21	arCOG06464		
+MCycDB	ehaJ		ehaJ						MCycDB	methane		dissimilatory	43	arCOG01545		
+MCycDB	ehaK		ehaK						MCycDB	methane		dissimilatory	9			
+MCycDB	ehaL		ehaL						MCycDB	methane		dissimilatory	31	arCOG04834		
+MCycDB	ehaM		ehaM	K14104					MCycDB	methane		dissimilatory	22	arCOG04835		
+MCycDB	ehaN		ehaN	K14105					MCycDB	methane		dissimilatory	53	arCOG01553		
+MCycDB	ehaO		ehaO						MCycDB	methane		dissimilatory	48	arCOG01547		
+MCycDB	ehaP		ehaP						MCycDB	methane		dissimilatory	26	arCOG02183		
+MCycDB	ehaQ		ehaQ						MCycDB	methane		dissimilatory	32	COG1145		
+MCycDB	ehaR		ehaR						MCycDB	methane		dissimilatory	27	arCOG01161		
+MCycDB	ehbA		ehbA						MCycDB	methane		dissimilatory	124	COG1863		
+MCycDB	ehbB		ehbB						MCycDB	methane		dissimilatory	25	arCOG04878		
+MCycDB	ehbC		ehbC						MCycDB	methane		dissimilatory	32	arCOG04877		
+MCycDB	ehbD		ehbD						MCycDB	methane		dissimilatory	33	arCOG03076		
+MCycDB	ehbE		ehbE						MCycDB	methane		dissimilatory	293	COG1006		
+MCycDB	ehbF		ehbF						MCycDB	methane		dissimilatory	26	arCOG01537		
+MCycDB	ehbG		ehbG						MCycDB	methane		dissimilatory	19	arCOG05076		
+MCycDB	ehbH		ehbH						MCycDB	methane		dissimilatory	62	arCOG03077		
+MCycDB	ehbI		ehbI						MCycDB	methane		dissimilatory	50	arCOG03079		
+MCycDB	ehbJ		ehbJ						MCycDB	methane		dissimilatory	8	arCOG06490		
+MCycDB	ehbK		ehbK						MCycDB	methane		dissimilatory	37	arCOG02182		
+MCycDB	ehbL		ehbL						MCycDB	methane		dissimilatory	36	arCOG01543		
+MCycDB	ehbM		ehbM						MCycDB	methane		dissimilatory	37	arCOG01553		
+MCycDB	ehbN		ehbN						MCycDB	methane		dissimilatory	42	arCOG01547		
+MCycDB	ehbO		ehbO						MCycDB	methane		dissimilatory	41	arCOG01545		
+MCycDB	ehbP		ehbP						MCycDB	methane		dissimilatory	34	arCOG04876		
+MCycDB	ehbQ		ehbQ	K06862					MCycDB	methane		dissimilatory	82	arCOG00813		
+MCycDB	eno		eno	K01689					MCycDB	none		core	36111	COG0148	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	fae		fae	K10713					MCycDB	c1		dissimilatory	245	COG1795	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	fae-hps		fae-hps	K13812					MCycDB	c1		dissimilatory	310	arCOG00103	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	fbaA		fbaA	K01624					MCycDB	none		core	7722	COG0191	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	fbaB		fbaB	K11645					MCycDB	none		core	1301	COG1830	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	fbp		fbp	K03841	fbp_fbp3				MCycDB	none		core	19727	COG0158	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process; ambiguity_group: shared sequences; same KO K03841	canonical-families review 2026-10-28; audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+MCycDB	fbp-SEBP		fbp-SEBP						MCycDB	none		core	2		role: central carbon metabolism	canonical-families review 2 2026-10-28
+MCycDB	fbp3		fbp3	K03841	fbp_fbp3				MCycDB	none		core	31	COG0158	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process; ambiguity_group: shared sequences; same KO K03841	canonical-families review 2026-10-28; audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+MCycDB	fchA		fchA	K01500					MCycDB	c1		dissimilatory	116	COG3404	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	fdhA		fdhA	K22516	mo_bispgd_reductase				MCycDB	none		accessory	1387	COG3383	ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5); cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	canonical-families review 2026-10-28; canonical-families review 2 2026-10-28
+MCycDB	fdhA-K00148		fdhA_K00148	K00148					MCycDB	none		accessory	4374	COG1063	canonical_family: formaldehyde DH, not MCycDB fdhA (formate DH); cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	audit 2026-10-28 families.tsv; canonical-families review 2 2026-10-28
+MCycDB	fdhB		fdhB	K00125	fes_subunit_cog0437				MCycDB	none		accessory	1140	COG0437	ambiguity_group: shared sequences; COG0437 Fe-S subunits; cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links); canonical-families review 2 2026-10-28
+MCycDB	fdhF		fdhF	K22015					MCycDB	none		accessory	1996	COG3383	cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	canonical-families review 2 2026-10-28
+MCycDB	fdm		fdm						MCycDB	none		accessory	948	COG1063	cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	canonical-families review 2 2026-10-28
+MCycDB	fdoG		fdoG	K00123	mo_bispgd_reductase				MCycDB	none		accessory	2514	COG3383	ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5); cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	canonical-families review 2026-10-28; canonical-families review 2 2026-10-28
+MCycDB	fdoH		fdoH	K00124	fes_subunit_cog0437				MCycDB	none		accessory	1816	COG0437	ambiguity_group: shared sequences; COG0437 Fe-S subunits; cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links); canonical-families review 2 2026-10-28
+MCycDB	fdoI		fdoI	K00127					MCycDB	none		accessory	1286	COG2864	cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	canonical-families review 2 2026-10-28
+MCycDB	fdsD		fdsD	K00126					MCycDB	none		accessory	767		cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	canonical-families review 2 2026-10-28
+MCycDB	fdwB		fdwB	K22515					MCycDB	none		accessory	670	COG1894	cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	canonical-families review 2 2026-10-28
+MCycDB	fdwE		fdwE						MCycDB	none		accessory	18		cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	canonical-families review 2 2026-10-28
+MCycDB	fghA		fghA	K01070					MCycDB	none		accessory	4548	COG0627	cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	canonical-families review 2 2026-10-28
+MCycDB	fmdB		fmdB_fwdB	K00201					MCycDB	methane		dissimilatory	68	arCOG01499	canonical_family: K00201; Mo and W isoenzymes of one reaction	canonical-families review 2026-10-28
+MCycDB	fmdC		fmdC_fwdC	K00202					MCycDB	methane		dissimilatory	80	arCOG00097	canonical_family: K00202; Mo and W isoenzymes	canonical-families review 2026-10-28
+MCycDB	folA		folA	K00287					MCycDB	none		core	8723	COG0262	role: amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+MCycDB	fpoA		fpoA	K22158					MCycDB	methane		dissimilatory	443	COG0838		
+MCycDB	fpoB		fpoB	K22159					MCycDB	methane		dissimilatory	3474	COG0377		
+MCycDB	fpoC		fpoC	K22160					MCycDB	methane		dissimilatory	112	COG0852		
+MCycDB	fpoD		fpoD	K22161					MCycDB	methane		dissimilatory	70	COG0649		
+MCycDB	fpoF		fpoF	K22162					MCycDB	methane		dissimilatory	31	arCOG02650		
+MCycDB	fpoH		fpoH	K22163					MCycDB	methane		dissimilatory	556	COG1005		
+MCycDB	fpoI		fpoI	K22164					MCycDB	methane		dissimilatory	46	arCOG01543		
+MCycDB	fpoJ		fpoJ	K22165					MCycDB	methane		dissimilatory	211	COG0839		
+MCycDB	fpoK		fpoK	K22166					MCycDB	methane		dissimilatory	1907	COG0713		
+MCycDB	fpoL		fpoL	K22167					MCycDB	methane		accessory	2968	COG1009	role: related to complex I NuoL/M/N and to Mrp antiporter subunits; MCycDB's competitors include Nuo/Ndh but only 6 Mrp-type records (K05565, fpoL homolog), so antiporter reads would land here	audit 2026-10-28 (homolog ontology counts); Mathiesen & Hagerhall 2003 FEBS Lett 549:7
+MCycDB	fpoM		fpoM	K22168					MCycDB	methane		accessory	912	COG1008	role: related to complex I NuoL/M/N and to Mrp antiporter subunits; MCycDB's competitors include Nuo/Ndh but only 6 Mrp-type records (K05565, fpoL homolog), so antiporter reads would land here	audit 2026-10-28 (homolog ontology counts); Mathiesen & Hagerhall 2003 FEBS Lett 549:7
+MCycDB	fpoN		fpoN	K22169					MCycDB	methane		accessory	205	COG1007	role: related to complex I NuoL/M/N and to Mrp antiporter subunits; MCycDB's competitors include Nuo/Ndh but only 6 Mrp-type records (K05565, fpoL homolog), so antiporter reads would land here	audit 2026-10-28 (homolog ontology counts); Mathiesen & Hagerhall 2003 FEBS Lett 549:7
+MCycDB	fpoO		fpoO	K22170					MCycDB	methane		dissimilatory	35	arCOG04959		
+MCycDB	fqoA		fqoA						MCycDB	methane		dissimilatory	4	arCOG01557		
+MCycDB	fqoD		fqoD						MCycDB	methane		dissimilatory	16	arCOG01548		
+MCycDB	fqoF		fqoF	K22174					MCycDB	methane		dissimilatory	8			
+MCycDB	fqoH		fqoH						MCycDB	methane		dissimilatory	9	arCOG01546		
+MCycDB	fqoJ		fqoJ						MCycDB	methane		dissimilatory	4			
+MCycDB	fqoK		fqoK	K22178					MCycDB	methane		dissimilatory	9			
+MCycDB	fqoL		fqoL						MCycDB	methane		dissimilatory	13	COG1009		
+MCycDB	fqoM		fqoM						MCycDB	methane		dissimilatory	10	arCOG01537		
+MCycDB	fqoN		fqoN						MCycDB	methane		dissimilatory	10	COG1007		
+MCycDB	frhA		frhA	K00440					MCycDB	methane		dissimilatory	133	arCOG01549		
+MCycDB	frhB		frhB	K00441					MCycDB	methane		dissimilatory	85	arCOG02651		
+MCycDB	frhD		frhD	K00442					MCycDB	methane		dissimilatory	100	arCOG04429		
+MCycDB	frhG		frhG	K00443					MCycDB	methane		dissimilatory	87	arCOG02473		
+MCycDB	frmA		frmA	K00121					MCycDB	none		accessory	6287	COG1062	cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	canonical-families review 2 2026-10-28
+MCycDB	frmB		fghA	K01070					MCycDB	none		accessory	339	COG0627	canonical_family: K01070; same enzyme, two gene names; cycle: formate/formaldehyde oxidation or detoxification is widespread, not methane-specific; role: as cycle	canonical-families review 2026-10-28; canonical-families review 2 2026-10-28
+MCycDB	ftr		ftr	K00672					MCycDB	methane		dissimilatory	418	COG2037		
+MCycDB	fwdB		fmdB_fwdB	K00201					MCycDB	methane		dissimilatory	143	arCOG01499	canonical_family: K00201	canonical-families review 2026-10-28
+MCycDB	fwdC		fmdC_fwdC	K00202					MCycDB	methane		dissimilatory	119	arCOG00097	canonical_family: K00202	canonical-families review 2026-10-28
+MCycDB	fwdE		fwdE						MCycDB	methane		dissimilatory	15	arCOG04891		
+MCycDB	fwdF		fwdF	K00205					MCycDB	methane		dissimilatory	64	arCOG02180		
+MCycDB	fwdG		fwdG	K11260					MCycDB	methane		dissimilatory	128	arCOG00292		
+MCycDB	fwdH		fwdH	K00204					MCycDB	methane		dissimilatory	30	arCOG04891		
+MCycDB	gck		gck	K11529					MCycDB	c1		dissimilatory	285	COG2379	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	gfa		gfa	K03396					MCycDB	c1		dissimilatory	1618	COG3791	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	glpX		glpX						MCycDB	none		core	10150	COG1494	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	glpX.SEBP		glpX.SEBP						MCycDB	none		core	4	COG1494	role: central carbon metabolism	canonical-families review 2 2026-10-28
+MCycDB	glyA		glyA	K00600					MCycDB	none		core	44742	COG0112	role: amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+MCycDB	gpmB		gpmB	K15634					MCycDB	none		core	3401	COG0406	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	gpmI		gpmI	K15633					MCycDB	none		core	21976	COG0696	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	hdrA1		hdrA1	K22480	hdrA_qmoA_mvhD				MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	206	COG1908	cycle: methanogen HdrABC and the sulfur-oxidizer Hdr-like complex share these genes; cycle_detail: as cycle; ambiguity_group: shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	https://elifesciences.org/articles/37439; canonical-families review 2026-10-28
+MCycDB	hdrA2		hdrA2	K03388	hdrA_qmoA_mvhD				MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	544	COG1148	cycle: as hdrA1; cycle_detail: as cycle; ambiguity_group: shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	https://elifesciences.org/articles/37439; canonical-families review 2026-10-28
+MCycDB	hdrB1		hdrB1	K22481					MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	108	arCOG00338	cycle: as hdrA1; cycle_detail: as cycle	https://elifesciences.org/articles/37439
+MCycDB	hdrB2		hdrB2	K03389					MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	64	arCOG00338	cycle: as hdrA1; cycle_detail: as cycle	https://elifesciences.org/articles/37439
+MCycDB	hdrC1		hdrC1	K22482					MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	64	arCOG00964	cycle: as hdrA1; cycle_detail: as cycle	https://elifesciences.org/articles/37439
+MCycDB	hdrC2		hdrC2	K03390					MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	67	arCOG00964	cycle: as hdrA1; cycle_detail: as cycle	https://elifesciences.org/articles/37439
+MCycDB	hdrD		hdrD	K08264	dsrK_hdrD				MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	169	COG0247	cycle: PENDING: 135 of 156 SCycDB hdrD are identical to MCycDB hdrD; source taxa of the SCycDB copies not yet checked; cycle_detail: as cycle; ambiguity_group: DsrK is related to HdrD (COG0247); COG seed, pending simulation	audit 2026-10-28 same_name.tsv; https://pmc.ncbi.nlm.nih.gov/articles/PMC3008517
+MCycDB	hdrE		hdrE	K08265					MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	40	arCOG05014	cycle: PENDING: 35 of 41 SCycDB hdrE identical to MCycDB hdrE; source taxa not yet checked; cycle_detail: as cycle	audit 2026-10-28 same_name.tsv
+MCycDB	hmd		hmd	K13942					MCycDB	methane		dissimilatory	60	arCOG03196		
+MCycDB	hprA		hprA	K00018	hydroxyacid_dh_cog0111				MCycDB	none		core	3361	COG1052	role: amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic; ambiguity_group: shared sequences	canonical-families review 2026-10-28; audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+MCycDB	hxlA		hxlA	K08093					MCycDB	c1		dissimilatory	964	COG0269	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	hxlB		hxlB	K08094					MCycDB	c1		dissimilatory	1031	COG0794	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mauA		mauA	K15228					MCycDB	c1		dissimilatory	270		cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mauB		mauB	K15229					MCycDB	c1		dissimilatory	60	COG3391	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mauC		mauC						MCycDB	c1		dissimilatory	182	COG3794	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mauD		mauD						MCycDB	c1		dissimilatory	117	COG1225	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mauE		mauE						MCycDB	c1		dissimilatory	62	COG2259	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mauF		mauF						MCycDB	c1		dissimilatory	27	COG0785	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mbhJ		mbhJ	K18023					MCycDB	methane		dissimilatory	768	COG3260		
+MCycDB	mbhK		mbhK	K18017					MCycDB	methane		dissimilatory	44	arCOG01552		
+MCycDB	mbhL		mbhL	K18016					MCycDB	methane		dissimilatory	73	arCOG01547		
+MCycDB	mch		mch	K01499					MCycDB	methane		dissimilatory	1765	COG3252		
+MCycDB	mcl		mcl	K08691					MCycDB	c1		dissimilatory	1321	COG2301	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation; PENDING: check for citrate lyase citE inside	canonical-families review 2 2026-10-28
+MCycDB	mcrA		mcrA	K00399			methanogenesis / anaerobic methane oxidation		MCycDB	methane		dissimilatory	13220	arCOG04857	marker_step: one marker per step	canonical-families review 3 2026-10-28
+MCycDB	mcrB		mcrB	K00401					MCycDB	methane		dissimilatory	242	arCOG04860		
+MCycDB	mcrC		mcrC	K03421					MCycDB	methane		dissimilatory	214	arCOG03225		
+MCycDB	mcrD		mcrD	K03422					MCycDB	methane		dissimilatory	169	arCOG04859		
+MCycDB	mcrG		mcrG	K00402					MCycDB	methane		dissimilatory	224	arCOG04858		
+MCycDB	mdh		mdh_methanol						MCycDB	c1		dissimilatory	941	COG1454	canonical_family: methanol DH (Fe-type alcohol DH, COG1454), a different enzyme from SCycDB mdh; KO unconfirmed; ko: KO not confirmed from a sequence sample; K00093 suspected; cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	audit 2026-10-28 families.tsv; canonical-families review 2 2026-10-28
+MCycDB	mdh-K00024		mdh_K00024	K00024					MCycDB,SCycDB	none		core	26322	COG0039	canonical_family: malate DH; same sequences as SCycDB mdh; role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	audit 2026-10-28 family_pairs.tsv; canonical-families review 2026-10-28
+MCycDB	mdo		mdo	K17067					MCycDB	methane		dissimilatory	217	COG1454		
+MCycDB	mer		mer	K00320					MCycDB	methane		dissimilatory	297	arCOG02410		
+MCycDB	metF		metF	K00297					MCycDB	none		core	7652	COG0685	role: amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+MCycDB	mgdA		mgdA	K22084					MCycDB	c1		dissimilatory	70		cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mgdB		mgdB	K22085					MCycDB	c1		dissimilatory	70		cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mgdD		mgdD	K22087					MCycDB	c1		dissimilatory	13		cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mgsA		mgsA	K22081					MCycDB	c1		dissimilatory	396	COG0034	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mgsB		mgsB	K22082					MCycDB	c1		dissimilatory	463	COG2218	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mgsC		mgsC	K22083	mgsC_nmo				MCycDB	c1		dissimilatory	471	COG0069	ambiguity_group: shared sequences; cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links); canonical-families review 2 2026-10-28
+MCycDB	mmoB		mmoB						MCycDB	methane		dissimilatory	23			
+MCycDB	mmoC		mmoC						MCycDB	methane		dissimilatory	74	COG1018		
+MCycDB	mmoD		mmoD						MCycDB	methane		dissimilatory	30			
+MCycDB	mmoX		mmoX				aerobic methane oxidation		MCycDB	methane		dissimilatory	443	COG3350	marker_step: one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 3 2026-10-28
+MCycDB	mmoY		mmoY						MCycDB	methane		dissimilatory	27			
+MCycDB	mmoZ		mmoZ						MCycDB	methane		dissimilatory	29			
+MCycDB	mtaA		mtaA	K14080					MCycDB	methane		dissimilatory	88	COG0407		
+MCycDB	mtaB		mtaB	K04480					MCycDB	methane		dissimilatory	101	arCOG03330		
+MCycDB	mtaC		mtaC	K14081					MCycDB	methane		dissimilatory	91	arCOG02032		
+MCycDB	mtbA		mtbA	K14082					MCycDB	methane		dissimilatory	29	arCOG03323		
+MCycDB	mtbB		mtbB	K16178					MCycDB	methane		dissimilatory	80	arCOG06710		
+MCycDB	mtbC		mtbC	K16179					MCycDB	methane		dissimilatory	707	COG5012		
+MCycDB	mtd		mtd						MCycDB	methane		dissimilatory	316	COG1927		
+MCycDB	mtdA		mtdA	K00300					MCycDB	c1		dissimilatory	48	COG0373	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mtdB		mtdB	K10714					MCycDB	c1		dissimilatory	215	COG0373	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mtkA	ontology:K14067	mtkA	K14067	mtkA_sucC				MCycDB	c1		dissimilatory	2092	COG0045	keep_ontologies: malyl-CoA ligase beta keeps only sequences whose own headers carry K14067 (48 records); 2,054 records were collected via COG0045 (SucC); rest_canonical: the COG0045-collected rest is succinyl-CoA synthetase beta; cycle: serine-cycle malyl-CoA ligase (methylotrophy); ambiguity_group: MtkA and SucC are homologs (malyl-CoA ligase / succinyl-CoA synthetase beta)	audit 2026-10-28 (header ontology counts); canonical-families review 3 2026-10-28
+MCycDB	mtkA	rest	sucC		mtkA_sucC				MCycDB	none		core	2092	COG0045	keep_ontologies: malyl-CoA ligase beta keeps only sequences whose own headers carry K14067 (48 records); 2,054 records were collected via COG0045 (SucC); rest_canonical: the COG0045-collected rest is succinyl-CoA synthetase beta; role: TCA-cycle succinyl-CoA synthetase, found in most genomes; ambiguity_group: MtkA and SucC are homologs (malyl-CoA ligase / succinyl-CoA synthetase beta)	audit 2026-10-28 (header ontology counts); canonical-families review 3 2026-10-28
+MCycDB	mtkB	ontology:K08692	mtkB	K08692	mtkB_sucD				MCycDB	c1		dissimilatory	2866	COG0074	keep_ontologies: malyl-CoA ligase alpha keeps only K08692 sequences (44 records); 2,824 records were collected via COG0074 (SucD); rest_canonical: the COG0074-collected rest is succinyl-CoA synthetase alpha; cycle: serine-cycle malyl-CoA ligase (methylotrophy); ambiguity_group: MtkB and SucD are homologs (alpha subunits)	audit 2026-10-28 (header ontology counts); canonical-families review 3 2026-10-28
+MCycDB	mtkB	rest	sucD		mtkB_sucD				MCycDB	none		core	2866	COG0074	keep_ontologies: malyl-CoA ligase alpha keeps only K08692 sequences (44 records); 2,824 records were collected via COG0074 (SucD); rest_canonical: the COG0074-collected rest is succinyl-CoA synthetase alpha; role: TCA-cycle succinyl-CoA synthetase, found in most genomes; ambiguity_group: MtkB and SucD are homologs (alpha subunits)	audit 2026-10-28 (header ontology counts); canonical-families review 3 2026-10-28
+MCycDB	mtmB		mtmB	K16176					MCycDB	methane		dissimilatory	75	arCOG05143		
+MCycDB	mtmC		mtmC	K16177					MCycDB	methane		dissimilatory	52	arCOG02031		
+MCycDB	mtrA		mtrA	K00577					MCycDB	methane		dissimilatory	339	arCOG03221		
+MCycDB	mtrB		mtrB	K00578					MCycDB	methane		dissimilatory	136	arCOG04867		
+MCycDB	mtrC		mtrC	K00579					MCycDB	methane		dissimilatory	175	arCOG04868		
+MCycDB	mtrD		mtrD	K00580					MCycDB	methane		dissimilatory	246	arCOG04869		
+MCycDB	mtrE		mtrE	K00581					MCycDB	methane		dissimilatory	239	arCOG04870		
+MCycDB	mtrF		mtrF	K00582					MCycDB	methane		dissimilatory	112	arCOG03381		
+MCycDB	mtrG		mtrG	K00583					MCycDB	methane		dissimilatory	158	arCOG03380		
+MCycDB	mtrH		mtrH	K00584					MCycDB	methane		dissimilatory	246	arCOG04336		
+MCycDB	mtsA		mtsA	K16954					MCycDB,SCycDB	methane		dissimilatory	11	COG0407	cycle: methanogenesis from methylated thiols	https://iubmb.qmul.ac.uk/enzyme/EC2/1/1/251.html
+MCycDB	mtsB		mtsB	K16955					MCycDB,SCycDB	methane		dissimilatory	11	arCOG03402	cycle: methanogenesis from methylated thiols	https://iubmb.qmul.ac.uk/enzyme/EC2/1/1/251.html
+MCycDB	mttB		mttB	K14083					MCycDB	methane		dissimilatory	54	arCOG03406		
+MCycDB	mttC		mttC	K14084					MCycDB	methane		dissimilatory	149	COG5012		
+MCycDB	mvhA		mvhA	K14126					MCycDB	methane		dissimilatory	151	COG3259		
+MCycDB	mvhD		mvhD	K14127	hdrA_qmoA_mvhD				MCycDB	methane		dissimilatory	245	COG1908	ambiguity_group: shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	canonical-families review 2026-10-28
+MCycDB	mvhG		mvhG	K14128					MCycDB	methane		dissimilatory	72	COG1941		
+MCycDB	mxaA		mxaA	K16256					MCycDB	c1		dissimilatory	28		cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mxaC		mxaC	K16257					MCycDB	c1		dissimilatory	108	COG2304	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mxaD		mxaD	K16260					MCycDB	c1		dissimilatory	115	COG3832	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mxaF		mxaF	K14028					MCycDB	c1		dissimilatory	986	COG4993	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mxaG		mxaG	K16255					MCycDB	c1		dissimilatory	101	COG2010	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mxaI		mxaI	K14029					MCycDB	c1		dissimilatory	94		cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mxaJ		mxaJ						MCycDB	c1		dissimilatory	55	COG0834	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mxaK		mxaK	K16258					MCycDB	c1		dissimilatory	81		cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	mxaL		mxaL	K16259					MCycDB	c1		dissimilatory	96	COG2304	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	napH		napH	K02574					MCycDB	nitrogen		dissimilatory	1372	COG0348	cycle: nitrogen gene carried by MCycDB; a read shows the nitrogen step	canonical-families review 2 2026-10-28
+MCycDB	narB		narB	K00367	mo_bispgd_reductase				MCycDB,NCyc	nitrogen		assimilatory	2147	COG0243	cycle: assimilatory nitrate reduction; role: assimilatory nitrate reductase; ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+MCycDB	narG		narG_narZ	K00370	narG_nxrA	nitrogen	nitrate reduction		MCycDB,NCyc	nitrogen		dissimilatory	7020	COG5013	canonical_family: K00370 nitrate reductase alpha; databases split NarG/NarZ by operon inconsistently; cycle: MCycDB carries it for nitrate-dependent AOM; a read still only shows the nitrogen step; ambiguity_group: K00370 spans nitrate reductase and nitrite oxidoreductase; marker_step: one marker per step; alternatives for one step are different organisms' enzymes	audit 2026-10-28 families.tsv; canonical-families review 2026-10-28; https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143; canonical-families review 3 2026-10-28
+MCycDB	narH		narH_narY	K00371	narH_nxrB	nitrogen			MCycDB,NCyc	nitrogen		dissimilatory	6999	COG1140	canonical_family: K00371 nitrate reductase beta; cycle: as narG_narZ; ambiguity_group: NxrB shares K00371 with NarH; narJ (COG2180 chaperone) removed	audit 2026-10-28 families.tsv; canonical-families review 2026-10-28; https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143
+MCycDB	narY		narH_narY	K00371	narH_nxrB	nitrogen			MCycDB,NCyc	nitrogen		dissimilatory	1367	COG1140	canonical_family: K00371; cycle: as narG_narZ; ambiguity_group: NxrB shares K00371 with NarH; narJ (COG2180 chaperone) removed	audit 2026-10-28 families.tsv; canonical-families review 2026-10-28; https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143
+MCycDB	narZ		narG_narZ	K00370	narG_nxrA	nitrogen	nitrate reduction		MCycDB,NCyc	nitrogen		dissimilatory	4161	COG5013	canonical_family: K00370; cycle: MCycDB carries it for nitrate-dependent AOM; a read still only shows the nitrogen step; ambiguity_group: K00370 spans nitrate reductase and nitrite oxidoreductase; marker_step: one marker per step; alternatives for one step are different organisms' enzymes	audit 2026-10-28 families.tsv; canonical-families review 2026-10-28; https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143; canonical-families review 3 2026-10-28
+MCycDB	nirK		nirK	K00368			nitrite reduction to NO		MCycDB,NCyc	nitrogen		dissimilatory	12481	COG2132	cycle: as narG_narZ; marker_step: one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 2026-10-28; canonical-families review 3 2026-10-28
+MCycDB	nirS		nirS	K15864			nitrite reduction to NO		MCycDB,NCyc	nitrogen		dissimilatory	19516	COG2010	cycle: as narG_narZ; marker_step: one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 2026-10-28; canonical-families review 3 2026-10-28
+MCycDB	nod		nod						MCycDB	shared	methane;nitrogen	dissimilatory	96		cycle: NO dismutase of nitrite-dependent methane oxidation (n-DAMO); cycle_detail: as cycle	canonical-families review 2 2026-10-28
+MCycDB	nrfA		nrfA	K03385	nrfA_nrfB	nitrogen	nitrite reduction to ammonium (DNRA)		MCycDB,NCyc	nitrogen		dissimilatory	2497	COG3303	cycle: as narG_narZ; ambiguity_group: shared sequences; marker_step: one marker per step	canonical-families review 2026-10-28; audit 2026-10-28 family_pairs.tsv (strong shared-sequence links); canonical-families review 3 2026-10-28
+MCycDB	nrfH		nrfH	K15876					MCycDB	nitrogen		dissimilatory	298	COG3005	cycle: nitrogen gene carried by MCycDB; a read shows the nitrogen step	canonical-families review 2 2026-10-28
+MCycDB	nxrA		nxrA	K00370	narG_nxrA	nitrogen	nitrite oxidation		MCycDB,NCyc	nitrogen		dissimilatory	22	COG0243	cycle: nitrite oxidation; MCycDB copies are Nitrospira and anammox genes; ambiguity_group: K00370 spans nitrate reductase and nitrite oxidoreductase; marker_step: one marker per step	MCycDB id2gene.map KEGG gene IDs (nmv, nja, nio, kst); https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143; canonical-families review 3 2026-10-28
+MCycDB	pfkA		pfkA	K00850					MCycDB	none		core	21584	COG0205	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	pfkB		pfkB	K16370					MCycDB	none		core	623	COG1105	role: central carbon metabolism	canonical-families review 2 2026-10-28
+MCycDB	pfkC		pfkC	K00918					MCycDB	none		core	126	arCOG03370	role: central carbon metabolism	canonical-families review 2 2026-10-28
+MCycDB	pfp		pfp						MCycDB	none		core	8859	COG0205	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	pmoA		pmoA	K10944	amoA_pmoA		aerobic methane oxidation		MCycDB,NCyc	methane		dissimilatory	4344		cycle: methane oxidation; ambiguity_group: K10944; the NCyc 2019Jul cleanup moved 192 IDs pmoA to amoA_B and 22 back; marker_step: one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 2026-10-28; audit 2026-10-28 (NCyc map comparison); canonical-families review 3 2026-10-28
+MCycDB	pmoB		pmoB	K10945	amoB_pmoB				MCycDB,NCyc	methane		dissimilatory	43		cycle: methane oxidation; ambiguity_group: K10945	canonical-families review 2026-10-28
+MCycDB	pmoC		pmoC	K10946	amoC_pmoC				MCycDB,NCyc	methane		dissimilatory	103	arCOG08699	cycle: methane oxidation; ambiguity_group: K10946	canonical-families review 2026-10-28
+MCycDB	porA		porA	K00169					MCycDB	none		core	1042	COG0674	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	porB		porB	K00170					MCycDB	none		core	1240	COG1013	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	porD		porD	K00171				insufficient	MCycDB	none		core	1095	COG1144	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process; header_evidence: similarity places the gs_K00266|porD sequences in porD (ratio about 2) against their COG0493 header tags; same cause as rnfB	canonical-families review 2026-10-28; audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+MCycDB	porG		porG	K00172					MCycDB	none		core	647	COG1014	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	ppc		ppc	K01595					MCycDB	none		core	17503	COG2352	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	pps		pps	K01007					MCycDB	none		core	3728	COG1080	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	pqqA		pqqA	K06135					MCycDB	c1		accessory	1182		cycle: PQQ cofactor for MxaF/XoxF and other dehydrogenases; role: cofactor biosynthesis	canonical-families review 2 2026-10-28
+MCycDB	pqqB		pqqB	K06136					MCycDB	c1		accessory	5794	COG1235	cycle: PQQ cofactor for MxaF/XoxF and other dehydrogenases; role: cofactor biosynthesis	canonical-families review 2 2026-10-28
+MCycDB	pqqC		pqqC	K06137					MCycDB	c1		accessory	5126	COG5424	cycle: PQQ cofactor for MxaF/XoxF and other dehydrogenases; role: cofactor biosynthesis	canonical-families review 2 2026-10-28
+MCycDB	pqqD		pqqD	K06138					MCycDB	c1		accessory	2447	COG0535	cycle: PQQ cofactor for MxaF/XoxF and other dehydrogenases; role: cofactor biosynthesis	canonical-families review 2 2026-10-28
+MCycDB	pqqE		pqqE	K06139					MCycDB	c1		accessory	6009	COG0535	cycle: PQQ cofactor for MxaF/XoxF and other dehydrogenases; role: cofactor biosynthesis	canonical-families review 2 2026-10-28
+MCycDB	pqqF		pqqF						MCycDB	c1		accessory	1645	COG1025	cycle: PQQ cofactor for MxaF/XoxF and other dehydrogenases; role: cofactor biosynthesis	canonical-families review 2 2026-10-28
+MCycDB	psp		psp						MCycDB	methane		dissimilatory	24	COG0560		
+MCycDB	pta		pta						MCycDB,SCycDB	none		core	14375	COG0280	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+MCycDB	qhpA		qhpA	K08685					MCycDB	c1		dissimilatory	19	COG2010	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	rnfA		rnfA	K03617					MCycDB	none		accessory	5297	COG4657	cycle: widespread Fd:NAD oxidoreductase; Methanosarcina uses it, but most reads will be bacterial (as pta/ackA); role: electron-transfer complex used by many organisms	canonical-families review 2 2026-10-28
+MCycDB	rnfB		rnfB	K03616				insufficient	MCycDB	none		accessory	7109	COG2878	cycle: widespread Fd:NAD oxidoreductase; Methanosarcina uses it, but most reads will be bacterial (as pta/ackA); role: electron-transfer complex used by many organisms; header_evidence: similarity to header-confirmed references places the rnfB|sudA and rnfB|gs_K00266 sequences in rnfB (score ratio about 2) although their headers carry COG0493: the COG tags come from shared Fe-S/NADH-binding domains	canonical-families review 2 2026-10-28; audit 2026-10-28 placement/xplace.tsv (similarity to header-confirmed references)
+MCycDB	rnfC		rnfC	K03615					MCycDB	none		accessory	7077	COG4656	cycle: widespread Fd:NAD oxidoreductase; Methanosarcina uses it, but most reads will be bacterial (as pta/ackA); role: electron-transfer complex used by many organisms	canonical-families review 2 2026-10-28
+MCycDB	rnfD		rnfD	K03614					MCycDB	none		accessory	8246	COG4658	cycle: widespread Fd:NAD oxidoreductase; Methanosarcina uses it, but most reads will be bacterial (as pta/ackA); role: electron-transfer complex used by many organisms	canonical-families review 2 2026-10-28
+MCycDB	rnfE		rnfE	K03613					MCycDB	none		accessory	7035	COG4660	cycle: widespread Fd:NAD oxidoreductase; Methanosarcina uses it, but most reads will be bacterial (as pta/ackA); role: electron-transfer complex used by many organisms	canonical-families review 2 2026-10-28
+MCycDB	rnfG		rnfG	K03612					MCycDB	none		accessory	5328	COG4659	cycle: widespread Fd:NAD oxidoreductase; Methanosarcina uses it, but most reads will be bacterial (as pta/ackA); role: electron-transfer complex used by many organisms	canonical-families review 2 2026-10-28
+MCycDB	serA		serA	K00058	hydroxyacid_dh_cog0111				MCycDB	none		core	12402	COG0111	role: amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic; ambiguity_group: shared sequences	canonical-families review 2026-10-28; audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+MCycDB	serB		serB	K01079					MCycDB	none		core	14435	COG0560	role: amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+MCycDB	serC		serC	K00831					MCycDB	none		core	24146	COG1932	role: amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+MCycDB	thrH		thrH	K02203					MCycDB	none		core	1641	COG0560	role: amino-acid and C1-carrier metabolism; MCycDB lists some for the serine cycle, but most copies are not methylotrophic	canonical-families review 2026-10-28
+MCycDB	tmm		tmm	K18277					MCycDB,SCycDB	shared	c1;sulfur	dissimilatory	371	COG2072	cycle: PENDING: TMA oxidation (methylotrophy) vs DMS oxidation; the DMS role is not verified; 371 of 382 SCycDB tmm identical to MCycDB tmm; cycle_detail: as cycle	audit 2026-10-28 same_name.tsv
+MCycDB	torA		torA	K07811	mo_bispgd_reductase				MCycDB	none		dissimilatory	2811	COG0243	ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5); cycle: TMAO respiration; not a methane step	canonical-families review 2026-10-28; canonical-families review 2 2026-10-28
+MCycDB	torC		torC	K03532	cytc_napC_torC_cog3005				MCycDB	none		dissimilatory	1226	COG3005	ambiguity_group: shared sequences; cycle: TMAO respiration; not a methane step	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links); canonical-families review 2 2026-10-28
+MCycDB	torD		torD	K03533					MCycDB	none		accessory	1467	COG3381	cycle: TorA chaperone; role: TorA chaperone	canonical-families review 2 2026-10-28
+MCycDB	torY		torY	K07821	cytc_napC_torC_cog3005				MCycDB	none		dissimilatory	782	COG3005	ambiguity_group: shared sequences; cycle: TMAO respiration; not a methane step	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links); canonical-families review 2 2026-10-28
+MCycDB	torZ		torZ	K07812	mo_bispgd_reductase				MCycDB	none		dissimilatory	1664	COG0243	ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5); cycle: TMAO respiration; not a methane step	canonical-families review 2026-10-28; canonical-families review 2 2026-10-28
+MCycDB	vhcA		mvhA	K14126					MCycDB	methane		dissimilatory	21	arCOG01549	canonical_family: K14126; isoenzyme of mvhA (extends the review's vhcD call)	audit 2026-10-28 families.tsv
+MCycDB	vhcD		mvhD	K14127	hdrA_qmoA_mvhD				MCycDB	methane		dissimilatory	48	COG1908	canonical_family: K14127; isoenzyme of mvhD; ambiguity_group: shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	canonical-families review 2026-10-28
+MCycDB	vhcG		vhcG						MCycDB	methane		dissimilatory	14	arCOG02472		
+MCycDB	vhtG		vhtG	K14070					MCycDB	methane		dissimilatory	130	COG1740		
+MCycDB	vhuA		mvhA	K14126					MCycDB	methane		dissimilatory	42	arCOG01549	canonical_family: K14126	audit 2026-10-28 families.tsv
+MCycDB	vhuD		mvhD	K14127	hdrA_qmoA_mvhD				MCycDB	methane		dissimilatory	70	COG1908	canonical_family: K14127; isoenzyme of mvhD (extends the review's vhcD call to vhuD); ambiguity_group: shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	audit 2026-10-28 families.tsv; canonical-families review 2026-10-28
+MCycDB	vhuG		mvhG	K14128					MCycDB	methane		dissimilatory	20	arCOG02472	canonical_family: K14128; isoenzyme of mvhG (extends the review's vhcD call)	audit 2026-10-28 families.tsv
+MCycDB	vhuU		vhuU						MCycDB	methane		dissimilatory	11	arCOG06685		
+MCycDB	xoxF1		xoxF1						MCycDB	c1		dissimilatory	68	COG4993	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	xoxF2		xoxF2						MCycDB	c1		dissimilatory	7	COG4993	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	xoxF4		xoxF4						MCycDB	c1		dissimilatory	33	COG4993	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+MCycDB	xoxF5		xoxF5						MCycDB	c1		dissimilatory	319	COG4993	cycle: methylotrophy / C1-compound metabolism, not methanogenesis, AOM or methane oxidation	canonical-families review 2 2026-10-28
+NCyc	NR		NR						NCyc	nitrogen		assimilatory	1038	COG0543	role: assimilatory nitrate reduction (NR is the eukaryotic enzyme)	canonical-families review 2 2026-10-28
+NCyc	amoA_A		amoA_A				ammonia oxidation		NCyc	nitrogen		dissimilatory	20548		marker_step: one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 3 2026-10-28
+NCyc	amoA_B		amoA_B	K10944	amoA_pmoA		ammonia oxidation		MCycDB,NCyc	nitrogen		dissimilatory	17245		ko: KO headers too few to pass the 5-header rule (MCycDB 3, NCyc 1), all K10944; cycle: ammonia oxidation; MCycDB copy carries no methane step; ambiguity_group: K10944; the NCyc 2019Jul cleanup moved 192 IDs pmoA to amoA_B and 22 back; marker_step: one marker per step; alternatives for one step are different organisms' enzymes	audit 2026-10-28 families.tsv; canonical-families review 2026-10-28; audit 2026-10-28 (NCyc map comparison); canonical-families review 3 2026-10-28
+NCyc	amoB_A		amoB_A						NCyc	nitrogen		dissimilatory	48			
+NCyc	amoB_B		amoB_B	K10945	amoB_pmoB				MCycDB,NCyc	nitrogen		dissimilatory	75		cycle: ammonia oxidation; ambiguity_group: K10945	canonical-families review 2026-10-28
+NCyc	amoC_A		amoC_A						NCyc	nitrogen		dissimilatory	22			
+NCyc	amoC_B		amoC_B	K10946	amoC_pmoC				MCycDB,NCyc	nitrogen		dissimilatory	43		cycle: ammonia oxidation; ambiguity_group: K10946	canonical-families review 2026-10-28
+NCyc	anfG		anfG						NCyc	nitrogen		dissimilatory	57			
+NCyc	ansB		ansB						NCyc	none		core	624	COG0252	role: amino-acid metabolism	canonical-families review 2 2026-10-28
+NCyc	asnB		asnB	K01953					NCyc	none		core	6317	COG0367	role: amino-acid metabolism	canonical-families review 2 2026-10-28
+NCyc	gdh_K00260		gdh_K00260	K00260					NCyc	none		core	431	COG0334	role: ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+NCyc	gdh_K00261		gdh_K00261	K00261					NCyc	none		core	2385	COG0334	role: ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+NCyc	gdh_K00262		gdh_K00262	K00262					NCyc,SCycDB	none		core	3487	COG0334	role: ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+NCyc	gdh_K15371		gdh_K15371	K15371					NCyc	none		core	2377	COG2902	role: ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+NCyc	glnA		glnA	K01915					NCyc	none		core	15552	COG0174	role: ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+NCyc	glsA		glsA	K01425					NCyc	none		core	6657	COG2066	role: amino-acid metabolism	canonical-families review 2 2026-10-28
+NCyc	gs_K00264		gs_K00264	K00264					NCyc	none		core	365	COG0067	role: ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+NCyc	gs_K00265		gs_K00265	K00265					NCyc	none		core	2184	COG0067	role: ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+NCyc	gs_K00266		gs_K00266	K00266	gltD_like_cog0493				NCyc	none		core	3489	COG0493	role: ammonium assimilation; present in most bacterial genomes; ambiguity_group: shared sequences; COG0493	canonical-families review 2026-10-28; audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+NCyc	gs_K00284		gs_K00284	K00284					NCyc	none		core	472	COG0067	role: ammonium assimilation; present in most bacterial genomes	canonical-families review 2026-10-28
+NCyc	hao		hao						NCyc	nitrogen		dissimilatory	79			
+NCyc	hcp		hcp						NCyc	nitrogen		dissimilatory	4456	COG1151		
+NCyc	hdh		hdh						NCyc	nitrogen		dissimilatory	3			
+NCyc	hzo		hzo						NCyc	nitrogen		dissimilatory	1140			
+NCyc	hzsA		hzsA				anammox		NCyc	nitrogen		dissimilatory	250		marker_step: one marker per step	canonical-families review 3 2026-10-28
+NCyc	hzsB		hzsB						NCyc	nitrogen		dissimilatory	514			
+NCyc	hzsC		hzsC						NCyc	nitrogen		dissimilatory	198			
+NCyc	nao		nao						NCyc	nitrogen		dissimilatory	217	COG2070		
+NCyc	napA		napA	K02567	mo_bispgd_reductase		nitrate reduction		NCyc	nitrogen		dissimilatory	2225	COG0243	ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5); marker_step: one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 2026-10-28; canonical-families review 3 2026-10-28
+NCyc	napB		napB	K02568					NCyc	nitrogen		dissimilatory	622	COG3043		
+NCyc	napC		napC		cytc_napC_torC_cog3005				NCyc	nitrogen		dissimilatory	1062	COG3005	ambiguity_group: shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+NCyc	narB		narB	K00367	mo_bispgd_reductase				MCycDB,NCyc	nitrogen		assimilatory	1998	COG0243	cycle: assimilatory nitrate reduction; role: assimilatory nitrate reductase; ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+NCyc	narC		narC						NCyc	nitrogen		dissimilatory	68	COG1290		
+NCyc	narG		narG_narZ	K00370	narG_nxrA	nitrogen	nitrate reduction		MCycDB,NCyc	nitrogen		dissimilatory	4253	COG5013	canonical_family: K00370; cycle: MCycDB carries it for nitrate-dependent AOM; a read still only shows the nitrogen step; ambiguity_group: K00370 spans nitrate reductase and nitrite oxidoreductase; marker_step: one marker per step; alternatives for one step are different organisms' enzymes	audit 2026-10-28 families.tsv; canonical-families review 2026-10-28; https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143; canonical-families review 3 2026-10-28
+NCyc	narH		narH_narY	K00371	narH_nxrB	nitrogen			MCycDB,NCyc	nitrogen		dissimilatory	2295	COG1140	canonical_family: K00371; cycle: as narG_narZ; ambiguity_group: NxrB shares K00371 with NarH; narJ (COG2180 chaperone) removed	audit 2026-10-28 families.tsv; canonical-families review 2026-10-28; https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143
+NCyc	narI		narI_narV	K00374					NCyc	nitrogen		dissimilatory	1742	COG2181	canonical_family: K00374 nitrate reductase gamma	audit 2026-10-28 families.tsv
+NCyc	narJ		narJ	K00373	narJ_narW				NCyc	nitrogen		accessory	1716	COG2180	role: nitrate reductase assembly chaperone, by the rule used for torD; ambiguity_group: chaperones of the NarGHI and NarZYV operons with close scores; same role and cycle	canonical-families review 4 2026-10-28; audit 2026-10-28 placement/placements2.tsv
+NCyc	narV		narI_narV	K00374					NCyc	nitrogen		dissimilatory	154	COG2181	canonical_family: K00374	audit 2026-10-28 families.tsv
+NCyc	narW		narW		narJ_narW				NCyc	nitrogen		accessory	200	COG2180	role: nitrate reductase assembly chaperone, by the rule used for torD; ambiguity_group: chaperones of the NarGHI and NarZYV operons with close scores; same role and cycle	canonical-families review 4 2026-10-28; audit 2026-10-28 placement/placements2.tsv
+NCyc	narY		narH_narY	K00371	narH_nxrB	nitrogen			MCycDB,NCyc	nitrogen		dissimilatory	891	COG1140	canonical_family: K00371; cycle: as narG_narZ; ambiguity_group: NxrB shares K00371 with NarH; narJ (COG2180 chaperone) removed	audit 2026-10-28 families.tsv; canonical-families review 2026-10-28; https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143
+NCyc	narZ		narG_narZ	K00370	narG_nxrA	nitrogen	nitrate reduction		MCycDB,NCyc	nitrogen		dissimilatory	2154	COG5013	canonical_family: K00370; cycle: MCycDB carries it for nitrate-dependent AOM; a read still only shows the nitrogen step; ambiguity_group: K00370 spans nitrate reductase and nitrite oxidoreductase; marker_step: one marker per step; alternatives for one step are different organisms' enzymes	audit 2026-10-28 families.tsv; canonical-families review 2026-10-28; https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143; canonical-families review 3 2026-10-28
+NCyc	nasA		nasA	K00372	mo_bispgd_reductase				NCyc	nitrogen		assimilatory	3848	COG0243	role: assimilatory nitrate reductase; ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+NCyc	nasB		nasB						NCyc	nitrogen		assimilatory	288	COG1251	role: assimilatory nitrate reduction (NR is the eukaryotic enzyme)	canonical-families review 2 2026-10-28
+NCyc	nasC		nasC						NCyc	nitrogen		assimilatory	1		role: assimilatory nitrate reduction (NR is the eukaryotic enzyme)	canonical-families review 2 2026-10-28
+NCyc	nifD		nifD						NCyc	nitrogen		dissimilatory	1755	COG2710		
+NCyc	nifH		nifH				nitrogen fixation		NCyc	nitrogen		dissimilatory	14757	COG1348	marker_step: one marker per step	canonical-families review 3 2026-10-28
+NCyc	nifK		nifK						NCyc	nitrogen		dissimilatory	1005	COG2710		
+NCyc	nifW		nifW						NCyc	nitrogen		dissimilatory	622			
+NCyc	nirA		nirA	K00366	siroheme_cog0155				NCyc	nitrogen		assimilatory	981	COG0155	role: assimilatory nitrite reductase; ambiguity_group: shared sequences (nirA, sir); cysI added on COG0155	canonical-families review 2026-10-28
+NCyc	nirB		nirB	K00362					NCyc	nitrogen		assimilatory	4058	COG1251	role: NirBD serves assimilation and fermentative nitrite detoxification; nrfA is the respiratory DNRA marker. Departs from NCyc, which lists nirBD under dissimilatory nitrate reduction	https://academic.oup.com/bioinformatics/article/35/6/1040/5085377
+NCyc	nirD		nirD						NCyc	nitrogen		assimilatory	3061	COG2146	role: NirBD serves assimilation and fermentative nitrite detoxification; nrfA is the respiratory DNRA marker. Departs from NCyc, which lists nirBD under dissimilatory nitrate reduction	https://academic.oup.com/bioinformatics/article/35/6/1040/5085377
+NCyc	nirK		nirK	K00368			nitrite reduction to NO		MCycDB,NCyc	nitrogen		dissimilatory	11462	COG2132	cycle: as narG_narZ; marker_step: one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 2026-10-28; canonical-families review 3 2026-10-28
+NCyc	nirS		nirS	K15864			nitrite reduction to NO		MCycDB,NCyc	nitrogen		dissimilatory	14681	COG2010	cycle: as narG_narZ; marker_step: one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 2026-10-28; canonical-families review 3 2026-10-28
+NCyc	nmo		nmo		mgsC_nmo				NCyc	nitrogen		dissimilatory	9535	COG2070	ambiguity_group: shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+NCyc	norB		norB				NO reduction		NCyc	nitrogen		dissimilatory	1863	COG3256	marker_step: one marker per step	canonical-families review 3 2026-10-28
+NCyc	norC		norC						NCyc	nitrogen		dissimilatory	469	COG2010		
+NCyc	nosZ		nosZ				N2O reduction		NCyc	nitrogen		dissimilatory	10822	COG4263	marker_step: one marker per step	canonical-families review 3 2026-10-28
+NCyc	nrfA		nrfA	K03385	nrfA_nrfB	nitrogen	nitrite reduction to ammonium (DNRA)		MCycDB,NCyc	nitrogen		dissimilatory	1483	COG3303	cycle: as narG_narZ; ambiguity_group: shared sequences; marker_step: one marker per step	canonical-families review 2026-10-28; audit 2026-10-28 family_pairs.tsv (strong shared-sequence links); canonical-families review 3 2026-10-28
+NCyc	nrfB		nrfB		nrfA_nrfB	nitrogen			NCyc	nitrogen		dissimilatory	374		ambiguity_group: shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+NCyc	nrfC		nrfC	K04014	fes_subunit_cog0437				NCyc	nitrogen		dissimilatory	1306	COG0437	ambiguity_group: shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+NCyc	nrfD		nrfD	K04015	nrfD_psrC				NCyc	nitrogen		dissimilatory	363	COG3301	ambiguity_group: shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+NCyc	nxrA		nxrA	K00370	narG_nxrA	nitrogen	nitrite oxidation		MCycDB,NCyc	nitrogen		dissimilatory	210		cycle: nitrite oxidation; MCycDB copies are Nitrospira and anammox genes; ambiguity_group: K00370 spans nitrate reductase and nitrite oxidoreductase; marker_step: one marker per step	MCycDB id2gene.map KEGG gene IDs (nmv, nja, nio, kst); https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143; canonical-families review 3 2026-10-28
+NCyc	nxrB		nxrB	K00371	narH_nxrB	nitrogen			NCyc	nitrogen		dissimilatory	284	COG1140	ko: inferred: NCyc nxrB has no KO headers; K00371 is the KO of its NarH homologs, and the KO exception list treats K00371 as spanning both; ambiguity_group: NxrB shares K00371 with NarH; narJ (COG2180 chaperone) removed	audit 2026-10-28 families.tsv (inferred); https://pmc.ncbi.nlm.nih.gov/articles/PMC2922143
+NCyc	pmoA		pmoA	K10944	amoA_pmoA		aerobic methane oxidation		MCycDB,NCyc	methane		dissimilatory	9083		cycle: methane oxidation; ambiguity_group: K10944; the NCyc 2019Jul cleanup moved 192 IDs pmoA to amoA_B and 22 back; marker_step: one marker per step; alternatives for one step are different organisms' enzymes	canonical-families review 2026-10-28; audit 2026-10-28 (NCyc map comparison); canonical-families review 3 2026-10-28
+NCyc	pmoB		pmoB	K10945	amoB_pmoB				MCycDB,NCyc	methane		dissimilatory	49		cycle: methane oxidation; ambiguity_group: K10945	canonical-families review 2026-10-28
+NCyc	pmoC		pmoC	K10946	amoC_pmoC				MCycDB,NCyc	methane		dissimilatory	69		cycle: methane oxidation; ambiguity_group: K10946	canonical-families review 2026-10-28
+NCyc	ureA		ureA						NCyc	nitrogen		assimilatory	4243	COG0831	role: urease: in most bacteria nitrogen acquisition for growth, not an energy step, and not a redox reaction; shown as its own ureolysis row (relevant to MIC through pH rise and carbonate precipitation), not in the headline. NCyc lists it under organic degradation and synthesis	https://academic.oup.com/bioinformatics/article/35/6/1040/5085377
+NCyc	ureB		ureB						NCyc	nitrogen		assimilatory	5218	COG0832	role: urease: in most bacteria nitrogen acquisition for growth, not an energy step, and not a redox reaction; shown as its own ureolysis row (relevant to MIC through pH rise and carbonate precipitation), not in the headline. NCyc lists it under organic degradation and synthesis	https://academic.oup.com/bioinformatics/article/35/6/1040/5085377
+NCyc	ureC		ureC				ureolysis		NCyc	nitrogen		assimilatory	7527	COG0804	role: urease: in most bacteria nitrogen acquisition for growth, not an energy step, and not a redox reaction; shown as its own ureolysis row (relevant to MIC through pH rise and carbonate precipitation), not in the headline. NCyc lists it under organic degradation and synthesis; marker_step: catalytic subunit; one marker per step	https://academic.oup.com/bioinformatics/article/35/6/1040/5085377; canonical-families review 3 2026-10-28
+SCycDB	acuI		acuI	K19745					SCycDB	sulfur		dissimilatory	4301	COG0604		
+SCycDB	acuK		acuK						SCycDB	sulfur		dissimilatory	28			
+SCycDB	acuN		acuN						SCycDB	sulfur		dissimilatory	35			
+SCycDB	aprA		aprA	K00394			APS reductase		SCycDB	sulfur		dissimilatory	307	COG1053	marker_step: one marker per step	canonical-families review 3 2026-10-28
+SCycDB	aprB		aprB	K00395					SCycDB	sulfur		dissimilatory	251	COG1146		
+SCycDB	asrA		asrA	K16950					SCycDB	sulfur		dissimilatory	729	COG0479		
+SCycDB	asrB		asrB	K16951					SCycDB	sulfur		dissimilatory	711	COG0543		
+SCycDB	asrC		asrC	K00385					SCycDB	sulfur		dissimilatory	393	COG2221		
+SCycDB	betA		betA	K00108					SCycDB	none		other	13649	COG2303	role: choline to glycine betaine (osmoprotectant); no sulfur step	canonical-families review 2 2026-10-28
+SCycDB	betB		betB	K00130					SCycDB	none		other	18511	COG1012	role: betaine aldehyde DH (osmoprotectant); 18,511 sequences collected via COG1012, the aldehyde DH superfamily	canonical-families review 2 2026-10-28
+SCycDB	betC		betC	K01133					SCycDB	sulfur		assimilatory	4490	COG3119	role: PENDING source: choline-O-sulfate sulfatase, sulfur scavenging like tauD/ssuD	canonical-families review 2 2026-10-28
+SCycDB	comA		comA	K08097					SCycDB	methane		accessory	269	COG1809	cycle: coenzyme M biosynthesis of methanogens and ANME; role: cofactor biosynthesis for a methane pathway	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+SCycDB	comB		comB	K05979					SCycDB	methane		accessory	3311	COG2045	cycle: coenzyme M biosynthesis of methanogens and ANME; role: cofactor biosynthesis for a methane pathway; PENDING: 3,311 sequences (COG2045) is large for an archaeal pathway, contents not checked	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+SCycDB	comC		comC	K05884					SCycDB	methane		accessory	72	arCOG04874	cycle: coenzyme M biosynthesis of methanogens and ANME; role: cofactor biosynthesis for a methane pathway	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+SCycDB	comD		comD	K06034					SCycDB	methane		accessory	232	COG4032	cycle: coenzyme M biosynthesis of methanogens and ANME; role: cofactor biosynthesis for a methane pathway	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+SCycDB	comE		comE	K13039					SCycDB	methane		accessory	493	COG0028	cycle: coenzyme M biosynthesis of methanogens and ANME; role: cofactor biosynthesis for a methane pathway	https://pmc.ncbi.nlm.nih.gov/articles/PMC9457059
+SCycDB	cuyA		cuyA	K17950					SCycDB	sulfur		dissimilatory	1116	COG2515		
+SCycDB	cuyZ		cuyZ						SCycDB	sulfur		dissimilatory	6			
+SCycDB	cysA		cysA	K02045					SCycDB	sulfur		transport	15682	COG1118	role: sulfate/thiosulfate ABC transporter	canonical-families review 2026-10-28
+SCycDB	cysC		cysC	K00860					SCycDB	sulfur		assimilatory	20875	COG0529	role: assimilatory sulfate reduction	canonical-families review 2026-10-28
+SCycDB	cysD		cysD	K00957					SCycDB	sulfur		assimilatory	16667	COG0175	role: assimilatory sulfate reduction	canonical-families review 2026-10-28
+SCycDB	cysE		cysE	K00640					SCycDB	none		core	21382	COG1045	role: cysteine and methionine biosynthesis	canonical-families review 2026-10-28
+SCycDB	cysH		cysH	K00390					SCycDB	sulfur		assimilatory	14572	COG0175	role: assimilatory sulfate reduction	canonical-families review 2026-10-28
+SCycDB	cysI		cysI	K00381	siroheme_cog0155				SCycDB	sulfur		assimilatory	8622	COG0155	role: assimilatory sulfite reductase hemoprotein; ambiguity_group: shared sequences (nirA, sir); cysI added on COG0155	canonical-families review 2026-10-28
+SCycDB	cysJ		cysJ	K00380					SCycDB	sulfur		assimilatory	10875	COG0369	role: assimilatory sulfite reductase flavoprotein	canonical-families review 2026-10-28
+SCycDB	cysK		cysK	K01738	cysK_cysM				SCycDB	none		core	32047	COG0031	role: cysteine and methionine biosynthesis; ambiguity_group: moderately diverged paralogs (cysteine synthase A/B) with close scores; same role and cycle, so ambiguity is a family-level property	canonical-families review 2026-10-28; audit 2026-10-28 placement/placements2.tsv
+SCycDB	cysM		cysM	K12339	cysK_cysM				SCycDB	none		core	9104	COG0031	role: cysteine and methionine biosynthesis; ambiguity_group: moderately diverged paralogs (cysteine synthase A/B) with close scores; same role and cycle, so ambiguity is a family-level property	canonical-families review 2026-10-28; audit 2026-10-28 placement/placements2.tsv
+SCycDB	cysN		cysN	K00956					SCycDB	sulfur		assimilatory	13039	COG2895	role: assimilatory sulfate reduction	canonical-families review 2026-10-28
+SCycDB	cysN_cysC		cysN_cysC	K00955					SCycDB	sulfur		assimilatory	6383	COG2895	role: fused cysN/cysC; follows cysN and cysC	canonical-families review 2026-10-28 (rule extended)
+SCycDB	cysO		cysO						SCycDB	sulfur		dissimilatory	8	COG0031		
+SCycDB	cysP		cysP	K02048					SCycDB	sulfur		transport	2029	COG4150	role: thiosulfate-binding protein of the same transporter	canonical-families review 2026-10-28 (rule extended)
+SCycDB	cysQ		cysQ	K01082					SCycDB	sulfur		assimilatory	14916	COG1218	role: PAP phosphatase of the PAPS pathway	canonical-families review 2 2026-10-28
+SCycDB	cysU		cysU	K02046					SCycDB	sulfur		transport	9609	COG0555	role: sulfate/thiosulfate ABC transporter	canonical-families review 2026-10-28
+SCycDB	cysW		cysW	K02047					SCycDB	sulfur		transport	5400	COG4208	role: sulfate/thiosulfate ABC transporter	canonical-families review 2026-10-28
+SCycDB	cysZ		cysZ	K06203					SCycDB	sulfur		transport	5496	COG2981	role: sulfate permease	canonical-families review 2026-10-28 (rule extended)
+SCycDB	dddA		dddA						SCycDB	sulfur		dissimilatory	32			
+SCycDB	dddC		dddC						SCycDB	sulfur		dissimilatory	35			
+SCycDB	dddD		dddD						SCycDB	sulfur		dissimilatory	68	COG1804		
+SCycDB	dddK		dddK						SCycDB	sulfur		dissimilatory	12			
+SCycDB	dddL		dddL	K16953					SCycDB	sulfur		dissimilatory	89	COG0662		
+SCycDB	dddP		dddP						SCycDB	sulfur		dissimilatory	177	COG0006		
+SCycDB	dddQ		dddQ						SCycDB	sulfur		dissimilatory	44	COG1917		
+SCycDB	dddT		dddT						SCycDB	sulfur		dissimilatory	103	COG1292		
+SCycDB	dddW		dddW						SCycDB	sulfur		dissimilatory	33	COG0662		
+SCycDB	dddY		dddY						SCycDB	sulfur		dissimilatory	18			
+SCycDB	ddhA		ddhA						SCycDB	sulfur		dissimilatory	27	COG0243		
+SCycDB	ddhB		ddhB						SCycDB	sulfur		dissimilatory	17			
+SCycDB	ddhC		ddhC						SCycDB	sulfur		dissimilatory	7	COG2010		
+SCycDB	dmdA		dmdA	K17486					SCycDB	sulfur		dissimilatory	250	COG0404		
+SCycDB	dmdB		dmdB	K20034					SCycDB	sulfur		dissimilatory	1949	COG0318		
+SCycDB	dmdC		dmdC	K20035	acyl_coa_dh_cog1960				SCycDB	sulfur		dissimilatory	3530	COG1960	ambiguity_group: shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+SCycDB	dmdD		dmdD	K20036					SCycDB	sulfur		dissimilatory	505	COG1024		
+SCycDB	dmoA		dmoA						SCycDB	sulfur		dissimilatory	1900			
+SCycDB	dmsA		dmsA		mo_bispgd_reductase				SCycDB	sulfur		dissimilatory	9240	COG0243	ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+SCycDB	dmsB		dmsB	K07307	fes_subunit_cog0437				SCycDB	sulfur		dissimilatory	4463	COG0437	ambiguity_group: shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+SCycDB	dmsC		dmsC						SCycDB	sulfur		dissimilatory	2973	COG3302		
+SCycDB	doxA		doxA	K16936					SCycDB	sulfur		dissimilatory	15	arCOG05342		
+SCycDB	doxD		doxD	K16937					SCycDB	sulfur		dissimilatory	16	arCOG02862		
+SCycDB	dsrA		dsrA	K11180			dissimilatory sulfite reductase (reductive or oxidative; not separated until v0.2.x)		SCycDB	sulfur		dissimilatory	5453	COG2221	marker_step: one marker per step	canonical-families review 3 2026-10-28
+SCycDB	dsrB		dsrB	K11181					SCycDB	sulfur		dissimilatory	6288	COG2221		
+SCycDB	dsrC		dsrC	K23077					SCycDB	sulfur		dissimilatory	247	COG2920		
+SCycDB	dsrD		dsrD						SCycDB	sulfur		dissimilatory	48	arCOG10384		
+SCycDB	dsrE		dsrE	K07235	dsrE_tusD				SCycDB	sulfur		dissimilatory	120	COG1553	ambiguity_group: K07235; DsrE and TusD are homologs with different functions	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+SCycDB	dsrF		dsrF	K07236	dsrF_tusC				SCycDB	sulfur		dissimilatory	140	COG2923	ambiguity_group: K07236	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+SCycDB	dsrH		dsrH	K07237	dsrH_tusB				SCycDB	sulfur		dissimilatory	163	COG2168	ambiguity_group: K07237	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+SCycDB	dsrJ		dsrJ						SCycDB	sulfur		dissimilatory	50			
+SCycDB	dsrK		dsrK		dsrK_hdrD				SCycDB	sulfur		dissimilatory	185	COG0247	ambiguity_group: DsrK is related to HdrD (COG0247); COG seed, pending simulation	https://pmc.ncbi.nlm.nih.gov/articles/PMC3008517
+SCycDB	dsrL		dsrL						SCycDB	sulfur		dissimilatory	43	COG1143		
+SCycDB	dsrM		dsrM						SCycDB	sulfur		dissimilatory	206	COG2181		
+SCycDB	dsrN		dsrN						SCycDB	sulfur		dissimilatory	99	COG1797		
+SCycDB	dsrO		dsrO		fes_subunit_cog0437				SCycDB	sulfur		dissimilatory	83	COG0437	ambiguity_group: shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+SCycDB	dsrP		dsrP						SCycDB	sulfur		dissimilatory	102	COG5557		
+SCycDB	dsrT		dsrT						SCycDB	sulfur		dissimilatory	20			
+SCycDB	dsyB		dsyB						SCycDB	sulfur		dissimilatory	64			
+SCycDB	fccA		fccA						SCycDB	sulfur		dissimilatory	248	COG2863		
+SCycDB	fccB		fccB	K17229					SCycDB	sulfur		dissimilatory	714	COG0446		
+SCycDB	fsr		fsr						SCycDB	sulfur		dissimilatory	26	arCOG02061		
+SCycDB	gdh		gdh_K00262	K00262					NCyc,SCycDB	none		core	3931	COG0334	canonical_family: NADP glutamate DH; 2,278 of 3,931 identical to NCyc gdh_K00262; role: ammonium assimilation; present in most bacterial genomes	audit 2026-10-28 family_pairs.tsv; canonical-families review 2026-10-28
+SCycDB	glpE		glpE	K02439					SCycDB	none		core	8073	COG0607	role: single-domain rhodanese, widespread, role unclear	canonical-families review 2 2026-10-28
+SCycDB	hdrA1		hdrA1	K22480	hdrA_qmoA_mvhD				MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	177	COG1148	cycle: methanogen HdrABC and the sulfur-oxidizer Hdr-like complex share these genes; cycle_detail: as cycle; ambiguity_group: shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	https://elifesciences.org/articles/37439; canonical-families review 2026-10-28
+SCycDB	hdrA2		hdrA2	K03388	hdrA_qmoA_mvhD				MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	671	COG1148	cycle: as hdrA1; cycle_detail: as cycle; ambiguity_group: shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	https://elifesciences.org/articles/37439; canonical-families review 2026-10-28
+SCycDB	hdrB1		hdrB1	K22481					MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	113	arCOG00338	cycle: as hdrA1; cycle_detail: as cycle	https://elifesciences.org/articles/37439
+SCycDB	hdrB2		hdrB2	K03389					MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	66	arCOG00338	cycle: as hdrA1; cycle_detail: as cycle	https://elifesciences.org/articles/37439
+SCycDB	hdrC1		hdrC1	K22482					MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	57	arCOG00964	cycle: as hdrA1; cycle_detail: as cycle	https://elifesciences.org/articles/37439
+SCycDB	hdrC2		hdrC2	K03390					MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	67	arCOG00964	cycle: as hdrA1; cycle_detail: as cycle	https://elifesciences.org/articles/37439
+SCycDB	hdrD		hdrD	K08264	dsrK_hdrD				MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	156	COG0247	cycle: PENDING: 135 of 156 SCycDB hdrD are identical to MCycDB hdrD; source taxa of the SCycDB copies not yet checked; cycle_detail: as cycle; ambiguity_group: DsrK is related to HdrD (COG0247); COG seed, pending simulation	audit 2026-10-28 same_name.tsv; https://pmc.ncbi.nlm.nih.gov/articles/PMC3008517
+SCycDB	hdrE		hdrE	K08265					MCycDB,SCycDB	shared	methane;sulfur	dissimilatory	41	arCOG05014	cycle: PENDING: 35 of 41 SCycDB hdrE identical to MCycDB hdrE; source taxa not yet checked; cycle_detail: as cycle	audit 2026-10-28 same_name.tsv
+SCycDB	hpsK		hpsK						SCycDB	sulfur		dissimilatory	59	COG1638		
+SCycDB	hpsL		hpsL						SCycDB	sulfur		dissimilatory	58	COG3090		
+SCycDB	hpsM		hpsM						SCycDB	sulfur		dissimilatory	55	COG1593		
+SCycDB	hpsN		hpsN	K15509					SCycDB	sulfur		dissimilatory	976	COG0141		
+SCycDB	hpsO		hpsO						SCycDB	sulfur		dissimilatory	29			
+SCycDB	hpsP		hpsP						SCycDB	sulfur		dissimilatory	93	COG1063		
+SCycDB	hydA		hydA_shyA	K17993					SCycDB	sulfur		dissimilatory	35	arCOG01549	canonical_family: K17993; sulfhydrogenase I and II subunits, 29-38 sequences each	canonical-families review 2026-10-28
+SCycDB	hydB		hydB_shyB	K17996					SCycDB	sulfur		dissimilatory	38	arCOG05128	canonical_family: K17996	canonical-families review 2026-10-28
+SCycDB	hydD		hydD_shyD	K17994					SCycDB	sulfur		dissimilatory	52	COG1941	canonical_family: K17994	canonical-families review 2026-10-28
+SCycDB	hydG		hydG_shyC	K17995					SCycDB	sulfur		dissimilatory	36	arCOG02199	canonical_family: K17995	canonical-families review 2026-10-28
+SCycDB	iseJ		iseJ						SCycDB	sulfur		dissimilatory	6			
+SCycDB	iseK		iseK						SCycDB	sulfur		dissimilatory	58	COG1638		
+SCycDB	iseL		iseL						SCycDB	sulfur		dissimilatory	35	COG3090		
+SCycDB	iseM		iseM						SCycDB	sulfur		dissimilatory	60	COG1593		
+SCycDB	isfD		isfD	K15373					SCycDB	sulfur		dissimilatory	2726	COG4221		
+SCycDB	mccA		mccA						SCycDB	sulfur		dissimilatory	15		role: octaheme cytochrome c sulfite reductase (MccA/SirA, Wolinella-type), dissimilatory sulfite reduction: 13 of 15 sequences carry 7 CXXCH plus 1 CX15CH heme motifs. NAME COLLISION: unrelated to B. subtilis MccA/MccB (methionine-to-cysteine conversion, SCycDB mccB); do not align their roles	Hermann et al. 2015 Nature 520:706 (PMID 25642962, abstract)
+SCycDB	mccB		mccB	K17217	metB_metC_mccB				SCycDB	none		core	1238	COG0626	role: B. subtilis MccB (formerly YrhB) has cystathionine lyase and homocysteine gamma-lyase activities in methionine-to-cysteine conversion; no CXXCH motifs in any of the 1,238 sequences. Not related to SCycDB mccA (octaheme sulfite reductase): same name, different gene systems; ambiguity_group: PLP-dependent cystathionine enzymes with close scores; the leave-one-out test never brought mccB/metB misassignment under 1% (mccB/metC needs a ratio of 2.15); same role and cycle, so ambiguity is a family-level property	Hullo et al. 2007 J Bacteriol 189:187 (PMID 17056751, abstract); audit 2026-10-28 placement/loo_thresholds.tsv
+SCycDB	mddA		mddA	K21310					SCycDB	sulfur		dissimilatory	315	COG2020		
+SCycDB	mdh		mdh_K00024	K00024					MCycDB,SCycDB	none		core	30400	COG0039	canonical_family: malate DH; 25,853 sequences identical to MCycDB mdh-K00024; role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	audit 2026-10-28 family_pairs.tsv; canonical-families review 2026-10-28
+SCycDB	metA		metA	K00651					SCycDB	none		core	5707	COG1897	role: methionine biosynthesis; follows metB and metC	canonical-families review 2026-10-28 (rule extended)
+SCycDB	metB		metB	K01739	metB_metC_mccB				SCycDB	none		core	10588	COG0626	role: cysteine and methionine biosynthesis; ambiguity_group: PLP-dependent cystathionine enzymes with close scores; the leave-one-out test never brought mccB/metB misassignment under 1% (mccB/metC needs a ratio of 2.15); same role and cycle, so ambiguity is a family-level property	canonical-families review 2026-10-28; audit 2026-10-28 placement/loo_thresholds.tsv
+SCycDB	metC		metC	K01760	metB_metC_mccB				SCycDB	none		core	15592	COG0626	role: cysteine and methionine biosynthesis; ambiguity_group: PLP-dependent cystathionine enzymes with close scores; the leave-one-out test never brought mccB/metB misassignment under 1% (mccB/metC needs a ratio of 2.15); same role and cycle, so ambiguity is a family-level property	canonical-families review 2026-10-28; audit 2026-10-28 placement/loo_thresholds.tsv
+SCycDB	metX		metX	K00641					SCycDB	none		core	4633	COG2021	role: methionine biosynthesis; follows metB and metC	canonical-families review 2026-10-28 (rule extended)
+SCycDB	metY		metY	K01740					SCycDB	none		core	5007	COG2873	role: methionine biosynthesis; follows metB and metC	canonical-families review 2026-10-28 (rule extended)
+SCycDB	metZ		metZ	K10764					SCycDB	none		core	11036	COG0626	role: methionine biosynthesis; follows metB and metC	canonical-families review 2026-10-28 (rule extended)
+SCycDB	msmA		msmA	K16968					SCycDB	sulfur		dissimilatory	24			
+SCycDB	msmB		msmB						SCycDB	sulfur		dissimilatory	12	COG5517		
+SCycDB	mtoX		mtoX						SCycDB	sulfur		dissimilatory	27			
+SCycDB	mtsA		mtsA	K16954					MCycDB,SCycDB	methane		dissimilatory	13	arCOG03325	cycle: methanogenesis from methylated thiols	https://iubmb.qmul.ac.uk/enzyme/EC2/1/1/251.html
+SCycDB	mtsB		mtsB	K16955					MCycDB,SCycDB	methane		dissimilatory	24	COG5012	cycle: methanogenesis from methylated thiols	https://iubmb.qmul.ac.uk/enzyme/EC2/1/1/251.html
+SCycDB	nrnA		nrnA	K06881					SCycDB	none		core	2972	COG0618	role: mainly an oligoribonuclease; PAP phosphatase is a side activity	canonical-families review 2 2026-10-28
+SCycDB	otr		otr						SCycDB	sulfur		dissimilatory	248			
+SCycDB	phsA		phsA	K08352	mo_bispgd_reductase				SCycDB	sulfur		dissimilatory	714	COG0243	ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+SCycDB	phsB		phsB	K08353	fes_subunit_cog0437				SCycDB	sulfur		dissimilatory	302	COG0437	ambiguity_group: shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+SCycDB	phsC		phsC	K08354					SCycDB	sulfur		dissimilatory	327	COG4117		
+SCycDB	prpE		prpE	K01908	acyl_coa_synthetase_cog0365				SCycDB	none		core	7177	COG0365	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process; ambiguity_group: shared sequences	canonical-families review 2026-10-28; audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+SCycDB	psrA		psrA		mo_bispgd_reductase				SCycDB	sulfur		dissimilatory	33	COG0243	ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+SCycDB	psrB		psrB	K16293	fes_subunit_cog0437				SCycDB	sulfur		dissimilatory	75	COG0437	ambiguity_group: shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+SCycDB	psrC		psrC	K16294	nrfD_psrC				SCycDB	sulfur		dissimilatory	64	COG3301	ambiguity_group: shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+SCycDB	pta		pta						MCycDB,SCycDB	none		core	20805	COG0280	role: central carbon metabolism; present in most bacterial genomes, says nothing about a cycle process	canonical-families review 2026-10-28
+SCycDB	qmoA		qmoA	K16885	hdrA_qmoA_mvhD				SCycDB	sulfur		dissimilatory	147	COG1148	ambiguity_group: shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	canonical-families review 2026-10-28
+SCycDB	qmoB		qmoB	K16886	hdrA_qmoA_mvhD				SCycDB	sulfur		dissimilatory	163	COG1908	ambiguity_group: shared sequences (HdrA-MvhD fusions plausible); qmoB added on COG1908 as a seed, pending simulation	canonical-families review 2026-10-28
+SCycDB	qmoC		qmoC						SCycDB	sulfur		dissimilatory	107	COG1150		
+SCycDB	rdlA		rdlA						SCycDB	sulfur		dissimilatory	54	COG2897		
+SCycDB	rdsr		rdsr						SCycDB	sulfur		dissimilatory	115	COG2221		
+SCycDB	sat		sat	K00958					SCycDB	sulfur		assimilatory	6017	COG2046	role: sulfate adenylyltransferase is shared by both pathways; the dissimilatory markers are aprAB, dsrAB, qmoABC and dsrMK	canonical-families review 2026-10-28
+SCycDB	sbp		sbp						SCycDB	sulfur		transport	5602	COG1613	role: sulfate-binding protein	canonical-families review 2026-10-28
+SCycDB	sfnG		sfnG	K17228					SCycDB	sulfur		dissimilatory	721	COG2141		
+SCycDB	sgpA		sgpA						SCycDB	sulfur		dissimilatory	61			
+SCycDB	sgpB		sgpB						SCycDB	sulfur		dissimilatory	225			
+SCycDB	sgpC		sgpC						SCycDB	sulfur		dissimilatory	20			
+SCycDB	shyA		hydA_shyA	K17993					SCycDB	sulfur		dissimilatory	29	arCOG01549	canonical_family: K17993	canonical-families review 2026-10-28
+SCycDB	shyB		hydB_shyB	K17996					SCycDB	sulfur		dissimilatory	29	arCOG05128	canonical_family: K17996	canonical-families review 2026-10-28
+SCycDB	shyC		hydG_shyC	K17995					SCycDB	sulfur		dissimilatory	216	COG0543	canonical_family: K17995	canonical-families review 2026-10-28
+SCycDB	shyD		hydD_shyD	K17994					SCycDB	sulfur		dissimilatory	39	arCOG02472	canonical_family: K17994	canonical-families review 2026-10-28
+SCycDB	sir		sir	K00392	siroheme_cog0155				SCycDB	sulfur		assimilatory	2517	COG0155	role: ferredoxin-sulfite reductase; ambiguity_group: shared sequences (nirA, sir); cysI added on COG0155	canonical-families review 2026-10-28
+SCycDB	slcC		slcC	K16843	hydroxyacid_dh_cog0111				SCycDB	sulfur		dissimilatory	3167	COG0111	ambiguity_group: shared sequences	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+SCycDB	slcD		slcD						SCycDB	sulfur		dissimilatory	49	COG1304		
+SCycDB	soeA		soeA	K21307	mo_bispgd_reductase				SCycDB	sulfur		dissimilatory	346	COG0243	ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+SCycDB	soeB		soeB	K21308	fes_subunit_cog0437				SCycDB	sulfur		dissimilatory	136	COG0437	ambiguity_group: shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+SCycDB	soeC		soeC	K21309					SCycDB	sulfur		dissimilatory	135	COG3302		
+SCycDB	sor		sor						SCycDB	sulfur		dissimilatory	29	arCOG06967		
+SCycDB	sorA		sorA						SCycDB	sulfur		dissimilatory	636	COG2041		
+SCycDB	sorB		sorB						SCycDB	sulfur		dissimilatory	282	COG2010		
+SCycDB	soxA		soxA	K17222					SCycDB	sulfur		dissimilatory	1912	COG3258		
+SCycDB	soxB		soxB	K17224			thiosulfate oxidation (Sox)		SCycDB	sulfur		dissimilatory	2068	COG0737	marker_step: one marker per step	canonical-families review 3 2026-10-28
+SCycDB	soxC		soxC	K17225					SCycDB	sulfur		dissimilatory	2985	COG2041		
+SCycDB	soxD		soxD	K22622					SCycDB	sulfur		dissimilatory	506	COG3258		
+SCycDB	soxL		soxL						SCycDB	sulfur		dissimilatory	38	COG2897		
+SCycDB	soxX		soxX	K17223					SCycDB	sulfur		dissimilatory	2588	COG2010		
+SCycDB	soxY		soxY	K17226					SCycDB	sulfur		dissimilatory	2181	COG5501		
+SCycDB	soxZ		soxZ	K17227					SCycDB	sulfur		dissimilatory	2758	COG5501		
+SCycDB	sqdB		sqdB	K06118					SCycDB	sulfur		assimilatory	1145	COG0451	role: sulfolipid biosynthesis (sulfur into biomass)	canonical-families review 2 2026-10-28
+SCycDB	sqdD		sqdD						SCycDB	sulfur		assimilatory	226	COG5597	role: sulfolipid biosynthesis (sulfur into biomass)	canonical-families review 2 2026-10-28
+SCycDB	sqdX		sqdX						SCycDB	sulfur		assimilatory	674	COG0438	role: sulfolipid biosynthesis (sulfur into biomass)	canonical-families review 2 2026-10-28
+SCycDB	sqr		sqr	K17218			sulfide oxidation (SQR)		SCycDB	sulfur		dissimilatory	559	COG0446	marker_step: one marker per step	canonical-families review 3 2026-10-28
+SCycDB	sreA		sreA		mo_bispgd_reductase				SCycDB	sulfur		dissimilatory	13	COG0243	ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+SCycDB	sreB		sreB		fes_subunit_cog0437				SCycDB	sulfur		dissimilatory	42	COG0437	ambiguity_group: shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+SCycDB	sreC		sreC						SCycDB	sulfur		dissimilatory	11	COG3302		
+SCycDB	sseA		sseA	K01011					SCycDB	none		core	3165	COG2897	role: 3-mercaptopyruvate sulfurtransferase, cysteine catabolism	canonical-families review 2 2026-10-28
+SCycDB	ssuA		ssuA	K15553					SCycDB	sulfur		transport	3800	COG0715	role: alkanesulfonate ABC transporter	canonical-families review 2026-10-28 (rule extended)
+SCycDB	ssuB		ssuB	K15555					SCycDB	sulfur		transport	26408	COG1116	role: alkanesulfonate ABC transporter	canonical-families review 2026-10-28 (rule extended)
+SCycDB	ssuC		ssuC	K15554					SCycDB	sulfur		transport	4440	COG0600	role: alkanesulfonate ABC transporter	canonical-families review 2026-10-28 (rule extended)
+SCycDB	ssuD		ssuD	K04091					SCycDB	sulfur		assimilatory	12003	COG2141	role: alkanesulfonate desulfonation under sulfate limitation	canonical-families review 2026-10-28
+SCycDB	ssuE		ssuE	K00299					SCycDB	sulfur		assimilatory	3661	COG0431	role: FMN reductase partner of ssuD	canonical-families review 2026-10-28 (rule extended)
+SCycDB	sudA		sudA		gltD_like_cog0493				SCycDB	sulfur		dissimilatory	1756	COG0493	ambiguity_group: shared sequences; COG0493	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+SCycDB	sudB		sudB						SCycDB	sulfur		dissimilatory	818	COG0543		
+SCycDB	sulP		sulP	K03321					SCycDB	sulfur		transport	4727	COG0659	role: SulP-family anion permease	canonical-families review 2026-10-28 (rule extended)
+SCycDB	suyA		suyA	K16845					SCycDB	sulfur		dissimilatory	754	COG2721		
+SCycDB	suyB		suyB	K16846					SCycDB	sulfur		dissimilatory	428	COG2721		
+SCycDB	tauA		tauA	K15551					SCycDB	sulfur		transport	2597	COG4521	role: taurine ABC transporter	canonical-families review 2026-10-28 (rule extended)
+SCycDB	tauB		tauB	K10831					SCycDB	sulfur		transport	9574	COG1116	role: taurine ABC transporter	canonical-families review 2026-10-28 (rule extended)
+SCycDB	tauC		tauC	K15552					SCycDB	sulfur		transport	1655	COG0600	role: taurine ABC transporter	canonical-families review 2026-10-28 (rule extended)
+SCycDB	tauD		tauD	K03119					SCycDB	sulfur		assimilatory	6531	COG2175	role: taurine desulfonation under sulfate limitation	canonical-families review 2026-10-28
+SCycDB	tauE		tauE						SCycDB	sulfur		dissimilatory	32	COG0730		
+SCycDB	tauX		tauX						SCycDB	sulfur		dissimilatory	62			
+SCycDB	tauY		tauY	K07256					SCycDB	sulfur		dissimilatory	78			
+SCycDB	tauZ		tauZ						SCycDB	sulfur		dissimilatory	236	COG2855		
+SCycDB	tbuB		tbuB		tbuB_tmoC_touC				SCycDB	none		dissimilatory	29	COG2146	ambiguity_group: K15762; PENDING sequence check (merge candidates); cycle: toluene monooxygenase component; no source yet for a sulfur role; overlaps CANT-HYD (v0.3)	canonical-families review 2026-10-28; canonical-families review 2 2026-10-28
+SCycDB	tbuC		tbuC	K15765	tbuC_touF				SCycDB	none		dissimilatory	61	COG0633	ambiguity_group: K15765; PENDING sequence check (merge candidate); cycle: toluene monooxygenase component; no source yet for a sulfur role; overlaps CANT-HYD (v0.3)	canonical-families review 2026-10-28; canonical-families review 2 2026-10-28
+SCycDB	tetH		tetH						SCycDB	sulfur		dissimilatory	22	COG1520		
+SCycDB	tmm		tmm	K18277					MCycDB,SCycDB	shared	c1;sulfur	dissimilatory	382	COG2072	cycle: PENDING: TMA oxidation (methylotrophy) vs DMS oxidation; the DMS role is not verified; 371 of 382 SCycDB tmm identical to MCycDB tmm; cycle_detail: as cycle	audit 2026-10-28 same_name.tsv
+SCycDB	tmoC		tmoC	K15762	tbuB_tmoC_touC				SCycDB	none		dissimilatory	134	COG2146	ambiguity_group: K15762; PENDING sequence check (merge candidates); cycle: toluene monooxygenase component; no source yet for a sulfur role; overlaps CANT-HYD (v0.3)	canonical-families review 2026-10-28; canonical-families review 2 2026-10-28
+SCycDB	tmoF		tmoF						SCycDB	none		dissimilatory	6		cycle: toluene monooxygenase component; no source yet for a sulfur role; overlaps CANT-HYD (v0.3)	canonical-families review 2 2026-10-28
+SCycDB	toa		toa	K15372					SCycDB	sulfur		dissimilatory	226			
+SCycDB	touC		touC		tbuB_tmoC_touC				SCycDB	none		dissimilatory	6		ambiguity_group: K15762; PENDING sequence check (merge candidates); cycle: toluene monooxygenase component; no source yet for a sulfur role; overlaps CANT-HYD (v0.3)	canonical-families review 2026-10-28; canonical-families review 2 2026-10-28
+SCycDB	touF		touF	K15765	tbuC_touF				SCycDB	none		dissimilatory	8		ambiguity_group: K15765; PENDING sequence check (merge candidate); cycle: toluene monooxygenase component; no source yet for a sulfur role; overlaps CANT-HYD (v0.3)	canonical-families review 2026-10-28; canonical-families review 2 2026-10-28
+SCycDB	tpa		tpa	K03851					SCycDB	sulfur		dissimilatory	2263	COG0161		
+SCycDB	tsdA		tsdA	K19713					SCycDB	sulfur		dissimilatory	778	COG3258		
+SCycDB	tsdB		tsdB						SCycDB	sulfur		dissimilatory	269	COG2863		
+SCycDB	ttrA		ttrA	K08357	mo_bispgd_reductase				SCycDB	sulfur		dissimilatory	2452	COG0243	ambiguity_group: molybdopterin catalytic subunits, COG0243 and COG3383; groups every COG0243 family consistently (review section 5)	canonical-families review 2026-10-28
+SCycDB	ttrB		ttrB	K08358	fes_subunit_cog0437				SCycDB	sulfur		dissimilatory	2652	COG0437	ambiguity_group: shared sequences; COG0437 Fe-S subunits	audit 2026-10-28 family_pairs.tsv (strong shared-sequence links)
+SCycDB	ttrC		ttrC	K08359					SCycDB	sulfur		dissimilatory	980	COG5557		
+SCycDB	tusA		tusA	K04085					SCycDB	none		core	3907	COG0425	role: tRNA thiolation relay; also a sulfur carrier to DsrEFH in Allochromatium vinosum, but DsrEFH/DsrC are the markers	https://pmc.ncbi.nlm.nih.gov/articles/PMC4007435
+SCycDB	tusB		tusB	K07237	dsrH_tusB				SCycDB	none		core	1597	COG2168	role: tRNA thiouridine synthesis (TusBCD), homologous to DsrEFH; ambiguity_group: K07237	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+SCycDB	tusC		tusC	K07236	dsrF_tusC				SCycDB	none		core	1639	COG2923	role: tRNA thiouridine synthesis (TusBCD), homologous to DsrEFH; ambiguity_group: K07236	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+SCycDB	tusD		tusD	K07235	dsrE_tusD				SCycDB	none		core	3607	COG1553	role: tRNA thiouridine synthesis (TusBCD), homologous to DsrEFH; ambiguity_group: K07235; DsrE and TusD are homologs with different functions	https://pmc.ncbi.nlm.nih.gov/articles/PMC2637153
+SCycDB	tusE		tusE	K11179					SCycDB	none		core	3391	COG2920	role: tRNA thiolation relay	canonical-families review 2 2026-10-28
+SCycDB	xsc		xsc	K03852					SCycDB	sulfur		dissimilatory	2130	COG0028		
+SCycDB	yihQ		yihQ	K15922					SCycDB	sulfur		dissimilatory	816	COG1501		
