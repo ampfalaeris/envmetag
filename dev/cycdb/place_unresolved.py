@@ -7,12 +7,17 @@ basis `one ambiguity group`) and split rows. The candidates are its canonical fa
 assign_shared_sequences.py --similarity combines this with the header evidence.
 
 prepare: writes the query sequences (named by md5) and a reference set:
-every sequence of the candidate canonical families that carries exactly one canonical
-family (no row in sequence_assignments.tsv, or a `split` row) and whose own target
-headers carry that family's KO or dominant COG, named `<family>|<md5>`. The header
-filter matters: several source families hold mislabelled sequences of a neighbouring
-family (e.g. GltD-like proteins in MCycDB rnfB), and a query similar to those would
-otherwise be placed in the wrong family.
+every sequence of a family that co-occurs with another in multi_family_sequences.tsv
+(--multi; not only the current queries' candidates, so grouping decisions never change the
+search set) that carries exactly one canonical family (no row in sequence_assignments.tsv,
+or a `split` row) and whose own target headers carry that family's KO or dominant COG,
+named `<family>|<md5>`. The header filter matters: several source families hold
+mislabelled sequences of a neighbouring family (e.g. GltD-like proteins in MCycDB rnfB),
+and a query similar to those would otherwise be placed in the wrong family. Fusions are
+then left out: a reference whose own homolog headers carry a co-occurring partner's
+signature and that is at least FUSION_LENGTH x its family's median length carries the
+partner's domain and would vouch for the wrong family. Families marked `fusion = declared`
+in the table are exempt. A fusion adding less than a quarter to the length is not caught.
 
 HEADER_FASTA must carry the annotations (for NCyc, NCyc_100.faa; its sequences are
 identical per ID to the 2019Jul FASTA).
@@ -28,8 +33,9 @@ summary; assign_shared_sequences.py applies the measured threshold.
 Standard library only.
 
 Usage:
-    place_unresolved.py prepare --table canonical_families.tsv --assignments sequence_assignments.tsv \
-        --db NAME HEADER_FASTA MAP [--db ...] --queries q.faa --refs refs.faa
+    place_unresolved.py prepare --table canonical_families.tsv --multi multi_family_sequences.tsv \
+        --assignments sequence_assignments.tsv \
+        --db NAME HEADER_FASTA MAP [--db ...] --queries q.faa --refs refs.faa [--dropped fusion_refs.tsv]
     diamond makedb --in refs.faa -d refs
     diamond blastp -q q.faa -d refs -o hits.tsv --outfmt 6 qseqid sseqid pident length bitscore \
         --top 67 --sensitive
@@ -41,14 +47,18 @@ import collections
 import csv
 import hashlib
 import re
+import statistics
 import sys
 
 ONT = re.compile(r"ontology=(\S+?)[\s\]]")
+FAM = re.compile(r"([^;\[]+)\[([^\]]+)\]")  # multi_family_sequences.tsv: family[db,db];family[db]
 
 MARGIN = 1.1
 # DIAMOND's --top edge, in bitscore, is fuzzy by about 0.001 x best (absent families scored up to
 # 0.3299 x best at --top 67, 2026-10-29); the floor adds this margin so it stays an upper bound
 TOP_EDGE_MARGIN = 0.01
+# fusion references are at least this many times their family's median length (DECISIONS 2026-10-29)
+FUSION_LENGTH = 1.25
 
 
 def is_query(r):
@@ -60,14 +70,39 @@ def read_assignments(path):
         return {r["seq_md5"]: r for r in csv.DictReader(fh, delimiter="\t")}
 
 
+def cooccurring_partners(multi, table):
+    """Canonical family -> the families it occurs together with on a sequence in
+    multi_family_sequences.tsv (as loo_threshold.py cooccurring_pairs; a split source family
+    contributes both of its canonical families)."""
+    canon = collections.defaultdict(set)
+    with open(table, newline="") as fh:
+        for r in csv.DictReader(fh, delimiter="\t"):
+            canon[(r["source_db"], r["source_family"])].add(r["canonical_family"])
+    partners = collections.defaultdict(set)
+    with open(multi) as fh:
+        next(fh)
+        for line in fh:
+            cs = set()
+            for f, ds in FAM.findall(line.rstrip("\n").split("\t")[2]):
+                for d in ds.split(","):
+                    if (d, f) not in canon:
+                        sys.exit(f"{d}:{f} is not in the canonical-family table")
+                    cs |= canon[(d, f)]
+            for c in cs:
+                partners[c] |= cs - {c}
+    return {c: p for c, p in partners.items() if p}
+
+
 def prepare(a):
     assign = read_assignments(a.assignments)
     queries = {m for m, r in assign.items() if is_query(r)}
-    cands = set()
-    for m in queries:
-        cands |= set(assign[m]["canonical_families"].split(","))
+    # references for every family that co-occurs with another, not only the current queries'
+    # candidates, so a grouping decision never changes the search set (DECISIONS 2026-10-29)
+    partners = cooccurring_partners(a.multi, a.table)
+    cands = set(partners)
     canon = {}
     sig = collections.defaultdict(set)
+    declared = set()
     with open(a.table, newline="") as fh:
         for r in csv.DictReader(fh, delimiter="\t"):
             if r["selector"] != "rest":
@@ -75,10 +110,13 @@ def prepare(a):
                 sig[r["canonical_family"]] |= {x for x in (r["ko"], r["cog"]) if x}
             if r["selector"].startswith("ontology:"):
                 sig[r["canonical_family"]] |= set(r["selector"].split(":", 1)[1].split(","))
-    q_seen, r_seen = set(), set()
-    n = collections.Counter()
+            if r["fusion"] == "declared":
+                declared.add(r["canonical_family"])
+    q_seen = set()
+    refs = {}  # md5 -> (family, sequence), first header-confirmed record
+    homolog_onts = collections.defaultdict(set)  # md5 -> ontology groups on its homolog headers, all records
     unconfirmed = collections.Counter()
-    with open(a.queries, "w") as qo, open(a.refs, "w") as ro:
+    with open(a.queries, "w") as qo:
         for name, fa, mp in a.db:
             fam = collections.defaultdict(set)
             with open(mp) as fh:
@@ -86,7 +124,7 @@ def prepare(a):
                     f = line.rstrip("\n").split("\t")
                     if len(f) >= 2 and (name, f[1]) in canon:
                         fam[f[0]].add(canon[(name, f[1])])
-            sid, buf, onts = None, [], set()
+            sid, buf, onts, h_onts = None, [], set(), set()
 
             def flush():
                 if sid not in fam:
@@ -101,13 +139,14 @@ def prepare(a):
                 if r is not None and not r["basis"].startswith("split"):
                     return
                 c = r["assignment"] if r is not None else next(iter(fam[sid])) if len(fam[sid]) == 1 else None
-                if c in cands and m not in r_seen:
+                if c not in cands:
+                    return
+                homolog_onts[m] |= h_onts
+                if m not in refs:
                     if not sig[c] & onts:
                         unconfirmed[c] += 1
                         return
-                    r_seen.add(m)
-                    ro.write(f">{c}|{m}\n{seq}\n")
-                    n[c] += 1
+                    refs[m] = (c, seq)
 
             with open(fa) as fh:
                 for line in fh:
@@ -116,21 +155,46 @@ def prepare(a):
                         nid = parts[0] if parts else None
                         if nid != sid:
                             flush()
-                            sid, buf, onts = nid, [], set()
+                            sid, buf, onts, h_onts = nid, [], set(), set()
                         elif buf:
                             buf = []  # duplicate record of the same ID: identical sequence, re-read it
                         ann = parts[1] if len(parts) > 1 else ""
                         mo = ONT.search(ann + " ")
-                        if mo and " homolog " not in f" {ann} ":
-                            onts.add(mo.group(1))
+                        if mo:
+                            (h_onts if " homolog " in f" {ann} " else onts).add(mo.group(1))
                     else:
                         buf.append(line.strip())
                 flush()
     missing = queries - q_seen
     if missing:
         sys.exit(f"{len(missing)} query sequences not found in the FASTAs")
+
+    # fusion rule: a reference whose own homolog headers carry a co-occurring partner's signature
+    # and that is at least FUSION_LENGTH x its family's median length is a fusion carrying the
+    # partner's domain; it would vouch for the wrong family, so it is left out (DECISIONS 2026-10-29)
+    lengths = collections.defaultdict(list)
+    for c, seq in refs.values():
+        lengths[c].append(len(seq))
+    median = {c: statistics.median(v) for c, v in lengths.items()}
+    n, fused, dropped = collections.Counter(), collections.Counter(), []
+    with open(a.refs, "w") as ro:
+        for m, (c, seq) in refs.items():
+            hit = {p for p in partners[c] if sig[p] & homolog_onts[m]}
+            if hit and c not in declared and len(seq) >= FUSION_LENGTH * median[c]:
+                fused[(c, ",".join(sorted(hit)))] += 1
+                dropped.append((m, c, ",".join(sorted(hit)), f"{len(seq) / median[c]:.2f}"))
+                continue
+            ro.write(f">{c}|{m}\n{seq}\n")
+            n[c] += 1
+    if a.dropped:
+        with open(a.dropped, "w", newline="") as fh:
+            w = csv.writer(fh, delimiter="\t", lineterminator="\n")
+            w.writerow(["seq_md5", "family", "partners", "length_x_median"])
+            w.writerows(sorted(dropped))
     print(f"queries {len(q_seen)}; candidate families {len(cands)}; reference sequences {sum(n.values())}; "
-          f"dropped without a confirming header {sum(unconfirmed.values())}")
+          f"dropped without a confirming header {sum(unconfirmed.values())}; dropped as fusions {sum(fused.values())}")
+    for (c, hit), k in sorted(fused.items(), key=lambda kv: -kv[1]):
+        print(f"  fusion references dropped: {c} carrying {hit}: {k} of {len(lengths[c])}")
     for c in sorted(cands - set(n)):
         print(f"  no single-family reference sequences for {c}")
 
@@ -191,10 +255,12 @@ def main():
     sub = p.add_subparsers(dest="cmd", required=True)
     pp = sub.add_parser("prepare")
     pp.add_argument("--table", required=True)
+    pp.add_argument("--multi", required=True, help="multi_family_sequences.tsv (reference families)")
     pp.add_argument("--assignments", required=True)
     pp.add_argument("--db", nargs=3, action="append", required=True, metavar=("NAME", "SEQ_FASTA", "MAP"))
     pp.add_argument("--queries", required=True)
     pp.add_argument("--refs", required=True)
+    pp.add_argument("--dropped", help="write the fusion references left out (md5, family, partners)")
     ps = sub.add_parser("score")
     ps.add_argument("--assignments", required=True)
     ps.add_argument("--hits", required=True)
