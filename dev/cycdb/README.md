@@ -120,7 +120,31 @@ python3 -I assign_shared_sequences.py --multi $A/multi_family_sequences.tsv --ta
   --min-length 60 --refs $F/final_r.faa --out $F/sequence_assignments.tsv
 for f in final_q.faa final_r.faa final_similarity.tsv loo_thresholds.tsv; do cmp $P/$f $F/$f; done
 cmp $T/sequence_assignments.tsv $F/sequence_assignments.tsv && echo "fixed point: OK"
+
+# 7. Pfam domain test (a candidate fusion rule; it does not change the assignments yet).
+#    Pfam 38.2 from https://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam38.2/ :
+#    Pfam-A.hmm.gz, Pfam-A.hmm.dat.gz, Pfam-A.clans.tsv.gz, checked with `md5sum -c` against md5_checksums.
+PF=~/envmetag-dbs/pfam/38.2; Q=$A/pfam; mkdir -p $Q
+zcat $PF/Pfam-A.hmm.gz > $PF/Pfam-A.hmm
+python3 -I pfam_domains.py scoped --loo $P/loo_q.faa --refs $P/final_r.faa --extra-family gs_K00266 \
+  --queries $P/final_q.faa --dropped $P/fusion_refs.tsv --sources ${S[2]} ${M[2]} $NH \
+  --out-faa $Q/scoped.faa --manifest $Q/manifest.tsv
+# hmmsearch in chunks at --cpu 1 (faster than one --cpu 4 process, same rows); -Z and --domZ fixed
+# so domain E-values, which rank overlapping hits in clan resolution, do not depend on the chunk
+awk '/^>/ {n++; f = sprintf("'$Q'/chunk_%d.faa", (n - 1) % 6)} {print > f}' $Q/scoped.faa
+docker run --rm --memory 3g -v $Q:/q -v $PF:/pf:ro quay.io/biocontainers/hmmer:3.4--hdbdd923_2 bash -c \
+  'for i in 0 1 2 3 4 5; do hmmsearch --cut_ga -Z 30134 --domZ 30134 --noali -o /dev/null --cpu 1 \
+     --domtblout /q/chunk_$i.domtbl /pf/Pfam-A.hmm /q/chunk_$i.faa & done; wait'
+for i in 0 1 2 3 4 5; do tail -1 $Q/chunk_$i.domtbl | grep -q '^# \[ok\]' || echo "chunk $i incomplete"; done
+grep -hv '^#' $Q/chunk_*.domtbl > $Q/scoped.domtbl
+python3 -I pfam_domains.py resolve --domtbl $Q/scoped.domtbl --pfam $PF --out $Q/resolved.tsv
+python3 -I pfam_domains.py call --resolved $Q/resolved.tsv --faa $Q/scoped.faa --manifest $Q/manifest.tsv \
+  --refs $P/final_r.faa --similarity $P/final_similarity.tsv --dropped $P/fusion_refs.tsv \
+  --assignments $T/sequence_assignments.tsv --out-prefix $Q/pfam
+cp $Q/pfam_signatures.tsv $T/pfam_signatures.tsv   # versioned with the Pfam release and the database commits
 ```
+
+Step 7 implements the rule fixed in DECISIONS.md (2026-10-30, "Pfam domains for fusions") and reports its calls beside the current ones. `pfam_signatures.tsv` lists, per family pair, the signature units and whether Pfam can decide the pair. It is checked in (`assets/cycdb/`, Pfam 38.2) and diffed whenever Pfam or a database changes. The resolved domain table (about 5 MB) is not checked in; step 7 rebuilds it. `pfam_calls.tsv` has one row per sequence and pair, with the current call. The run log lists the families whose pairs are undecidable and the diagnostic pairs. On the 2026-10-30 run the search took 10 minutes on six chunks, at under 170 MB per process.
 
 `--top 67` reports every alignment scoring at least about 33% of the query's best, so a candidate missing from the list scored below that edge. The edge in bitscore is fuzzy by about 0.001 × best (DIAMOND appears to apply `--top` to the raw score), so an absent candidate scores the edge plus a margin, 0.34 × best, not 0, and the ratio to it is at least about 2.94. That is applied in both `place_unresolved.py` and `loo_threshold.py` (`TOP_EDGE_MARGIN`), so thresholds are measured under the rule they are applied with. Size `--top` as top % ≥ 100 × (1 − 1/T_max) + 1; 67 covers thresholds up to 2.94, and a measured threshold above that only makes calls more conservative. DIAMOND 2.1.10 prints no option help; the `--top` semantics and its completeness against a `-k` run were checked directly (DECISIONS.md, shared sequences).
 
