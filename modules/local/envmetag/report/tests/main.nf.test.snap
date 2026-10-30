@@ -1,9 +1,9 @@
 {
     "two samples, CI metapackage output": {
         "content": [
-            "report_data.json:md5,aa915f6d0d2bbbde26ef7278a607a921"
+            "report_data.json:md5,935f8d467b34acb8ab3d10ea00858d9e"
         ],
-        "timestamp": "2026-10-30T17:19:15.281477656",
+        "timestamp": "2026-10-30T18:16:53.654908455",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.3"
