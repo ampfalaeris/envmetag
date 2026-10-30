@@ -3,7 +3,9 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## v0.1.1 - [2026-10-30]
+
+Report fix for the SingleM prokaryotic fraction, plus curation work for v0.2. The cycling-database tables and scripts below (`assets/cycdb/`, `dev/cycdb/`) are not yet read by the pipeline.
 
 ### `Added`
 
@@ -11,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Canonical-family table for SCycDB, MCycDB and NCyc (`assets/cycdb/canonical_families.tsv`) and per-sequence assignments for sequences carrying more than one family (`assets/cycdb/sequence_assignments.tsv`), with the curation scripts and rebuild instructions in `dev/cycdb/`. Not yet used by the pipeline (v0.2).
 - CI check of the two tables (`.github/workflows/cycdb-check.yml`), including a field-count check; `.tsv` files are excluded from the trailing-whitespace hook, which stripped empty last fields.
 - Fusion rules in the cycling-database curation: fusion proteins are left out of the curation reference sets, and shared sequences that are fusions are labelled `unresolved:` (basis `fusion`) instead of taking one family's label. The canonical-family table gains a `fusion` column (`declared` for families that are themselves fusions, e.g. _cysN_cysC_).
-- Pfam domain test for fusion proteins in the curation (`dev/cycdb/pfam_domains.py`, rebuild step 7): `hmmsearch --cut_ga` with Pfam 38.2, clan resolution as in `pfam_scan.pl`, per-pair signature domains, and fusion calls reported beside the current ones. Its signature table is checked in as `assets/cycdb/pfam_signatures.tsv`. It does not change any assignment yet.
+- Pfam domain test for fusion proteins in the curation (`dev/cycdb/pfam_domains.py`, rebuild step 4b): `hmmsearch --cut_ga` with Pfam 38.2, clan resolution as in `pfam_scan.pl`, per-pair signature domains, and fusion calls reported beside the current ones. Its signature table is checked in as `assets/cycdb/pfam_signatures.tsv`. It does not change any assignment yet.
 
 ### `Changed`
 
