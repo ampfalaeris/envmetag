@@ -22,6 +22,10 @@ A sequence carrying more than one canonical family is decided in this order:
    Neither line of evidence below decides a fusion: whichever family it got, reads from its
    other domain would be counted for the wrong one. Families marked `fusion = declared`
    are exempt, as in place_unresolved.py; a family without references never flags.
+3b. Pfam fusion (with --pfam-calls, from pfam_domains.py call): the Pfam domain test calls
+   it a fusion of a pair it can decide -> `unresolved:` (basis `pfam fusion (<pair>)`).
+   This rule only adds fusion calls. A Pfam "not fusion" never overrides the length rule,
+   because a wrong removal puts reads under the wrong family (DECISIONS 2026-10-30).
 4. Two lines of evidence, each of which either decides or is silent:
    - header: the ontology groups (KO, COG) on its own target headers match the signature
      (canonical KO + each source row's dominant COG) of exactly one candidate family ->
@@ -52,7 +56,7 @@ Usage:
     assign_shared_sequences.py --multi multi_family_sequences.tsv --table canonical_families.tsv \
         --db NAME HEADER_FASTA MAP [--db ...] --out sequence_assignments.tsv \
         [--similarity placements.tsv --threshold T [--thresholds thresholds.tsv]] [--min-length L] \
-        [--refs final_r.faa]
+        [--refs final_r.faa] [--pfam-calls pfam_calls.tsv]
 """
 import argparse
 import collections
@@ -80,6 +84,7 @@ def main():
     p.add_argument("--thresholds")
     p.add_argument("--min-length", type=int, default=0)
     p.add_argument("--refs", help="reference FASTA from place_unresolved.py prepare (fusion lengths)")
+    p.add_argument("--pfam-calls", help="pfam_domains.py call output (adds Pfam fusion calls only)")
     a = p.parse_args()
     if (a.similarity or a.thresholds) and a.threshold is None:
         p.error("--similarity and --thresholds need --threshold")
@@ -126,6 +131,14 @@ def main():
         with open(a.similarity, newline="") as fh:
             for r in csv.DictReader(fh, delimiter="\t"):
                 sim[r["seq_md5"]] = {c: float(b) for c, b in (x.rsplit(":", 1) for x in r["scores"].split(";"))}
+    pfam_fusion = collections.defaultdict(list)  # md5 -> pairs Pfam calls a fusion (decidable pairs only)
+    if a.pfam_calls:
+        with open(a.pfam_calls, newline="") as fh:
+            for r in csv.DictReader(fh, delimiter="\t"):
+                if r["set"] == "query" and r["call"] == "fusion":
+                    pfam_fusion[r["name"]].append(r["pair"])
+        if not pfam_fusion:
+            sys.exit(f"no Pfam fusion calls on shared queries in {a.pfam_calls}")
     pair_t = {}
     if a.thresholds:
         with open(a.thresholds, newline="") as fh:
@@ -262,6 +275,8 @@ def main():
                 assign, basis = unres, f"fragment ({seq_len} aa < {a.min_length})"
             elif is_fusion(cs, ids, seq_len):
                 assign, basis = unres, "fusion"
+            elif md5 in pfam_fusion:
+                assign, basis = unres, f"pfam fusion ({','.join(sorted(pfam_fusion[md5]))})"
             else:
                 seen = set().union(*(onts.get(tuple(i.split("|", 1)), set()) for i in ids))
                 h, s = header_call(cs, seen), similarity_call(md5, cs) if a.similarity else None

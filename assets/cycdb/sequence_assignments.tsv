@@ -212,7 +212,7 @@ seq_md5	canonical_families	assignment	basis
 01ebc55d7f1f66504bc3ee03e197ee81	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 01ef86088b95799a84a799a63cbb7eab	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 01f8914706e65eb2842beca09c64a118	sucC	sucC	split MCycDB:mtkA: no K14067 header
-01f979dac9ce68dded4d15fd87a48cd6	cysJ,narB	cysJ	both
+01f979dac9ce68dded4d15fd87a48cd6	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 020290e62ae34b642e0549dd9f5aaf64	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 02034976260acbe6024b7ec9b5c43cab	cysJ,narB	unresolved:cysJ|narB	fusion
 0204e4d4785b0fa434f69d1fd04c2101	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
@@ -1307,7 +1307,7 @@ seq_md5	canonical_families	assignment	basis
 0c62977d7497838be748220b035b4dd5	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 0c6514ff526fdfb54f53b10696380350	serA,slcC	group:hydroxyacid_dh_cog0111	one ambiguity group
 0c65dd0bced14ca06a3db31b16bf2519	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
-0c68611f3f377cf3fefb9c92c8f75d47	cysJ,narB	cysJ	both
+0c68611f3f377cf3fefb9c92c8f75d47	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 0c692a67fa3f1119ec9de71e74ce4b1d	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 0c69d08d6b4b071b152ab0ad58b8a049	serA,slcC	group:hydroxyacid_dh_cog0111	one ambiguity group
 0c6a7c572232175716ed0650581725ed	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
@@ -1316,7 +1316,7 @@ seq_md5	canonical_families	assignment	basis
 0c6fab61ad85495be0e7b57edce8886b	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 0c71f4bfcb99145a2c1140c81145b16a	narB,nasA	group:mo_bispgd_reductase	one ambiguity group
 0c768707934203cec531d18b45067ada	sucD	sucD	split MCycDB:mtkB: no K08692 header
-0c7a16ef4dc6721c5519384f3d720fe4	cysJ,narB	cysJ	both
+0c7a16ef4dc6721c5519384f3d720fe4	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 0c7bc77ea41fbfaf6e8cbd34feb5bccd	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
 0c7d608c75eb540aba2e0a7cee925623	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 0c7df8fca91fa75e86ad30e48558f504	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
@@ -1758,7 +1758,7 @@ seq_md5	canonical_families	assignment	basis
 10cff29935151aebb8a90ec2498ace7f	sucD	sucD	split MCycDB:mtkB: no K08692 header
 10d491d35e3a711fe25692c6f61180ac	serA,slcC	group:hydroxyacid_dh_cog0111	one ambiguity group
 10d97b8ad427e6bdbe92f9e7fc49fb0c	hdrA2,mvhD	group:hdrA_qmoA_mvhD	one ambiguity group
-10d9c93a32934de83f2e1c168c286ee9	cysJ,narB	cysJ	both
+10d9c93a32934de83f2e1c168c286ee9	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 10db4356e8e4c37844478298136933ff	gs_K00266,sudA	group:gltD_like_cog0493	one ambiguity group
 10e1eca315fc5186af01a7125d4f4435	sucD	sucD	split MCycDB:mtkB: no K08692 header
 10e30806b91b37b696cf733169e0b279	nrfA,nrfB	group:nrfA_nrfB	one ambiguity group
@@ -1952,7 +1952,7 @@ seq_md5	canonical_families	assignment	basis
 127fc7dfb41dd20112854e8358f3c6cc	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 128297ccf6a9788b31632fa32e264a21	serA,slcC	group:hydroxyacid_dh_cog0111	one ambiguity group
 1282ecad45614168b0c3aa3175d4ca06	sucC	sucC	split MCycDB:mtkA: no K14067 header
-128512984fb4721657180c09ea74795a	cysJ,narB	cysJ	both
+128512984fb4721657180c09ea74795a	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 128d94b657d9886eadd6e5ad12dc2e32	sucC	sucC	split MCycDB:mtkA: no K14067 header
 128ec112b6f02f85216fa01bf16b2a8b	sucD	sucD	split MCycDB:mtkB: no K08692 header
 1290ace608100571410d0dc5ff019140	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
@@ -1972,7 +1972,7 @@ seq_md5	canonical_families	assignment	basis
 12ae7d121cfe8b5cacca406bce82abf2	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 12aec8c1d95dd426056fb774344eadb9	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 12af55ac5e2c76234874f516a3f2cd7f	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
-12b1f8140f5f1633885bf9759a02f5b8	cysJ,narB	cysJ	both
+12b1f8140f5f1633885bf9759a02f5b8	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 12b30edc846053e9540ed479789fa313	gs_K00266,sudA	group:gltD_like_cog0493	one ambiguity group
 12b6363e98c938aae0c680383d7d6aef	napC,torC	group:cytc_napC_torC_cog3005	one ambiguity group
 12b82bf3b8c59ef812b873f65d615629	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
@@ -2859,7 +2859,7 @@ seq_md5	canonical_families	assignment	basis
 1b406afaf6955b690580600177a982ed	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 1b40bb329c01e75d810fa59de1834898	sucD	sucD	split MCycDB:mtkB: no K08692 header
 1b44cee47eb42a7eaf22da4cda1243cd	napC,torC	group:cytc_napC_torC_cog3005	one ambiguity group
-1b47e0cb10b5be3d085494eacdefca61	cysJ,narB	cysJ	both
+1b47e0cb10b5be3d085494eacdefca61	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 1b4800ffe6706273faf83a57ca525ef9	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 1b480dcb690bebeadb48c60d5430d0a9	sucD	sucD	split MCycDB:mtkB: no K08692 header
 1b4a22c13f9f4cf63a40ac250af446a6	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
@@ -3777,7 +3777,7 @@ seq_md5	canonical_families	assignment	basis
 2397c0243f33349e994d5d12c45d5f78	gs_K00266,sudA	group:gltD_like_cog0493	one ambiguity group
 239ab792fbd4f6842829e31cd976aee3	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 239cb6f1b68f042757f031e2848e77eb	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
-239ef3824531a61592e17b28d009bb9e	cysJ,narB	cysJ	both
+239ef3824531a61592e17b28d009bb9e	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 23a27c30c13066cff2e1f6924b46bcc0	nrfD,psrC	group:nrfD_psrC	one ambiguity group
 23a32820acb994310ab580ed08c3829b	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
 23a3bd06c65044be5e37a7edf60c967d	sucD	sucD	split MCycDB:mtkB: no K08692 header
@@ -3799,7 +3799,7 @@ seq_md5	canonical_families	assignment	basis
 23d22cc282cd97bbb252927bd3f35ef0	dmsB,nrfC	group:fes_subunit_cog0437	one ambiguity group
 23dc71adf57403dd621e7e2155b6d129	gs_K00266,sudA	group:gltD_like_cog0493	one ambiguity group
 23dd54426731e764b8544f83a9f911eb	sucC	sucC	split MCycDB:mtkA: no K14067 header
-23df9e73aa03ef71f605a90b1c07337f	cysJ,narB	cysJ	both
+23df9e73aa03ef71f605a90b1c07337f	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 23e3e1ddaa8bbb498358de0e265871e0	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 23e4584c16442e7afd800fc51b12f3a9	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 23e6c33eea07f39ee72b1e37eae44e07	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
@@ -5394,7 +5394,7 @@ seq_md5	canonical_families	assignment	basis
 32eca8f90daf83bdc6064f88d45d5b98	dmsB,fdoH,nrfC	group:fes_subunit_cog0437	one ambiguity group
 32ede4f92efdb9a7ebd76aea31888e72	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 32f10a422786459d5192bbb99606cd5b	sucC	sucC	split MCycDB:mtkA: no K14067 header
-32f26659adbf51dfb1ad796d97b13175	cysJ,narB	cysJ	both
+32f26659adbf51dfb1ad796d97b13175	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 32f502cfd3c6bdf97643ddf025769412	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 32f6164ef1562cb11090ed040b344415	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 32fc8da07ab74da07c6fe0c4f01fbb8e	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
@@ -6038,7 +6038,7 @@ seq_md5	canonical_families	assignment	basis
 390c1cb4839fb40cd2306e10d4fd17f3	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 390ca86fd2259fd8f488a10ed86356b8	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
 3913762e612793152da4b554f2eaa498	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
-39157035f3afa96235733cf408a9b409	cysJ,narB	cysJ	both
+39157035f3afa96235733cf408a9b409	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 3915ca9c1bc64b94bf25124521743be9	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 3916fe900417de1c6a387c253d659242	nrfC,ttrB	group:fes_subunit_cog0437	one ambiguity group
 3918f6cfab561ebfd922e6a461b1bb61	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
@@ -9821,7 +9821,7 @@ seq_md5	canonical_families	assignment	basis
 5d94037fd3949939614ffc3d6c37747b	gs_K00266,sudA	group:gltD_like_cog0493	one ambiguity group
 5d954eeef8442a3698cd769cfd1b9aac	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 5d96a61261518f4419645f73189dbafe	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
-5d981af02a96c21097d2a8c0ae769aca	cysJ,narB	cysJ	both
+5d981af02a96c21097d2a8c0ae769aca	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 5d996c51d64b1fa4d0ca86bdc79f741c	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 5d9fce5a04799b3353a79f8c4be6fc94	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 5da1bd273797a07f134f2c4088c46d1d	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
@@ -11056,7 +11056,7 @@ seq_md5	canonical_families	assignment	basis
 691e3beadcf742a91ed40d1cd9023562	serA,slcC	group:hydroxyacid_dh_cog0111	one ambiguity group
 69216a47c471c3152846ddcd2a12d941	amoA_B,pmoA	group:amoA_pmoA	one ambiguity group
 6923e4d5159187d930e12746451e35cb	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
-69259c3a02aa00208f6a691acd696b9c	cysJ,narB	cysJ	both
+69259c3a02aa00208f6a691acd696b9c	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 692a37fafd8e0cb5be7452a1573a58ab	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 692c39f3a83431c45bfda9ac08a83975	sucC	sucC	split MCycDB:mtkA: no K14067 header
 692c4afe286c9c1e872635ad4ca48408	serA,slcC	group:hydroxyacid_dh_cog0111	one ambiguity group
@@ -11576,7 +11576,7 @@ seq_md5	canonical_families	assignment	basis
 6dd9ddacfe5cb505fbed1b370d7d9d3e	serA,slcC	group:hydroxyacid_dh_cog0111	one ambiguity group
 6de30eef8a596e30ec8698d31e4a7338	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
 6de4d0637272ce7678223ca6ed1422e0	cysU,serC	unresolved:cysU|serC	fragment (44 aa < 60)
-6de74f9306cc3d99b50c12bb91f03c30	cysJ,narB	cysJ	both
+6de74f9306cc3d99b50c12bb91f03c30	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 6de78ade5124c09ea929d5d9ecfc14ec	serA,slcC	group:hydroxyacid_dh_cog0111	one ambiguity group
 6de845e1c3df3b935e54c5a81f7e383c	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 6de912fa882da9badd135b92f2c9a25c	fdoG,narB	group:mo_bispgd_reductase	one ambiguity group
@@ -11622,7 +11622,7 @@ seq_md5	canonical_families	assignment	basis
 6e5313aedffe12c61d9c3743f0910d33	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 6e537acb0b5148f6f6d990f6c6baff5b	sucC	sucC	split MCycDB:mtkA: no K14067 header
 6e53b8bf09ac01aeeb886fa6a0a9bebe	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
-6e547644f08c550e7e0db42626aa094c	cysJ,narB	cysJ	both
+6e547644f08c550e7e0db42626aa094c	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 6e59aadd2f1a7f256c238194781c7ee4	nrfC,ttrB	group:fes_subunit_cog0437	one ambiguity group
 6e5deb312be73a395c7dff2706464669	sucC	sucC	split MCycDB:mtkA: no K14067 header
 6e6253243f9f7fee01ee154f70b2ebbf	sucC	sucC	split MCycDB:mtkA: no K14067 header
@@ -12565,7 +12565,7 @@ seq_md5	canonical_families	assignment	basis
 777258a7e510792374f90eaad2821cd6	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 777306ab0b4f7b7c1a3cea3d94319ab9	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 77739a389e5d135e54d6dde20857b968	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
-77755eb699b0fe3a4a2062e631b8b930	cysJ,narB	cysJ	both
+77755eb699b0fe3a4a2062e631b8b930	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 7776255155164ba181fb73410ec3624d	sucC	sucC	split MCycDB:mtkA: no K14067 header
 77783d800a856a302be58f8dd7287bd0	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
 777c421610690a7473256a18511360a9	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
@@ -15058,7 +15058,7 @@ seq_md5	canonical_families	assignment	basis
 8f37d58c3e88c35f6f8358a10628ef41	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 8f3984478e8b8674374bbab6805c9139	sucD	sucD	split MCycDB:mtkB: no K08692 header
 8f3b91fbacee4c57cc43edf8504c6e48	sucD	sucD	split MCycDB:mtkB: no K08692 header
-8f3c15eafc180fe161596167c7f87143	cysJ,narB	cysJ	both
+8f3c15eafc180fe161596167c7f87143	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 8f3cddf593ae0067b63b3b51e0457dba	nirA,sir	group:siroheme_cog0155	one ambiguity group
 8f3d6021a8d114e23826ec0bff6a2eff	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 8f404051f5e06b9cc4f8399b5487fa7c	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
@@ -15850,7 +15850,7 @@ seq_md5	canonical_families	assignment	basis
 969418e5a184ebdac6b43cf9a72c71e4	sucC	sucC	split MCycDB:mtkA: no K14067 header
 96944b47566d3f8b68a7a720bbb776d2	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 969818a3ccaf1f264a0b5491a9d53764	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
-96984b09e9e6b09ff1f6f727eed50d97	cysJ,narB	cysJ	both
+96984b09e9e6b09ff1f6f727eed50d97	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 969d6d659ee4accda5b3ef6c1cda1388	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 969dd5401f80a29214b88a8560698c17	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 969ee3bfc5138df28a60201d19000156	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
@@ -16880,7 +16880,7 @@ a08f7add2395cbff80a914cfc7a88830	napC,torC	group:cytc_napC_torC_cog3005	one ambi
 a08f9babff45cea8b94cb60b36dfc7e4	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 a09744316ed4c428d5ecb79a4b2abbd8	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 a09aeb82cd824bbce55a9e116dcc0319	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
-a09ba93e4bcabe10a22b3fa925c23d3e	cysJ,narB	cysJ	both
+a09ba93e4bcabe10a22b3fa925c23d3e	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 a09d500143c1e8cf8e7761056b0d8cb4	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
 a0a3545edd9971298f4e9c4933f1e919	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 a0a64b1b72b44a6e42b4d4136f4ddf67	sucD	sucD	split MCycDB:mtkB: no K08692 header
@@ -18325,7 +18325,7 @@ ae561d1d28804e9b0b7698e2fe486f2c	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no a
 ae567f4ac8404d63a44b8031e46d739c	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 ae57c0268780f228f94c550d04a13417	sucD	sucD	split MCycDB:mtkB: no K08692 header
 ae5c693979e04d9350a9362a17bf87ed	gs_K00266,sudA	group:gltD_like_cog0493	one ambiguity group
-ae6348a198eedfa392cc506065f734a8	cysJ,narB	cysJ	both
+ae6348a198eedfa392cc506065f734a8	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 ae63c83db8b43e535472c302da3b35fd	serA,slcC	group:hydroxyacid_dh_cog0111	one ambiguity group
 ae690d8c41f0ffde0c757d9d907b7a79	sucC	sucC	split MCycDB:mtkA: no K14067 header
 ae6a6c4baf4a88182509dfc547520587	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
@@ -18836,7 +18836,7 @@ b3995fb69facf59af821f129a9bb84e7	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one 
 b39965da911be810e38e9d64283f7216	sucD	sucD	split MCycDB:mtkB: no K08692 header
 b39b408e5c2b18a8ab93b9c293b5e804	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 b39d61f61a0517867379e5045421047b	sucC	sucC	split MCycDB:mtkA: no K14067 header
-b39f1345b1ae706cc256809794f8ba5d	cysJ,narB	cysJ	both
+b39f1345b1ae706cc256809794f8ba5d	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 b3a33cc5992db188a25cd3bb8086049b	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
 b3a4772b5d97f0a2bcb5109c43b27f91	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 b3a538f2f1d34a371ca87d914ec5c321	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
@@ -18911,7 +18911,7 @@ b4210a9ae2a06ad8d6a7d1d8c4316496	acs,prpE	group:acyl_coa_synthetase_cog0365	one 
 b427a1ef1f9e788a8e250a2055b8d83a	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 b429594d3fe55f0b2c3db57c82ace2c0	narB,nasA	group:mo_bispgd_reductase	one ambiguity group
 b4299456460ba71496ac3417cc2cecd4	sucC	sucC	split MCycDB:mtkA: no K14067 header
-b42f7d3347bca2e875839ba406e1eb5e	cysJ,narB	cysJ	both
+b42f7d3347bca2e875839ba406e1eb5e	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 b431410fd4724551f6ee7045cf74593f	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 b432047784e4756d0d8befd50972f96f	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 b433a990be8ea47c1faa28c5a8d7fbf9	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
@@ -22083,7 +22083,7 @@ d213b420cb31aadb932e341d3d5a8b7d	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no a
 d21469c07f1144151a79cd4907703931	sucD	sucD	split MCycDB:mtkB: no K08692 header
 d21795cd272618c0ebf3360dbd45b043	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
 d21b6d9f7131d05cc287155927bff484	sucD	sucD	split MCycDB:mtkB: no K08692 header
-d21c834e1c1a50e662698e5e4a6e0729	cysJ,narB	cysJ	both
+d21c834e1c1a50e662698e5e4a6e0729	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 d21dd9f04d212497c0637a08f7e0fd9f	serA,slcC	group:hydroxyacid_dh_cog0111	one ambiguity group
 d22059e96197d97c22158c8faa442482	gs_K00266,sudA	group:gltD_like_cog0493	one ambiguity group
 d224f66a6bd542199acfe77b9958ec1b	sucC	sucC	split MCycDB:mtkA: no K14067 header
@@ -22291,7 +22291,7 @@ d445d57570f0d9eca2a14b196963ded4	sucD	sucD	split MCycDB:mtkB: no K08692 header
 d44606453d525da73aedb9439f4fedc2	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 d44b7e779d0914318d6fc81438a5b2d5	nrfC,phsB	group:fes_subunit_cog0437	one ambiguity group
 d44ddcf2830822e7b9d2dc2dd8b2544f	dmsB,fdhB	group:fes_subunit_cog0437	one ambiguity group
-d44f9f7bbd872bbbd75cbbfbb9fabcc1	cysJ,narB	cysJ	both
+d44f9f7bbd872bbbd75cbbfbb9fabcc1	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 d4550c68c6590bc3be9fdc58950a15b5	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
 d458b93ddc20e8d707715e72cdc84fcc	napA,narB	group:mo_bispgd_reductase	one ambiguity group
 d45a836daebc155427612533b49c94c0	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
@@ -24414,7 +24414,7 @@ e8c2df49c62cee511e58037ad3a4f91a	acs,prpE	group:acyl_coa_synthetase_cog0365	one 
 e8c8559cf654450ed68a08aeff97e5f6	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 e8cd782938c8a20b29b66ad8e81c24b3	sucD	sucD	split MCycDB:mtkB: no K08692 header
 e8cee1bf037b91ce3f2f0d0033007fd2	sucC	sucC	split MCycDB:mtkA: no K14067 header
-e8d0f2f5759c0eceacbe6ee9fe842d57	cysJ,narB	cysJ	both
+e8d0f2f5759c0eceacbe6ee9fe842d57	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 e8d4e9a53c82555a1bf1b2fd5e7d3897	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 e8d596ba33075bfd960b21588a58d317	acs,prpE	group:acyl_coa_synthetase_cog0365	one ambiguity group
 e8d5bae1706dfeb8c25effcd6bec8eb3	sucD	sucD	split MCycDB:mtkB: no K08692 header
@@ -25065,7 +25065,7 @@ ef123b38a9b55ce20f6ccaa86d89b3c9	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no a
 ef12b22f17da228f1d23e200bb500b9a	nrfC,ttrB	group:fes_subunit_cog0437	one ambiguity group
 ef135afd485a95bf85dae1113efe9ce1	sucC	sucC	split MCycDB:mtkA: no K14067 header
 ef1e76a2925772136db6c02efa79cb11	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
-ef240994f985af4f323ce37e99bbd431	cysJ,narB	cysJ	both
+ef240994f985af4f323ce37e99bbd431	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 ef25d8132056200998b3f66926ccfe7f	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 ef2915bee44468c75319d28141958aee	nrfC,soeB	group:fes_subunit_cog0437	one ambiguity group
 ef2cc2c3841bb4e1921b76601a626d59	nrfC,ttrB	group:fes_subunit_cog0437	one ambiguity group
@@ -25954,7 +25954,7 @@ f7972dda65cf8301a33f7bfa871515d7	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no a
 f7973cf8c54a078b1f4a75977535b474	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
 f799ec6b4bad911d9f9e282ac8ef0fc5	sucD	sucD	split MCycDB:mtkB: no K08692 header
 f799f7ebbba626db1083ef208902453e	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group
-f79cd45e3215f309b5fb2aac1f5c0b20	cysJ,narB	cysJ	both
+f79cd45e3215f309b5fb2aac1f5c0b20	cysJ,narB	unresolved:cysJ|narB	pfam fusion (cysJ|narB)
 f7a2f76bcd887cd79ee039b5ba1560ac	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 f7a8443f8025d317b098a18a6dcc2102	acyl_coa_dh	acyl_coa_dh	split MCycDB:acdA: no arCOG01707 header
 f7a8ab255a40780a5484e7cc3a75145b	acyl_coa_dh,dmdC	group:acyl_coa_dh_cog1960	one ambiguity group

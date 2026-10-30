@@ -10,10 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Canonical-family table for SCycDB, MCycDB and NCyc (`assets/cycdb/canonical_families.tsv`) and per-sequence assignments for sequences carrying more than one family (`assets/cycdb/sequence_assignments.tsv`), with the curation scripts and rebuild instructions in `dev/cycdb/`. Not yet used by the pipeline (v0.2).
 - CI check of the two tables (`.github/workflows/cycdb-check.yml`), including a field-count check; `.tsv` files are excluded from the trailing-whitespace hook, which stripped empty last fields.
 - Fusion rules in the cycling-database curation: fusion proteins are left out of the curation reference sets, and shared sequences that are fusions are labelled `unresolved:` (basis `fusion`) instead of taking one family's label. The canonical-family table gains a `fusion` column (`declared` for families that are themselves fusions, e.g. _cysN_cysC_).
+- Pfam domain test for fusion proteins in the curation (`dev/cycdb/pfam_domains.py`, rebuild step 7): `hmmsearch --cut_ga` with Pfam 38.2, clan resolution as in `pfam_scan.pl`, per-pair signature domains, and fusion calls reported beside the current ones. Its signature table is checked in as `assets/cycdb/pfam_signatures.tsv`. It does not change any assignment yet.
 
 ### `Changed`
 
 - Curation reference sets are built for every family that co-occurs on a shared sequence, independent of grouping, and _cysN_/_cysN_cysC_ form the ambiguity group `cysN_cysNC`. `sequence_assignments.tsv` changed in 280 rows (262 fusions, 14 _cysN_ group, 4 moved because the fusion references they had matched are gone); see DECISIONS.md.
+- Pfam fusion calls are added to the shared-sequence assignments (`assign_shared_sequences.py --pfam-calls`; additions only, on pairs Pfam can decide). `sequence_assignments.tsv` changed in 27 rows: _cysJ_/_narB_ fusions whose headers do not name the partner, now `unresolved:cysJ|narB` (basis `pfam fusion`) instead of _cysJ_.
 
 ## v0.1.0 - [2026-10-28]
 

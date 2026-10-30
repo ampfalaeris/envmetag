@@ -27,7 +27,7 @@ Defaults, used where no override applies: the canonical family is the source fam
 
 `build_canonical_families.py` fails instead of writing the table when an override is unused or names an unknown family, when a canonical family has no role, when a canonical family drawn from databases of different cycles has no `cycle`, or when two canonical families share 10 or more sequences (and at least 1% of the smaller family) or a KO but are neither in one ambiguity group nor listed as a resolved link.
 
-`assign_shared_sequences.py` writes one row per sequence (md5 of the uppercase sequence) that carries more than one canonical family, or that a split moved. Its docstring gives the rule: structural group, fragment, fusion, then header and similarity evidence, each deciding or silent, with every outcome counted.
+`assign_shared_sequences.py` writes one row per sequence (md5 of the uppercase sequence) that carries more than one canonical family, or that a split moved. Its docstring gives the rule: structural group, fragment, fusion (length plus headers, then Pfam domains), then header and similarity evidence, each deciding or silent, with every outcome counted.
 
 ## Rebuild
 
@@ -97,9 +97,31 @@ diamond blastp -q $P/final_q.faa -d $P/final_r -o $P/final_hits.tsv --outfmt 6 q
   --top 67 --sensitive -b 0.1 -c 1
 python3 -I place_unresolved.py score --assignments $P/assign_header.tsv --hits $P/final_hits.tsv --top 67 \
   --out $P/final_similarity.tsv
+
+# 4b. Pfam domain test for fusions; its fusion calls are added in the final assignments (additions only).
+#    Pfam 38.2 from https://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam38.2/ :
+#    Pfam-A.hmm.gz and Pfam-A.hmm.dat.gz, checked with `md5sum -c` against md5_checksums.
+PF=~/envmetag-dbs/pfam/38.2; Q=$A/pfam; mkdir -p $Q
+zcat $PF/Pfam-A.hmm.gz > $PF/Pfam-A.hmm
+python3 -I pfam_domains.py scoped --loo $P/loo_q.faa --refs $P/final_r.faa --extra-family gs_K00266 \
+  --queries $P/final_q.faa --dropped $P/fusion_refs.tsv --sources ${S[2]} ${M[2]} $NH \
+  --out-faa $Q/scoped.faa --manifest $Q/manifest.tsv
+# hmmsearch in chunks at --cpu 1 (faster than one --cpu 4 process, same rows); -Z and --domZ fixed
+# so domain E-values, which rank overlapping hits in clan resolution, do not depend on the chunk
+awk '/^>/ {n++; f = sprintf("'$Q'/chunk_%d.faa", (n - 1) % 6)} {print > f}' $Q/scoped.faa
+docker run --rm --memory 3g -v $Q:/q -v $PF:/pf:ro quay.io/biocontainers/hmmer:3.4--hdbdd923_2 bash -c \
+  'for i in 0 1 2 3 4 5; do hmmsearch --cut_ga -Z 30134 --domZ 30134 --noali -o /dev/null --cpu 1 \
+     --domtblout /q/chunk_$i.domtbl /pf/Pfam-A.hmm /q/chunk_$i.faa & done; wait'
+for i in 0 1 2 3 4 5; do tail -1 $Q/chunk_$i.domtbl | grep -q '^# \[ok\]' || echo "chunk $i incomplete"; done
+grep -hv '^#' $Q/chunk_*.domtbl > $Q/scoped.domtbl
+python3 -I pfam_domains.py resolve --domtbl $Q/scoped.domtbl --pfam $PF --out $Q/resolved.tsv
+python3 -I pfam_domains.py call --resolved $Q/resolved.tsv --faa $Q/scoped.faa --manifest $Q/manifest.tsv \
+  --refs $P/final_r.faa --similarity $P/final_similarity.tsv --dropped $P/fusion_refs.tsv --out-prefix $Q/pfam
+cp $Q/pfam_signatures.tsv $T/pfam_signatures.tsv   # versioned with the Pfam release and the database commits
+
 python3 -I assign_shared_sequences.py --multi $A/multi_family_sequences.tsv --table $T/canonical_families.tsv \
   "${H[@]}" --similarity $P/final_similarity.tsv --threshold 1.25 --thresholds $P/loo_thresholds.tsv \
-  --min-length 60 --refs $P/final_r.faa --out $T/sequence_assignments.tsv
+  --min-length 60 --refs $P/final_r.faa --pfam-calls $Q/pfam_calls.tsv --out $T/sequence_assignments.tsv
 
 # 5. checks (CI runs this line on the checked-in files)
 python3 -I check_canonical_families.py $T/canonical_families.tsv \
@@ -109,18 +131,28 @@ python3 -I check_canonical_families.py $T/canonical_families.tsv \
 #    every file must come out byte-identical (no result may feed back into its own evidence)
 F=$P/fixed_point; mkdir -p $F
 python3 -I place_unresolved.py prepare --table $T/canonical_families.tsv --multi $A/multi_family_sequences.tsv --assignments $T/sequence_assignments.tsv \
-  "${H[@]}" --queries $F/final_q.faa --refs $F/final_r.faa
+  "${H[@]}" --queries $F/final_q.faa --refs $F/final_r.faa --dropped $F/fusion_refs.tsv
 python3 -I place_unresolved.py score --assignments $T/sequence_assignments.tsv --hits $P/final_hits.tsv --top 67 \
   --out $F/final_similarity.tsv
+python3 -I pfam_domains.py call --resolved $Q/resolved.tsv --faa $Q/scoped.faa --manifest $Q/manifest.tsv \
+  --refs $F/final_r.faa --similarity $F/final_similarity.tsv --dropped $F/fusion_refs.tsv --out-prefix $F/pfam
 python3 -I loo_threshold.py score --multi $A/multi_family_sequences.tsv --table $T/canonical_families.tsv \
   --queries $P/loo_q.faa --hits $P/loo_hits.tsv 500 --hits $P/loo_hits_2000.tsv 2000 --hits $P/loo_hits_top.tsv top:67 \
   --clusters $P/refclu_0.95_cluster.tsv --out $F/loo_thresholds.tsv
 python3 -I assign_shared_sequences.py --multi $A/multi_family_sequences.tsv --table $T/canonical_families.tsv \
   "${H[@]}" --similarity $F/final_similarity.tsv --threshold 1.25 --thresholds $F/loo_thresholds.tsv \
-  --min-length 60 --refs $F/final_r.faa --out $F/sequence_assignments.tsv
+  --min-length 60 --refs $F/final_r.faa --pfam-calls $F/pfam_calls.tsv --out $F/sequence_assignments.tsv
 for f in final_q.faa final_r.faa final_similarity.tsv loo_thresholds.tsv; do cmp $P/$f $F/$f; done
+cmp $P/fusion_refs.tsv $F/fusion_refs.tsv; cmp $Q/pfam_calls.tsv $F/pfam_calls.tsv
 cmp $T/sequence_assignments.tsv $F/sequence_assignments.tsv && echo "fixed point: OK"
+
+# 7. Pfam calls against the current assignments (report only): the `current` column of pfam_calls.tsv
+python3 -I pfam_domains.py call --resolved $Q/resolved.tsv --faa $Q/scoped.faa --manifest $Q/manifest.tsv \
+  --refs $P/final_r.faa --similarity $P/final_similarity.tsv --dropped $P/fusion_refs.tsv \
+  --assignments $T/sequence_assignments.tsv --out-prefix $Q/compare
 ```
+
+Step 4b implements the rule fixed in DECISIONS.md (2026-10-30, "Pfam domains for fusions"). Its calls never read the assignments, so it runs before them. `assign_shared_sequences.py --pfam-calls` uses only its fusion calls on pairs Pfam can decide, after the length-plus-header rule: a Pfam "not fusion" never removes a fusion call. Step 7 reports the calls beside the current ones for review. `pfam_signatures.tsv` lists, per family pair, the signature units and whether Pfam can decide the pair. It is checked in (`assets/cycdb/`, Pfam 38.2) and diffed whenever Pfam or a database changes. The resolved domain table (about 5 MB) is not checked in; step 4b rebuilds it. `pfam_calls.tsv` has one row per sequence and pair, with the current call. The run log lists the families whose pairs are undecidable and the diagnostic pairs. On the 2026-10-30 run the search took 10 minutes on six chunks, at under 170 MB per process.
 
 `--top 67` reports every alignment scoring at least about 33% of the query's best, so a candidate missing from the list scored below that edge. The edge in bitscore is fuzzy by about 0.001 × best (DIAMOND appears to apply `--top` to the raw score), so an absent candidate scores the edge plus a margin, 0.34 × best, not 0, and the ratio to it is at least about 2.94. That is applied in both `place_unresolved.py` and `loo_threshold.py` (`TOP_EDGE_MARGIN`), so thresholds are measured under the rule they are applied with. Size `--top` as top % ≥ 100 × (1 − 1/T_max) + 1; 67 covers thresholds up to 2.94, and a measured threshold above that only makes calls more conservative. DIAMOND 2.1.10 prints no option help; the `--top` semantics and its completeness against a `-k` run were checked directly (DECISIONS.md, shared sequences).
 
