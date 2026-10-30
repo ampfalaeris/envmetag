@@ -1072,7 +1072,26 @@ Sources:
   **Prediction for the 1M-pair reproduction, recorded before the run (2026-10-30).** The Zenodo `full` tier is 1,000,000 pairs per sample plus 10,000 PhiX and 10,000 human-mitochondrion pairs, all fastp-trimmed as in the pipeline. It runs with GlobDB r232 and with SingleM's default metapackage for 0.21.4 (6.5.0, GTDB r232, Zenodo record 20150069, a 2.18 GB archive), so the maintainers can reproduce it without GlobDB.
   - **Ratio:** the unpaired/paired coverage ratio depends on insert sizes and read length, not depth. Expected about 1.54 for `apb_enrichment` and 1.27 for `mic_coupon`, with both metapackages, with more noise at lower coverage. A ratio near 1 would mean the 5M result was not what it seemed.
   - **Spikes:** they are not prokaryotic and add about 1.7% of bases (126 bp reads). With GlobDB the unpaired fraction should therefore be about 2% below the 5M values: about 88% for `apb_enrichment` and about 99% for `mic_coupon`. A `mic_coupon` value at or above 100% would mean the genome-length error is larger than the 0.7 points seen at 5M.
-  - **Default metapackage:** the fractions may differ from GlobDB's through genome lengths and database content. The ratio should not. If it holds, genome equivalents taken from `prokaryotic_fraction` would inflate marker copies per genome on short-insert libraries, and the v0.2 normalization plan (CLAUDE.md) is revisited. The candidate is a single-copy gene panel run through the same read caller, as MicrobeCensus does, so the mate convention cancels in the ratio.
+  - **Default metapackage:** the fractions may differ from GlobDB's through genome lengths and database content. The ratio should not.
+
+  **Result (2026-10-30, same evening; `~/envmetag-runs/singlem_1M_check/run_1M.sh`):**
+
+  | 1M pairs                        | Paired | Unpaired | Coverage ratio (predicted) |
+  | ------------------------------- | ------ | -------- | -------------------------- |
+  | `apb_enrichment`, GlobDB r232   | 58.43% | 89.50%   | 1.535 (≈ 1.54)             |
+  | `apb_enrichment`, default 6.5.0 | 58.65% | 89.62%   | 1.531 (≈ 1.54)             |
+  | `mic_coupon`, GlobDB r232       | 77.72% | 96.97%   | 1.257 (≈ 1.27)             |
+  | `mic_coupon`, default 6.5.0     | 78.54% | 98.08%   | 1.259 (≈ 1.27)             |
+  - **The ratio prediction holds**, at 1M pairs and with both metapackages. The effect is not specific to GlobDB, and it reproduces on the public Zenodo tier. The paired GlobDB profiles are identical, after sorting, to the `test_full` run of 2026-10-27.
+  - **The fraction predictions were off by 1–2 points; unexplained, small, and no effect on the ratio test.** `apb_enrichment` unpaired was 89.50% (predicted about 88%) and `mic_coupon` 96.97% (predicted about 99%). The paired values shift by similar amounts from 5M to 1M. The spikes are 1.99% (`apb_enrichment`) and 1.71% (`mic_coupon`) of the 1M bases (20,000 pairs × 2 × 126 bp). They predict 78.15% paired for `mic_coupon`, close to the 77.72% observed (residual −0.43). For `apb_enrichment` they predict 57.20%, against 58.43% observed (residual +1.23). Subsample composition and depth (at lower coverage, fewer taxa reach species level and more take a higher rank's mean genome length) are both consistent with this. Neither is settled.
+  - **`mic_coupon` stays under 100%** with both metapackages (96.97%, 98.08%). The 5M overshoot of 0.7 points therefore fits genome-length error plus subsample composition, not a larger error.
+  - **Memory:** SingleM `pipe` peaked at 3.5–3.6 GB paired and 5.4–6.3 GB unpaired at 1M pairs (8.3–8.6 GB at 5M). Unpaired already exceeds the 4 GB setting on the small tier.
+  - **For the SingleM report:** the reproduction is the public Zenodo `full` tier, fastp with default arguments, and SingleM 0.21.4 with its default metapackage.
+
+  **SingleM's own validation (read 2026-10-30):**
+  - **Preprint methods:** the Zymo/host and CAMI II benchmarks used Gen-paired-end-reads, and the divergent-genome benchmark used ART "at 10X coverage". Neither gives read length or insert size. Public metagenomes: Sandpiper 0.2.0 profiles were passed to `microbial_fraction` v0.16.0 with `--input-metagenomes` and sizes from the SRA BigQuery `mbases` column.
+  - **The benchmarking repository** (`github.com/wwood/singlem-read-fraction-benchmarking`, `HEAD` `090bb61`, 2026-01-05; possibly not the exact version behind the paper) shows the ART benchmark's settings. `bin/generate_community.py` runs `art_illumina -ss HSXt -p -l 150 -m 400 -s 10`, i.e. 150 bp mates from 400 ± 10 bp fragments, which do not overlap. Mates are renamed to share an ID (`sed 's=/= ='`). `1_marine/Snakefile` runs `singlem pipe -1 … -2 …` and `read_fraction -1 … -2 …`. So the dedup was active but had almost nothing to remove, and the bias could not show in that benchmark.
+  - **Open, inferred, not stated in the preprint:** SRA `mbases` counts both reads' bases. If Sandpiper's profiles come from paired input, its fraction estimates for short-insert libraries would carry this bias. This goes into the issue as a question. If it holds, genome equivalents taken from `prokaryotic_fraction` would inflate marker copies per genome on short-insert libraries, and the v0.2 normalization plan (CLAUDE.md) is revisited. The candidate is a single-copy gene panel run through the same read caller, as MicrobeCensus does, so the mate convention cancels in the ratio.
 
 - SingleM 0.21.4 on the 1,630,967 unmapped pairs gives 16.9% prokaryotic, mostly _Clostridium_ spp. with no reference genome here: about 5.4% of all reads.
 
@@ -1088,7 +1107,9 @@ Sources:
 - SingleM `prokaryotic_fraction` — https://wwood.github.io/singlem/tools/prokaryotic_fraction
 - SingleM issue #25, "Suggestion for paired Reads?" (2018; fixed in v0.12.0) — https://github.com/wwood/singlem/issues/25
 - SingleM 0.21.4 source in `quay.io/biocontainers/singlem:0.21.4--pyhdfd78af_2`: `singlem/pipe.py` (lines 941–955), `singlem/pipe_sequence_extractor.py` (`_extract_reads`)
-- Microbial-fraction preprint (not yet read) — https://doi.org/10.1101/2024.05.16.594470
+- Microbial-fraction preprint (methods read 2026-10-30) — https://doi.org/10.1101/2024.05.16.594470
+- SingleM read-fraction benchmarking (`bin/generate_community.py`, `1_marine/Snakefile`, commit `090bb61`) — https://github.com/wwood/singlem-read-fraction-benchmarking
+- SingleM 0.21.4 `singlem/read_fraction.py`: line 136 (`contribution = node.coverage * genome_size`), line 169 (`account / metagenome_size * 100`), `_get_stems_and_read_files` (counts forward and reverse files)
 - _S. nakayamae_ ATCC 700379 — https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_900113325.1/
 - _C. luticellarii_ DSM 29923 — https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_002995845.1/
 
