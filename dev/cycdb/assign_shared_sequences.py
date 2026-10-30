@@ -16,7 +16,13 @@ A sequence carrying more than one canonical family is decided in this order:
 1. structural: all its families are in one ambiguity group -> `group:<name>`.
 2. fragment: shorter than --min-length amino acids -> `unresolved:` (basis `fragment`).
    A fragment is never given a family.
-3. Two lines of evidence, each of which either decides or is silent:
+3. fusion (with --refs): at least FUSION_LENGTH x the median reference length of every
+   candidate, and its own headers (target or homolog) carry the signatures of at least two
+   candidate units (a family, or an ambiguity group) -> `unresolved:` (basis `fusion`).
+   Neither line of evidence below decides a fusion: whichever family it got, reads from its
+   other domain would be counted for the wrong one. Families marked `fusion = declared`
+   are exempt, as in place_unresolved.py; a family without references never flags.
+4. Two lines of evidence, each of which either decides or is silent:
    - header: the ontology groups (KO, COG) on its own target headers match the signature
      (canonical KO + each source row's dominant COG) of exactly one candidate family ->
      that family; of several candidates all in one group -> that group; otherwise silent.
@@ -45,7 +51,8 @@ Standard library only.
 Usage:
     assign_shared_sequences.py --multi multi_family_sequences.tsv --table canonical_families.tsv \
         --db NAME HEADER_FASTA MAP [--db ...] --out sequence_assignments.tsv \
-        [--similarity placements.tsv --threshold T [--thresholds thresholds.tsv]] [--min-length L]
+        [--similarity placements.tsv --threshold T [--thresholds thresholds.tsv]] [--min-length L] \
+        [--refs final_r.faa]
 """
 import argparse
 import collections
@@ -53,10 +60,12 @@ import csv
 import hashlib
 import itertools
 import re
+import statistics
 import sys
 
 ONT = re.compile(r"ontology=(\S+?)[\s\]]")
 MIN_PAIR_QUERIES = 20  # pairs measured on fewer queries use the stricter of their threshold and --threshold
+FUSION_LENGTH = 1.25  # as in place_unresolved.py (DECISIONS 2026-10-29)
 FAM = re.compile(r"([^;\[]+)\[([^\]]+)\]")
 
 
@@ -70,13 +79,15 @@ def main():
     p.add_argument("--threshold", type=float)
     p.add_argument("--thresholds")
     p.add_argument("--min-length", type=int, default=0)
+    p.add_argument("--refs", help="reference FASTA from place_unresolved.py prepare (fusion lengths)")
     a = p.parse_args()
     if (a.similarity or a.thresholds) and a.threshold is None:
         p.error("--similarity and --thresholds need --threshold")
 
     canon, group, keep, rest = {}, {}, {}, {}
-    weak_header = set()
+    weak_header, declared = set(), set()
     sig = collections.defaultdict(set)
+    fsig = collections.defaultdict(set)  # fusion signatures: sig plus split selectors, as in place_unresolved.py
     with open(a.table, newline="") as fh:
         for r in csv.DictReader(fh, delimiter="\t"):
             k, c = (r["source_db"], r["source_family"]), r["canonical_family"]
@@ -86,10 +97,29 @@ def main():
                 canon[k] = c
                 if r["selector"].startswith("ontology:"):
                     keep[k] = set(r["selector"].split(":", 1)[1].split(","))
+                    fsig[c] |= keep[k]
                 sig[c] |= {x for x in (r["ko"], r["cog"]) if x}
+                fsig[c] |= sig[c]
             group[c] = r["ambiguity_group"]
             if r["header_evidence"] == "insufficient":
                 weak_header.add(c)
+            if r["fusion"] == "declared":
+                declared.add(c)
+
+    median = {}
+    if a.refs:
+        lengths, fam, n = collections.defaultdict(list), None, 0
+        with open(a.refs) as fh:
+            for line in fh:
+                if line.startswith(">"):
+                    if fam is not None:
+                        lengths[fam].append(n)
+                    fam, n = line[1:].split("|", 1)[0], 0
+                else:
+                    n += len(line.strip())
+        if fam is not None:
+            lengths[fam].append(n)
+        median = {c: statistics.median(v) for c, v in lengths.items()}
 
     sim = {}
     if a.similarity:
@@ -126,7 +156,8 @@ def main():
                     split_ids[(name, f[0])].add((name, f[1]))
                     need[name].add(f[0])
 
-    onts = collections.defaultdict(set)
+    onts = collections.defaultdict(set)  # target headers
+    all_onts = collections.defaultdict(set)  # target and homolog headers (fusion test)
     md5_of, length = {}, {}
     for name, fa, _ in a.db:
         sid, buf = None, []
@@ -144,9 +175,10 @@ def main():
                     flush()
                     sid, _, ann = line[1:].rstrip("\n").partition(" ")
                     buf = []
-                    if sid in need[name] and " homolog " not in f" {ann} ":
-                        m = ONT.search(ann + " ")
-                        if m:
+                    m = ONT.search(ann + " ") if sid in need[name] else None
+                    if m:
+                        all_onts[(name, sid)].add(m.group(1))
+                        if " homolog " not in f" {ann} ":
                             onts[(name, sid)].add(m.group(1))
                 else:
                     buf.append(line.strip())
@@ -157,6 +189,14 @@ def main():
             return canon[k]
         seen = set().union(*(onts.get(tuple(i.split("|", 1)), set()) for i in ids if i.startswith(k[0] + "|")))
         return canon[k] if seen & keep[k] else rest[k]
+
+    def is_fusion(cs, ids, seq_len):
+        if not median or declared & set(cs) or any(c not in median for c in cs):
+            return False
+        if any(seq_len < FUSION_LENGTH * median[c] for c in cs):
+            return False
+        seen = set().union(*(all_onts.get(tuple(i.split("|", 1)), set()) for i in ids))
+        return len({group[c] or c for c in cs if fsig[c] & seen}) >= 2
 
     todo = {md5: v for md5, v in multi.items()}
     for (d, sid), fs in split_ids.items():
@@ -220,6 +260,8 @@ def main():
                 assign, basis = f"group:{gs.pop()}", "one ambiguity group"
             elif seq_len < a.min_length:
                 assign, basis = unres, f"fragment ({seq_len} aa < {a.min_length})"
+            elif is_fusion(cs, ids, seq_len):
+                assign, basis = unres, "fusion"
             else:
                 seen = set().union(*(onts.get(tuple(i.split("|", 1)), set()) for i in ids))
                 h, s = header_call(cs, seen), similarity_call(md5, cs) if a.similarity else None

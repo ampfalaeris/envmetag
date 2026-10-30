@@ -734,7 +734,7 @@ Memory and time are multiplied by `task.attempt`; the existing `errorStrategy` r
 
 - Every read hitting the combined database is called **target / homolog / ambiguous** from the margin between its best target and best homolog bitscore (DIAMOND `--top`), with per-family thresholds; reads whose target hits span families in one ambiguity group use a family-vs-family margin with per-group thresholds.
 - Thresholds are generated from the database itself during preparation: target and homolog proteins are cut into read-length fragments with simulated substitutions, aligned with the production DIAMOND settings excluding each fragment's own 95% cluster (MMseqs2), and the cutoff is chosen from the resulting score distributions. This adapts ROCker's approach without hand-curated genomes.
-- ROCkOut models (ROCker's Python successor) only for _dsrAB_, _mcrA_, _amoA_ vs _pmoA_, and _bssA_/_assA_ (v0.2.x).
+- ROCkOut models ("Python refactor of ROCker", in its README's words) only for _dsrAB_, _mcrA_, _amoA_ vs _pmoA_, and _bssA_/_assA_ (v0.2.x).
 
 **Why:**
 
@@ -743,7 +743,7 @@ Memory and time are multiplied by `task.attempt`; the existing `errorStrategy` r
 - Protein fragments miss frame shifts, sequencing errors, and reads from non-coding flanks, so the derived thresholds are checked against genome-simulated control reads for 2–3 markers.
 - _amoA_ vs _pmoA_ joins the ROCkOut list because one KEGG KO (K10944) covers both, and the NCyc 2019 relabelling (243 IDs among `pmoA`, `amoA_A` and `amoA_B`) shows the curators correcting exactly this confusion.
 
-**Deferred:** a per-read posterior from a mixture model on margins. Bracken-style redistribution is rejected: it pushes reads from lineages missing in the database onto their nearest neighbour, inflating them.
+**Deferred:** a per-read posterior from a mixture model on margins. Bracken-style redistribution is rejected: it pushes reads from lineages missing in the database onto their nearest neighbour, inflating them. (Amended 2026-10-30: the mixture model is planned, and redistribution is allowed only as a separate experimental estimate that must answer this objection; see "Read caller: latent-class model planned; Pfam domains for fusions".)
 
 **Sources:**
 
@@ -799,7 +799,7 @@ Memory and time are multiplied by `task.attempt`; the existing `errorStrategy` r
 - `align` writes a second copy of the reads into the filter directory (disk on deep samples).
 - No releases: the container pins a commit hash, at or after `d701c05` (the first licensed commit).
 
-**License (resolved 2026-10-29):** ROCkOut had no license file (last commit 2025-07-02), which ruled out a public container image, a pinned copy, or deposited models. Asked in https://github.com/KGerhardt/ROCkOut/issues/1, suggesting the licenses of its relatives (ROCker Artistic-2.0, ROCkIn GPL-3.0). The author added GPL-3.0 the same day (commit `d701c053878867acc3d7145448a5ab0f6cf8030d`: `LICENSE` plus a README License section; GitHub detects GPL-3.0) and replied on the issue, which we then closed. Citation: the repository with its commit, as the author suggested; a paper is in preparation, so recheck before each release. The license of deposited models is decided when they are built: they also contain reference sequences, whose own terms apply (UniProt: CC BY 4.0).
+**License (resolved 2026-10-29):** ROCkOut had no license file (last commit 2025-07-02), which ruled out a public container image, a pinned copy, or deposited models. Asked in https://github.com/KGerhardt/ROCkOut/issues/1, suggesting the licenses of its relatives (ROCker Artistic-2.0, ROCkIn GPL-3.0). The author added GPL-3.0 the same day (commit `d701c053878867acc3d7145448a5ab0f6cf8030d`: `LICENSE` plus a README License section; GitHub detects GPL-3.0) and replied on the issue, which we then closed. Citation: the repository with its commit (author K. Gerhardt, GitHub `KGerhardt`; commit author and date checked through the GitHub API 2026-10-30), as the author suggested, not as "ROCker V2"; a paper is in preparation, so recheck before each release. The license of deposited models is decided when they are built: they also contain reference sequences, whose own terms apply (UniProt: CC BY 4.0).
 
 **Placement confidence:** report clade counts with pplacer's likelihood weight ratio cutoff and the unplaced fraction; the cutoff and per-position accuracy are measured on simulated reads with known clades. Soft counts (likelihood weight summed per clade subtree) are the default; a placement agreeing with the DIAMOND best-hit clade is the confidence check.
 
@@ -870,38 +870,108 @@ Calls made in review (each with its reason in the overrides file):
 
 1. all of a sequence's families are in one ambiguity group → that group;
 2. shorter than 60 amino acids → unresolved (a fragment is never given a family, but stays in the search database as a competitor);
-3. two lines of evidence, each of which decides or is silent:
+3. a fusion of two candidate units (rule under "Fusion proteins" below) → unresolved, basis `fusion` (added 2026-10-30);
+4. two lines of evidence, each of which decides or is silent:
    - **header**: the KO/COG on the sequence's own target headers matches exactly one candidate's signature (or several in one group). Silent when any candidate has `header_evidence = insufficient`;
    - **similarity**: DIAMOND blastp against header-confirmed, single-family references of the candidate families; candidates in one ambiguity group compete as one unit; decides when the best unit scores at least T times the runner-up, with T measured per family pair (below);
-4. both decide and agree, or only one decides → that call; both decide and disagree, or neither decides → `unresolved:<a>|<b>`, which counts toward no family, group or cycle and is reported on the unresolved/ambiguous line, never dropped.
+5. both decide and agree, or only one decides → that call; both decide and disagree, or neither decides → `unresolved:<a>|<b>`, which counts toward no family, group or cycle and is reported on the unresolved/ambiguous line, never dropped.
 
 Pairs with the same role and cycle whose scores stay close (_cysK_/_cysM_, _metB_/_metC_/_mccB_, _narJ_/_narW_) are ambiguity groups instead: ambiguity there is a family-level property, and read-length fragments will not separate them either. They are moderately diverged paralogs, not near-identical sequences.
 
 **Header groups alone are not enough evidence for Fe-S and other multi-domain families.** Similarity to header-confirmed references put the _rnfB_/_sudA_ and _porD_/_gs_K00266_ sequences in _rnfB_ and _porD_ (score ratio about 2) although their headers carry COG0493: the COG tags come from shared Fe-S/NADH-binding domains. For _cooF_, similarity agreed with the header call on 47 of 53 sequences and disagreed on 6. These three families have `header_evidence = insufficient`. Header calls agreed with similarity elsewhere: 226 _narB_ → _cysJ_ and 144 _narH_ → _narJ_ relabels were confirmed.
 
-**Threshold, measured (leave-cluster-out, 2026-10-29):** `dev/cycdb/loo_threshold.py` took up to 300 header-confirmed references per family as queries (22,561 queries, 95 families) and searched them against the full reference set (157,220 sequences). Hits to the query and to members of its own family in its 95% cluster are left out (34,045 hits), so near-identical relatives cannot vouch for it; members of other families in that cluster stay, as they would compete for a real query. Clusters: MMseqs2 release 18-8cc5c, `easy-cluster --min-seq-id 0.95 -c 0.8` (116,569 clusters, largest 96 members). For every pair of canonical families that occur together on a sequence in `multi_family_sequences.tsv`, it finds the lowest score ratio (0.05 grid, 1.00–3.00) at which misassigned/placed ≤ 1%; a tie is never placed.
+**Threshold, measured (leave-cluster-out; rebuilt 2026-10-29 evening):** `dev/cycdb/loo_threshold.py` took up to 300 header-confirmed references per family as queries (29,158 queries, 134 families) and searched them against the full reference set (191,068 sequences). Hits to the query and to members of its own family in its 95% cluster are left out (46,896 hits), so near-identical relatives cannot vouch for it; members of other families in that cluster stay, as they would compete for a real query. Clusters: MMseqs2 release 18-8cc5c, `easy-cluster --min-seq-id 0.95 -c 0.8` (141,713 clusters, largest 96 members). For every pair of canonical families that occur together on a sequence in `multi_family_sequences.tsv`, it finds the lowest score ratio (0.05 grid, 1.00–3.00) at which misassigned/placed ≤ 1%; a tie is never placed.
 
-- **Which pairs:** all 128 co-occurring pairs, each on at least 20 queries (smallest 26). The pair set comes from the databases and the table only. Until 2026-10-29 it came from the assignments (pairs still unresolved after the header step), which made the result depend on itself: feeding the final assignments back in flipped 48 rows on every pass between two states (76 and 92 unresolved sequences). README step 6 now reruns steps 2–4 on the final assignments and requires byte-identical output.
-- **Pooled:** at 1.0, 549 of 55,501 queries misassigned (0.99%, 99% placed); at 1.25, 187 of 53,282 (0.35%).
-- **Above 1.25, with the share of queries placed at that threshold:**
+- **References for every co-occurring family:** the reference set is built for every family that co-occurs with another on a shared sequence (137 families), not only for the current queries' candidates. Before, grouping _cysN_/_cysN_cysC_ removed _cysN_cysC_ from the candidates and so dropped its 342 references (157,220 → 156,878), invalidating every search: the reference set depended on grouping decisions, as the pair set had depended on assignments. Now no grouping or assignment changes it, and step 6 checks that. Three co-occurring families have no single-family, header-confirmed reference (_ddhB_, _nifW_, _nrfB_).
+- **Which pairs:** all 149 co-occurring pairs, each on at least 20 queries (smallest 22). The pair set comes from the databases and the table only. Until 2026-10-29 it came from the assignments (pairs still unresolved after the header step), which made the result depend on itself: feeding the final assignments back in flipped 48 rows on every pass between two states (76 and 92 unresolved sequences). README step 6 reruns steps 2–4 on the final assignments and requires byte-identical output. The 21 pairs added since PR #2 are those that lacked references on one side, among them the _amoA_/_pmoA_ paralogs (_amoA_B_/_pmoA_ 1.05 on 22 queries, _amoB_B_/_pmoB_ 1.65, _amoC_B_/_pmoC_ 1.0; all three inside their groups).
+- **Pooled:** threshold 1.1 (97% placed, 568 misassigned); at 1.25, 374 of 63,865 placed queries misassigned (0.59%).
+- **Above 1.25 across ambiguity units** (the only thresholds that decide an assignment; a pair inside one group competes as one unit), with the share of queries placed at that threshold:
 
-  | Pair                | T    | Placed | Units                         |
-  | ------------------- | ---- | ------ | ----------------------------- |
-  | _nrfC_/_phsB_       | 2.4  | 9%     | both in `fes_subunit_cog0437` |
-  | _fdhA_K00148_/_fdm_ | 2.15 | 11%    | different                     |
-  | _hdrC1_/_hdrC2_     | 2.0  | 20%    | different                     |
-  | _nao_/_nmo_         | 1.65 | 78%    | different                     |
-  | _nrfC_/_psrB_       | 1.65 | 27%    | both in `fes_subunit_cog0437` |
-  | _cysN_/_cysN_cysC_  | 1.6  | 26%    | different                     |
-  | _cysK_/_cysM_       | 1.55 | 68%    | both in `cysK_cysM`           |
-  | _fdhA_/_nasA_       | 1.3  | 97%    | both in `mo_bispgd_reductase` |
-  | _nirA_/_sir_        | 1.3  | 64%    | both in `siroheme_cog0155`    |
+  | Pair                 | T    | Placed |
+  | -------------------- | ---- | ------ |
+  | _fdhA_K00148_/_fdm_  | 2.15 | 11%    |
+  | _hdrC1_/_hdrC2_      | 2.0  | 20%    |
+  | _nao_/_nmo_          | 1.65 | 78%    |
+  | _acdA_/_acyl_coa_dh_ | 1.35 | 74%    |
 
-- **Never under 1%** (similarity never decides): _dmsB_/_nrfC_, _nrfC_/_ttrB_, _gs_K00266_/_sudA_, _hdrA1_/_hdrA2_, _narB_/_nasA_. All five are inside one ambiguity group already, where members compete as one unit, so leave-cluster-out added no new group. In the first (leave-one-out) run, _mccB_/_metB_ never reached 1% and _mccB_/_metC_ needed 2.15; _mccB_ then joined _metB_/_metC_.
-- **Group candidates, not grouped:** _fdhA_K00148_/_fdm_, _hdrC1_/_hdrC2_ and _cysN_/_cysN_cysC_ have the same role and cycle and separate only by placing 11–26% of queries. Only 17 database sequences carry one of these pairs (15 unresolved, 2 assigned to _cysN_cysC_ by similarity), so grouping changes little here; whether they are grouped is decided on the simulated controls at read length, with the other merge-or-not calls.
-- **Sensitivity, 90% clusters** (93,977 clusters, largest 202; 102,427 hits left out): 3 of 128 thresholds change, none by more than 0.2 (_nao_/_nmo_ 1.65 → 1.85, _cooF_/_gs_K00266_ 1.05 → 1.1, _pfkA_/_pfp_ 1.0 → 1.05); pooled 426 misassigned at 1.05, 197 of 53,118 at 1.25. The 95% thresholds are used.
-- **Mixed-family clusters:** 59 of the 95% clusters hold header-confirmed references of two families (111 at 90%), all in hard pairs. Twelve such pairs are already in one ambiguity group (most: _gs_K00266_/_sudA_ 17 clusters, _narB_/_nasA_ 7, _cysK_/_cysM_ 6, _nrfC_/_ttrB_ 5). Six are not: _fdhA_K00148_/_fdm_ (6 clusters), _cooF_/_gs_K00266_ (2), and one each for _cysN_/_cysN_cysC_, _cysJ_/_narB_, _fdhA_/_gs_K00266_ and _pfkA_/_pfp_. At 95% identity the two labels are either the same enzyme under two names or a mislabelled sequence; the cross-cycle cases (_cysJ_/_narB_, _cooF_/_gs_K00266_) are to be checked by hand before the simulated controls.
-- **Hit lists:** a fixed hit count can cut off a competitor, so queries whose list was full were rerun: 18,655 of 22,561 returned the full 500 hits and were rerun with `-k 2000`; 10,808 of those were still full and were rerun with `--top 67`. The threshold table records, per pair, how many queries came from each run (`query_modes`); 121 of 128 pairs mix them.
+  Inside groups, 25 more pairs are above 1.25, the highest _gs_K00266_/_sudA_ (3.0, 1% placed), _fdhB_/_nrfC_ (2.8), _nrfC_/_ttrB_ and _nrfD_/_psrC_ (2.65) and _mccB_/_metB_ (2.45). Many rose against PR #2 because the new references added queries (_fdhB_/_nrfC_: 47 → 183 queries, 1.0 → 2.8); none of these changed an assignment.
+
+- **Never under 1%** (similarity never decides): _hdrA1_/_hdrA2_ and _narB_/_nasA_, both inside one ambiguity group. _gs_K00266_/_sudA_, _dmsB_/_nrfC_ and _nrfC_/_ttrB_, which never separated in PR #2, now reach 1% at 3.0, 2.0 and 2.65.
+- **Group candidates, not grouped:** _fdhA_K00148_/_fdm_ and _hdrC1_/_hdrC2_ have the same role and cycle and separate only by placing 11–20% of queries. Few database sequences carry them (1 and 2, all unresolved), so grouping changes little here; whether they are grouped is decided on the simulated controls at read length, with the other merge-or-not calls. Until then, read-level calls between them must use these measured thresholds (2.15 and 2.0), never the 1.25 default, or reads would be split confidently where full-length sequences barely separate. _cysN_/_cysN_cysC_ (1.6, 26% placed) is grouped (`cysN_cysNC`, 2026-10-29): _cysN_cysC_ is a fusion that contains the CysN domain, so a read in that domain cannot be separated whatever the threshold, and with the same role and cycle the report loses nothing. _cysN_cysC_ is marked `fusion = declared`, which exempts it from the fusion rules below.
+- **Sensitivity, 90% clusters** (113,817 clusters, largest 202; 136,560 hits left out): 12 of 149 thresholds change. Pooled 1.15 (95% placed); at 1.25, 402 of 63,505 misassigned. Across units, only _nao_/_nmo_ (1.65 → 1.85) and _pfkA_/_pfp_ (1.0 → 1.05) move; the largest change, _acs_/_prpE_ 1.3 → 2.55, is inside `acyl_coa_synthetase_cog0365`. The 95% thresholds are used.
+- **Mixed-family clusters** (2026-10-29 run, before the fusion rule): 59 of the 95% clusters hold header-confirmed references of two families (111 at 90%), all in hard pairs. Twelve such pairs are already in one ambiguity group (most: _gs_K00266_/_sudA_ 17 clusters, _narB_/_nasA_ 7, _cysK_/_cysM_ 6, _nrfC_/_ttrB_ 5). Six are not: _fdhA_K00148_/_fdm_ (6 clusters), _cooF_/_gs_K00266_ (2), and one each for _cysN_/_cysN_cysC_, _cysJ_/_narB_, _fdhA_/_gs_K00266_ and _pfkA_/_pfp_. At 95% identity the two labels are the same enzyme under two names, a mislabelled sequence, or a fusion. The two cross-cycle cases are fusions, checked by hand on 2026-10-29 (lengths and every header of each exact sequence):
+  - _cysJ_/_narB_: one cluster of two ~1,380 aa proteins (about twice either enzyme), both from _Rhodococcus opacus_: SCycDB `37919.EP51_23485` (_cysJ_; target COG0369, homolog COG0243) and NCyc `632772.ROP_34600` (_narB_; target COG0243, homolog COG0369). Each carries the CysJ flavoprotein (COG0369) and molybdopterin nitrate reductase (COG0243) domains. A NarB with a fused CysJ-like reductase domain is plausible; no source was checked for this one.
+  - _cooF_/_gs_K00266_: two clusters of 630–671 aa proteins. The "_cooF_" members are MCycDB `1197719.A464_2591` (_Salmonella bongori_ N268-08) and `633.DJ40_2011` (_Yersinia pseudotuberculosis_), each with target COG1142 (CooF-type ferredoxin) and homolog COG0493 (GltD-like). Their partners are NCyc `218493.SBG_2259` (_S. bongori_ NCTC 12419) and `187410.y0599` (_Y. pestis_ KIM10+), with target COG0493 and homolog COG1142. A CooF is about 180 aa. These are most likely enterobacterial Fe-S oxidoreductases (ferredoxin–GltD-like fusions) that MCycDB collected through the broad COG1142 group, not carbon monoxide dehydrogenase subunits; these genera are not known for CO dehydrogenase, though that was not checked. The COGs are right about the domains; MCycDB's _cooF_ function label is probably wrong for them. _cooF_ is not a marker step; its role (now `dissimilatory`) is to be reconsidered as `accessory`, with a reason noting these fusions.
+
+  Organism names from NCBI Taxonomy (esummary, 2026-10-29).
+
+**Fusion proteins (rules added 2026-10-29 and 2026-10-30):**
+
+**Principle:** a fusion never gets one family's label, by header or by similarity. Whichever label it got, reads from its other domain would be counted for the wrong family. It gets the pair label (`unresolved:a|b`) and its reads go to the unresolved/ambiguous line. Domain-aware labelling (Pfam, below) is how that signal is recovered later. Both rules use one test: a sequence at least 1.25 × a family's median reference length whose own headers, homolog headers included, carry another candidate family's signature COG/KO. eggNOG attaches homolog headers widely, so length is required as well. Families marked `fusion = declared` (_cysN_cysC_) are exempt.
+
+- **Reference sets** (`place_unresolved.py prepare`): a fusion reference makes a query or read from the shared domain look like a confident hit to the wrong family, so fusions are left out of the header-confirmed references used for thresholds and similarity. The six sequences above are only the fusions with a 95% partner, so this is a rule, not a hand list. The rule dropped **238** of 191,306 references (`--dropped` lists them), at 1.25–7.51 × their family's median, by family and partner:
+
+  | Family carrying a partner's domain | Partners               | Dropped | Family's share |
+  | ---------------------------------- | ---------------------- | ------- | -------------- |
+  | _cysJ_                             | _narB_, _nasA_         | 85      | 3.4%           |
+  | _sudA_                             | _fdhA_                 | 41      | 7.2% (both)    |
+  | _sudA_                             | _hdrA1_, _hdrA2_       | 11      |                |
+  | _fdhA_                             | _gs_K00266_, _sudA_    | 24      | 3.5%           |
+  | _gs_K00266_                        | _cooF_                 | 24      | 5.3% (both)    |
+  | _gs_K00266_                        | _fdhA_                 | 6       |                |
+  | _cooF_                             | _gs_K00266_            | 21      | 3.7%           |
+  | _hdrA2_                            | _gs_K00266_, _sudA_    | 17      | 3.9%           |
+  | _nirK_                             | _nirS_, _soxX_         | 5       | 0.6%           |
+  | _narB_                             | _cysJ_; _nasB_, _nirB_ | 2; 1    | 0.4%           |
+  | _hdrA1_                            | _gs_K00266_, _sudA_    | 1       | 0.7%           |
+
+  The partners counted include families in the same ambiguity group (_sudA_ and _gs_K00266_ are both in `gltD_like_cog0493`). On the pinned commits that made no difference to the count, but it could after a database update.
+
+  **Bug alarm:** the rebuild stops if the count falls outside 200–320. The band is calibrated to these commits and is a check against a broken rule (a parsing change that silently matches nothing or everything), not a statement about biology. A database update is expected to move the count; the band is then reset by a deliberate edit with a reason, next to the new count here.
+
+  **Dropped sequences stay in the search database.** The rule filters only what `prepare` writes to the curation reference sets. Verified 2026-10-30: none of the 238 has a row in `sequence_assignments.tsv`, so each keeps its single-family table label and competes for reads. CLAUDE.md now says the search database is built from the source databases, never from these sets.
+
+- **Shared sequences** (`assign_shared_sequences.py --refs`, 2026-10-30): a shared sequence at least 1.25 × the median of **every** candidate, whose own headers carry the signatures of at least two candidate units (a family or an ambiguity group), is labelled `unresolved:` with basis `fusion`, before header or similarity evidence is looked at. Without this rule, the reference rule only changed which single label such a sequence got: 46 rows moved between labels because the fusion references they had matched were gone (`0dcfa9e7bb`, 1,385 aa, scored _fdhA_ 2115 against _gs_K00266_ 2098 before and _fdhA_ 935 after). Most _cysJ_ labels on _cysJ_/_narB_ fusions were decided with a header call (160 `both`, 10 `header only`), so the rule had to come before header evidence as well as similarity. It labels **262** sequences:
+
+  | Candidates                                                                                                                                                            | Fusions |
+  | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+  | _cysJ_, _narB_                                                                                                                                                        | 186     |
+  | _fdhA_, _sudA_                                                                                                                                                        | 14      |
+  | _rnfB_, _sudA_                                                                                                                                                        | 12      |
+  | _cooF_, _gs_K00266_                                                                                                                                                   | 10      |
+  | _fdhA_, _gs_K00266_, _sudA_                                                                                                                                           | 9       |
+  | _gs_K00266_, _rnfB_, _sudA_                                                                                                                                           | 6       |
+  | _hdrA2_, _sudA_                                                                                                                                                       | 5       |
+  | _gs_K00266_, _hdrA2_                                                                                                                                                  | 3       |
+  | _cysH_/_nirA_, _cysJ_/_nasA_, _gs_K00266_/_hdrA2_/_sudA_, _gs_K00266_/_porD_                                                                                          | 2 each  |
+  | _ackA_/_pta_, _ackA_/_nrnA_, _cysJ_/_gs_K00265_, _eno_/_mdh_K00024_, _fdhA_/_gs_K00266_, _glnA_/_tpa_, _gs_K00266_/_hdrA1_/_hdrA2_, _gs_K00266_/_rnfB_, _pqqB_/_pqqC_ | 1 each  |
+
+  None of them fed a headline number before: 184 were _cysJ_ and 19 _rnfB_ (both non-headline), and the 25 previously in `mo_bispgd_reductase` (which contains the _napA_ marker step) were group-only, shown on the unresolved line already. No query with _nirK_ among its candidates is flagged (all four are 63–203 aa, below _nirK_'s median of 384).
+
+  **Conditions measured on all 793 queries:**
+  - **Length alone (329 flagged)** also catches two long-form Pta (_Rhodococcus_, RefSeq `WP_073366837.1` and `WP_141470952.1`, "phosphate acetyltransferase", 706 aa; NCBI, 2026-10-30). The long Pta carries an extra N-terminal domain but is one enzyme. These sequences have no COG or KO header at all: they count as _ackA_ candidates only because MCycDB's gene map lists them under _ackA_.
+  - **Length plus a 95th-percentile condition (280; rejected).** Requiring the sequence to be longer than every candidate's 95th percentile kept both Pta flagged (pta's 95th percentile is 562 aa: only 4.5% of pta references are ≥ 600 aa). It also unflagged all 10 header-confirmed _cooF_/_gs_K00266_ fusions (646–674 aa, the sum of the two medians, 173 + 477; _gs_K00266_'s 95th percentile is 676) and 22 of 37 _rnfB_/_sudA_ (_sudA_'s 95th percentile is 899, nearly twice its median). Fusions sit in the length tails of exactly the families they occur in, so a family's own distribution cannot exclude them.
+  - **Length plus header signal (262; used)** keeps the known fusions and frees both Pta. The odd pairs it keeps carry both domains in their own headers, and their lengths are near the sum of the two medians: _glnA_/_tpa_ (COG0174 + COG0161, 915 aa against 910), _pqqB_/_pqqC_ (COG1235 + COG5424, 563 against 553), _cysH_/_nirA_ (COG0175 + K00366, 884 against 789), _eno_/_mdh_K00024_ (COG0148 + COG0039, a _Triticum urartu_ gene model, possibly two genes merged), and the third _ackA_/_pta_ (eggNOG gives both COG0280 and COG0282).
+
+  **What the rules miss:**
+  - fusions that add under 25% to a protein's length, including two _gs_K00266_ references at 1.15–1.17 ×;
+  - fusions whose headers do not name the partner. 27 of the 213 _cysJ_/_narB_ queries at fusion length carry only _cysJ_'s K00380 and an m5nr subsystem ID, and keep _cysJ_ (both families `assimilatory`, so no headline is affected). 25 of 37 _rnfB_/_sudA_ queries carry only COG0493 (GltD-like), often with COG3383 (FdhA-like), and no _rnfB_ signature, so similarity still decides them.
+
+  Domain annotation (below) replaces the length test.
+
+- **Single-family fusions at read level (v0.2):** the 238 dropped references keep their single family label in the search database, so reads from their other domain go to that family. Whether each flagged pair's reads keep the label or go to the pair label is decided **per family pair**, because one family can need different answers for different partners (_sudA_ loses references to _fdhA_ and to _hdrA1_/_hdrA2_). The plan is a field on the pair-keyed `link` overrides (`keep_label` or `pair_label`, each with a reason), with `check_canonical_families.py` requiring a decision for every flagged pair before reads are counted. The per-family `fusion` column stays a property of the family alone (`declared`).
+  - The _cooF_ ferredoxin–GltD-like fusions should go to the pair label, so that the unresolved/ambiguous line gets their reads instead of the wrong family.
+  - The 5 _nirK_ references flagged through the cytochrome c COG shared by _nirS_ and _soxX_, at 1.24–1.34 × _nirK_'s median length, are consistent with NirK variants carrying a fused cytochrome c domain, which are still nitrite reductases. That has not been checked against a source. _nirK_ is a headline marker, so pair-labelling these would remove real signal.
+- **Reads, v0.2.x:** label fusions by domain instead. Pfam domain coordinates for the fusion sequences let a read be credited to the family whose domain it overlaps. InterPro and Pfam data are CC0 1.0; InterProScan is Apache-licensed, but its bundled tools and member signatures "may be under different license terms" (InterPro licence page, checked 2026-10-29), so only Pfam data is planned.
+
+Sources:
+
+- InterPro licence — https://interpro-documentation.readthedocs.io/en/latest/license.html
+- NCBI Protein, `WP_073366837.1` and `WP_141470952.1` (efetch, 2026-10-30)
+
+**Search details:**
+
+- **Hit lists:** a fixed hit count can cut off a competitor, so queries whose list was full were rerun: 24,741 of 29,158 returned the full 500 hits and were rerun with `-k 2000`; 15,814 of those were still full and were rerun with `--top 67`. The threshold table records, per pair, how many queries came from each run (`query_modes`); 136 of 149 pairs mix them.
 - **Slightly conservative:** under `--top`, the leave-cluster-out floor is 0.34 × the best hit as DIAMOND reported it, which is usually the self-hit or a near-identical cluster member. After those are left out, the best remaining own-family hit is lower than a real neighbour would be, so ratios against an absent competitor come out lower than at assignment time, and the measured thresholds are somewhat stricter than the assignment step needs. Matching them exactly would mean searching a database with each query's cluster physically removed.
 
 **Similarity search with `--top`:** step 4 now uses DIAMOND `--top 67` instead of `--max-target-seqs 500`, matching the read-level rule in CLAUDE.md. `--top` keeps every alignment within a percentage of the query's best score, with no count limit.
@@ -909,14 +979,30 @@ Pairs with the same role and cycle whose scores stay close (_cysK_/_cysM_, _metB
 - **Semantics, tested 2026-10-29 on DIAMOND 2.1.10,** whose binary prints no option help (`blastp --help` is rejected). With `--top 10`, three queries returned 9, 2 and 5 hits, all at ≥ 0.907 × best: a percentage window, not a hit count.
 - **Completeness:** compared with `-k` runs of the same queries (step 4 against `-k 500`, 807 queries; leave-one-out against `-k 2000`, 10,808 queries), no family's best score was lower in the `--top 67` run.
 - **Fuzzy edge:** in bitscore the edge is fuzzy by about 0.001 × best. Families absent from `--top` scored at most 0.3299 × best; families present scored as low as 0.3288 × best. DIAMOND appears to apply `--top` to the raw score.
-- **Floor:** a family absent from a cut list scores the bound it fell under, not 0: the window edge plus a margin (0.34 × best) for `--top`, the lowest reported score for a full `-k` list. Every candidate scores at least that floor, so "below the window" means the same whether or not DIAMOND reported the hit. Both `place_unresolved.py` and `loo_threshold.py` apply this, so thresholds are measured under the rule they are applied with. A ratio against the floor is at most about 2.94, so a measured threshold above 2.94 means similarity never decides that pair; the highest finite threshold measured is 2.4.
+- **Floor:** a family absent from a cut list scores the bound it fell under, not 0: the window edge plus a margin (0.34 × best) for `--top`, the lowest reported score for a full `-k` list. Every candidate scores at least that floor, so "below the window" means the same whether or not DIAMOND reported the hit. Both `place_unresolved.py` and `loo_threshold.py` apply this, so thresholds are measured under the rule they are applied with. A ratio against the floor is at most about 2.94, so a measured threshold above 2.94 means similarity decides that pair only against a competitor DIAMOND reported. The highest finite threshold measured is 3.0 (_gs_K00266_/_sudA_, inside one group, 1% placed).
 - **Effect of the old cap:** 580 of the 768 shared-sequence queries with hits had full 500-hit lists. None of the 26 similarity calls made against a runner-up scoring 0 was on a full list: the lowest-reported floor already covered those. The cap could only make ratios look smaller and silence calls, not invent them. Switching to `--top 67` changed no assignment.
 
-**Ties and thin margins:** a measured threshold of 1.0 means any higher score decides; an exact tie never does (fixed 2026-10-29, after a _porD_/_sudA_ tie at 719 bits had gone to _porD_ by name order). Pairs measured on fewer than 20 queries use the stricter of their measurement and 1.25 (none are, at present); unmeasured pairs use 1.25. A floor on T (measured thresholds may only raise the 1.25 default) was simulated and rejected: it unresolved 45 more sequences but made 33 calls _more_ specific (28 `group:narJ_narW` → _narJ_, one `unresolved:nirK|nirS` → _nirS_), because a silent similarity leaves the header call to decide alone. Fourteen similarity decisions rest on a unit score ratio below 1.05, nearly all among Fe-S/NADH and Mo-bisPGD multi-domain families (_sudA_, _gs_K00266_, _fdhA_, _porD_, _dsrL_) and _narH_narY_/_narW_; most land in groups shown only on the unresolved line.
+**Ties and thin margins:** a measured threshold of 1.0 means any higher score decides; an exact tie never does (fixed 2026-10-29, after a _porD_/_sudA_ tie at 719 bits had gone to _porD_ by name order). Pairs measured on fewer than 20 queries use the stricter of their measurement and 1.25 (none are, at present); unmeasured pairs use 1.25. On the PR #2 run, a floor on T (measured thresholds may only raise the 1.25 default) was simulated and rejected: it unresolved 45 more sequences but made 33 calls _more_ specific (28 `group:narJ_narW` → _narJ_, one `unresolved:nirK|nirS` → _nirS_), because a silent similarity leaves the header call to decide alone. Fourteen similarity decisions rest on a unit score ratio below 1.05, nearly all among Fe-S/NADH and Mo-bisPGD multi-domain families (_sudA_, _gs_K00266_, _fdhA_, _porD_, _dsrL_) and _narH_narY_/_narW_; most land in groups shown only on the unresolved line.
 
-**Result (rebuilt from scratch 2026-10-29, leave-cluster-out thresholds, `--top 67`):** of 26,839 rows, 15,054 come from splits and 10,978 are structural groups. Of the other 807: 402 decided by both methods agreeing, 319 by similarity only, 10 by header only; 3 unresolved because the methods disagreed, 43 because neither decided, and 30 as fragments. 76 sequences on 49 labels stay unresolved. Leave-cluster-out, the all-pairs measurement and `--top` changed no assignment against the intermediate leave-one-out, `-k 500` run: the thresholds that decide cross-unit calls moved little, and the pairs whose thresholds rose most are inside groups.
+**Result (rebuilt from scratch 2026-10-29 evening; assignments rewritten 2026-10-30 with the shared-sequence fusion rule on the same hits):** of 26,839 rows, 15,054 come from splits and 10,992 are structural groups. Of the other 793: 262 are fusions, 237 decided by both methods agreeing and 234 by similarity only; 1 unresolved because the methods disagreed, 29 because neither decided, and 30 as fragments. 322 sequences on 66 labels stay unresolved, 262 of them fusions.
 
-**Reproducibility (2026-10-29):** the README commands, run from the pinned archives (SHA-256 checked) into a new directory, reproduced `canonical_families.tsv` byte for byte. DIAMOND 2.1.10 with the README settings (query chunks of 500, 250 and 100 at `--threads 2`) gave identical scores for every shared-sequence query common to the 2026-10-28 run. The README step-6 fixed-point check passed: steps 2–4 rerun on the final assignments gave byte-identical queries, references, similarity scores, thresholds and assignments. Against the 2026-10-28 file, `sequence_assignments.tsv` changed in two rows:
+**Assignment diff against PR #2** (280 rows), sorted into causes:
+
+- **_cysN_cysNC_ group (14):** 12 `unresolved:cysN|cysN_cysC` and 2 _cysN_cysC_ (similarity) → `group:cysN_cysNC`.
+- **Shared-sequence fusion rule (262):** the table above. 5 of these were already unresolved and only changed basis.
+- **Fusion references gone (4):** the four rows whose label moved without becoming fusions. For each, the old best hit in the family whose score fell was a dropped fusion reference (1.51–2.44 × its family's median), checked against the PR #2 hit file:
+  - `2298c8e790` (763 aa), `group:mo_bispgd_reductase` → `group:gltD_like_cog0493`: _fdhA_ 1105 → 392;
+  - `407d8db26e` (661 aa), `group:hdrA_qmoA_mvhD` → `group:gltD_like_cog0493`: _hdrA2_ 655 → 222;
+  - `985e5c072c` (541 aa), `group:gltD_like_cog0493` → _porD_ (role `core`): _sudA_ 280 → 263, now under _porD_'s 279;
+  - `d3f2be25c5` (1,027 aa), `group:gltD_like_cog0493` → `unresolved:rnfB|sudA`: _sudA_ 1367 → 697, a tie with _rnfB_.
+
+  Each changes its cycle set, but every old and new label is a group, an unresolved label or a `core` family, so no headline number moves.
+
+- **Anything else: 0.** No assignment moved because of a threshold change.
+
+**Reproducibility (2026-10-30):** the rebuild ran the README steps 1–6 from scratch in a new directory, plus the 90% sensitivity score; the fusion count was 238, inside the alarm band. Steps 4–6 were then rerun on the same hits with `--refs` (assignments only; references, hits and thresholds cannot depend on assignments, and step 6 confirms it). The step-6 fixed-point check passed both times: steps 2–4 rerun on the final assignments gave byte-identical queries, references, similarity scores, thresholds and assignments. `prepare` rerun with `--dropped` gave byte-identical references and queries.
+
+**Reproducibility (2026-10-29, PR #2):** the README commands, run from the pinned archives (SHA-256 checked) into a new directory, reproduced `canonical_families.tsv` byte for byte. DIAMOND 2.1.10 with the README settings (query chunks of 500, 250 and 100 at `--threads 2`) gave identical scores for every shared-sequence query common to the 2026-10-28 run. The README step-6 fixed-point check passed: steps 2–4 rerun on the final assignments gave byte-identical queries, references, similarity scores, thresholds and assignments. Against the 2026-10-28 file, `sequence_assignments.tsv` changed in two rows:
 
 - **A stale threshold file:** the 2026-10-28 assignments had been written from leave-one-out thresholds scored before the _mccB_ merge, so the _cooF_/_nrfC_ pair was unmeasured and a _cooF_/_nrfC_/_ttrB_ sequence stayed unresolved; it is now in `fes_subunit_cog0437`.
 - **The tie above:** the _porD_/_sudA_ tie became unresolved.
@@ -960,3 +1046,25 @@ Pairs with the same role and cycle whose scores stay close (_cysK_/_cysM_, _metB
 - SingleM `prokaryotic_fraction` — https://wwood.github.io/singlem/tools/prokaryotic_fraction
 - _S. nakayamae_ ATCC 700379 — https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_900113325.1/
 - _C. luticellarii_ DSM 29923 — https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_002995845.1/
+
+---
+
+## 2026-10-30 — Read caller: latent-class model planned; Pfam domains for fusions
+
+**Decision (planned, not built):**
+
+- **Pfam domain annotation is the next curation PR.** `hmmscan --cut_ga` with Pfam over the shared sequences and the curation references. A fusion is then a sequence with domains from two families, which replaces the length-plus-header test in "Shared sequences" (1.25 × the median). The domain coordinates also feed read-level labelling (v0.2.x).
+- **The v0.2 read caller becomes a latent-class (mixture) model** in place of the per-pair score-ratio thresholds. Hidden classes: family A, family B, homolog or fragment, and, for fusion references, which domain the read lies in. A read covers one domain, so "fusion" is a property of the reference it hits, not of the read. The read-level features are the score ratios to each candidate, the hit references' header COGs and Pfam domains, and where on the reference the read aligns. A read is assigned only above a posterior cut-off (about 0.99); otherwise it goes to its group or the unresolved line. Candidate tools: R `mclust` for the length mixtures, or Turing.jl for a full Bayesian version. Either needs its own pinned container.
+- **Redistributing ambiguous reads** (expectation–maximization over candidate families) is allowed only as a **separate estimate**, labelled experimental, with an interval, shown beside the primary counts and the unresolved/ambiguous line, never in place of them (CLAUDE.md, "Search and quantification"). The read counts stay primary.
+
+**Why:** each hand rule draws one boundary and exposes the next edge case. The fusion test went from header signal alone (272 references) to header plus length (238). The query-side test then needed header signal again, because a 95th-percentile condition removed the real fusions and kept long-form Pta. A model with explicit classes reduces the tuning to one posterior cut-off whose calibration can be measured.
+
+**Evidence it will rest on:** the simulated controls (CLAUDE.md, "Testing"), with the leave-cluster-out results as the calibration check. Until the controls exist, the per-pair thresholds and the fusion rules stay in force.
+
+**Redistribution must answer the 2026-10-28 objection.** EM over candidate families moves reads only between families in the database, so reads from a lineage missing from it still inflate its nearest neighbour (the reason Bracken-style redistribution was rejected in "Read calls"). The estimate therefore needs a class for reads that fit no reference family (homolog or novel). Its inflation is measured on the controls' genome carrying homologs but not targets, and on the genome carrying neither. If the controls show inflation, the estimate is not shown.
+
+**Report text:** "experimental" means the estimate has not been checked against the simulated controls. Once it has, the label is dropped, except for families where the calibration was poor. Whenever the estimate is shown, it carries a one-line caption, e.g. "Model-based estimate (experimental): ambiguous reads apportioned by expectation–maximization across candidate families. Shown for comparison; the primary counts above do not include it."
+
+**Sources:**
+
+- Pfam and InterPro licence (CC0 1.0) — https://interpro-documentation.readthedocs.io/en/latest/license.html

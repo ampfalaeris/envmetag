@@ -29,6 +29,10 @@ identify its sequences (multi-domain Fe-S proteins whose COG tags come from shar
 domains); assign_shared_sequences.py then ignores header groups for any sequence
 carrying that family.
 
+`fusion = declared` marks a family that is itself a fusion of two domains (e.g. cysN_cysC);
+place_unresolved.py then keeps its references even when they carry another family's
+signature and are long for their family (the fusion-reference rule).
+
 Fails, rather than writing a table, when:
 - an override names a family or canonical family that does not exist, or is unused;
 - a canonical family has no role;
@@ -53,12 +57,13 @@ COUNTED_CYCLES = {"sulfur", "methane", "nitrogen", "c1"}
 ROLES = {"dissimilatory", "assimilatory", "transport", "accessory", "core", "other"}
 FIELDS = {"row": {"canonical_family"},
           "split": {"keep_ontologies", "rest_canonical"},
-          "canonical": {"ko", "ambiguity_group", "cycle", "cycle_detail", "role", "marker_step", "header_evidence"},
+          "canonical": {"ko", "ambiguity_group", "cycle", "cycle_detail", "role", "marker_step", "header_evidence",
+                        "fusion"},
           "link": {"resolution"}}
 MIN_KO_HEADERS = 5
 MIN_STRONG_SHARED, MIN_STRONG_FRACTION = 10, 0.01
 COLUMNS = ["source_db", "source_family", "selector", "canonical_family", "ko", "ambiguity_group", "group_cycle",
-           "marker_step", "header_evidence", "source_databases", "cycle", "cycle_detail", "role", "n_sequences",
+           "marker_step", "header_evidence", "fusion", "source_databases", "cycle", "cycle_detail", "role", "n_sequences",
            "cog", "reason", "source"]
 
 
@@ -140,9 +145,12 @@ def main():
             errors.append(f"{c}: unknown role {role!r}")
         if (cycle == "shared") != bool(detail):
             errors.append(f"{c}: cycle_detail must be given exactly when cycle = shared")
+        if get("canonical", c, "fusion", "") not in ("", "declared"):
+            errors.append(f"{c}: fusion must be empty or 'declared'")
         out[c] = {"ko": ko, "ambiguity_group": get("canonical", c, "ambiguity_group", ""),
                   "marker_step": get("canonical", c, "marker_step", ""),
                   "header_evidence": get("canonical", c, "header_evidence", ""),
+                  "fusion": get("canonical", c, "fusion", ""),
                   "source_databases": ",".join(sorted({d for d, _ in keys})),
                   "cycle": cycle or "", "cycle_detail": detail, "role": role}
 
@@ -217,7 +225,7 @@ def main():
                 source = "; ".join(dict.fromkeys(o[2] for _, o in notes))
                 v = out[c]
                 w.writerow([k[0], k[1], selector, c, v["ko"], v["ambiguity_group"],
-                            group_cycle.get(v["ambiguity_group"], ""), v["marker_step"], v["header_evidence"],
+                            group_cycle.get(v["ambiguity_group"], ""), v["marker_step"], v["header_evidence"], v["fusion"],
                             v["source_databases"],
                             v["cycle"], v["cycle_detail"], v["role"], fams[k]["n_sequences"], fams[k]["cog"],
                             reason, source])

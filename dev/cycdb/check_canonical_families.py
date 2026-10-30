@@ -36,7 +36,8 @@ COUNTED_CYCLES = {"sulfur", "methane", "nitrogen", "c1"}
 ROLES = {"dissimilatory", "assimilatory", "transport", "accessory", "core", "other"}
 # KOs that span different functions: never merged, always one ambiguity group (DECISIONS.md, 2026-10-28)
 EXCEPTION_KOS = {"K10944", "K10945", "K10946", "K00370", "K00371", "K07235", "K07236", "K07237"}
-CANONICAL_FIELDS = ("ko", "ambiguity_group", "group_cycle", "marker_step", "header_evidence", "source_databases",
+CANONICAL_FIELDS = ("ko", "ambiguity_group", "group_cycle", "marker_step", "header_evidence", "fusion",
+                    "source_databases",
                     "cycle", "cycle_detail", "role")
 # Gene-name prefixes that belong to one cycle; a family in another cycle's database needs a stated cycle
 CYCLE_PREFIXES = {"nitrogen": ("nap", "nar", "nir", "nor", "nos", "nrf", "nas", "nif", "amo", "hao", "hzs", "nxr"),
@@ -76,6 +77,8 @@ def main():
             errors.append(f"{name}: invalid cycle {r['cycle']!r}")
         if r["role"] not in ROLES:
             errors.append(f"{name}: invalid role {r['role']!r}")
+        if r["fusion"] not in ("", "declared"):
+            errors.append(f"{name}: invalid fusion {r['fusion']!r}")
         if (r["cycle"] == "shared") != bool(r["cycle_detail"]):
             errors.append(f"{name}: cycle_detail must be given exactly when cycle = shared")
         if r["marker_step"] and r["cycle"] not in COUNTED_CYCLES:
@@ -85,7 +88,8 @@ def main():
         need = {"rest_canonical" if r["selector"] == "rest" else "canonical_family": renamed,
                 "role": r["role"] != "dissimilatory",
                 "cycle": r["cycle"] != default_cycle and len(r["source_databases"].split(",")) == 1,
-                "ambiguity_group": bool(r["ambiguity_group"])}
+                "ambiguity_group": bool(r["ambiguity_group"]),
+                "fusion": bool(r["fusion"])}
         for cyc, prefixes in CYCLE_PREFIXES.items():
             if cyc != CYCLE[r["source_db"]] and r["source_family"].lower().startswith(prefixes):
                 need["cycle"] = True
