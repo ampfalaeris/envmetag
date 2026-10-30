@@ -64,16 +64,28 @@ format:
           .em-figure { border: 1px solid var(--em-line); border-radius: 10px; padding: .4rem; margin: .8rem 0 1.2rem; background: var(--em-panel); }
           .em-note { color: var(--em-muted); font-size: .88rem; }
           /* "How to read" card, moved into the sticky right sidebar by the script below */
-          #quarto-margin-sidebar #em-howto { font-size: .84rem; margin-top: 1rem; }
+          /* the card scrolls on its own if the window is too short for it */
+          #quarto-margin-sidebar #em-howto { font-size: .84rem; margin-top: 1rem; max-height: calc(100vh - 2.5rem); overflow-y: auto; }
           #quarto-margin-sidebar #em-howto ul { padding-left: 1.1rem; margin-bottom: 0; }
+          /* wide tables scroll inside their section instead of overhanging it */
+          .em-scroll { overflow-x: auto; }
         </style>
         <script>
           // Move the "How to read" card into the right sidebar, which Quarto keeps in view while scrolling.
+          // Quarto hides that sidebar below 768 px, so on narrow screens the card goes back into the page body.
           // Without JavaScript the card stays in the page body.
           document.addEventListener("DOMContentLoaded", function () {
             var card = document.getElementById("em-howto");
             var sidebar = document.getElementById("quarto-margin-sidebar");
-            if (card && sidebar) { sidebar.appendChild(card); }
+            if (!card || !sidebar) { return; }
+            var home = document.createComment("em-howto");
+            card.parentNode.insertBefore(home, card);
+            var wide = window.matchMedia("(min-width: 768px)");
+            function place() {
+              if (wide.matches) { sidebar.appendChild(card); } else { home.parentNode.insertBefore(card, home); }
+            }
+            place();
+            wide.addEventListener("change", place);
           });
           // Plotly figures are static; recolour them when the page switches between light and dark
           window.addEventListener("load", function () {
@@ -156,7 +168,7 @@ def table(header, rows, numeric=()):
         + "</tr>"
         for row in rows
     )
-    return f'<table class="em-table"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>'
+    return f'<div class="em-scroll"><table class="em-table"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
 
 
 def lineage_html(lineage):
@@ -179,7 +191,7 @@ raw(f'''<div class="em-meta">
   <div class="em-card"><div class="k">Samples</div><div class="v">{len(SAMPLES)}</div>
     <div class="n">{warned} with a SingleM warning</div></div>
   <div class="em-card"><div class="k">Prokaryotic fraction</div><div class="v">{statistics.median(fractions):.1f}%</div>
-    <div class="n">median; range {min(fractions):.1f}–{max(fractions):.1f}%</div></div>
+    <div class="n">median; range {min(fractions):.1f}–{max(fractions):.1f}%; can read low</div></div>
   <div class="em-card"><div class="k">Deepest rank assigned</div><div class="v">{deepest.capitalize()}</div>
     <div class="n">across all samples</div></div>
   <div class="em-card"><div class="k">Genera shown</div><div class="v">{len(genera)}</div>
@@ -195,41 +207,62 @@ raw(f'''<div class="em-links em-note">Related reports (relative links; paths sho
 ::: {#em-howto .callout-note}
 ## How to read the numbers
 
-- All abundances are **read-based estimates from SingleM marker genes**. A percentage is a share of **prokaryotic marker-gene coverage**, not a share of reads and not a cell count.
-- **Unassigned** is coverage SingleM could not resolve at that rank. It is always shown and never redistributed to named taxa.
-- The **prokaryotic fraction** is SingleM's estimate of the share of (fastp-trimmed) read bases from Bacteria and Archaea. The rest may be eukaryotic, viral, host, or unknown. It is a genome-size-based estimate, capped at 100%. Two limits apply:
-  - **It runs low when mates overlap.** With paired reads, SingleM counts a read pair once when both mates cover the same stretch of a marker gene, but divides by the bases of both reads. In libraries with short inserts, where mates overlap, the fraction is therefore underestimated, and the more pairs overlap, the larger the shortfall. The overview below shows each sample's share of overlapping pairs and their median insert size.
-  - **It is least reliable in simple communities** of a few species missing from the reference database, whose genome sizes are hard to estimate (SingleM documentation).
-- Presence of a taxon is not evidence that it is active, and not evidence of corrosion or any other process.
+- **Percentages** are shares of bacterial and archaeal marker genes found in the reads: not shares of all DNA, and not cell counts.
+- **Unassigned** is what could not be identified at that level. It is always shown, never shared out among named taxa.
+- **Prokaryotic fraction** is an estimate, and it can read low. See *Sample overview*.
+- **Present is not active.** Detecting a taxon does not show that it is active, or that corrosion or any other process is happening.
 :::
 
 ## Sample overview
 
 ```{python}
 #| output: asis
+def badge(s):
+    if not s["warning"]:
+        return ""
+    tip = html.escape(s["warning"], quote=True)
+    return f'<span class="em-badge" tabindex="0" data-tip="{tip}" aria-label="SingleM warning: {tip}">warning</span>'
+
+
+raw(table(
+    ["Sample", "Prokaryotic fraction (%)", "Overlapping read pairs (%)", "SingleM"],
+    [[f"<b>{html.escape(s['id'])}</b>", f"{s['read_fraction']:.2f}",
+      f"{s['library']['overlapping_pairs_percent']:.1f}", badge(s)] for s in data["samples"]],
+    numeric=(1, 2),
+))
+if warned:
+    print('\n<p class="em-note">Hover over (or tab to) a <i>warning</i> badge for SingleM\'s message, shown verbatim.</p>\n')
+```
+
+**What the prokaryotic fraction is.** An estimate of how much of the sequenced DNA came from bacteria and archaea. The rest may come from fungi, algae, plants or animals, viruses, the host, or DNA that matches nothing known.
+
+**Why it can read low: overlapping read pairs.** The sequencer reads each DNA fragment from both ends, as a *pair* of reads. When a fragment is shorter than the two reads together, the reads cover some of the same DNA: the pair *overlaps*. SingleM counts that shared stretch once, but counts the DNA of both reads in the total, so the fraction comes out too low. The more of a sample's pairs overlap, the lower it reads.
+
+**What this means for comparisons.** Compare prokaryotic fractions between samples only when their share of overlapping pairs is similar: a sample with more overlap reads lower even if its community is the same. Composition (the charts below) is barely affected, because overlap lowers all bacteria and archaea alike: in tests with this pipeline, shares moved by less than one percentage point.
+
+**It is also least reliable** for simple communities of a few species missing from SingleM's reference database, whose genome sizes are hard to estimate (SingleM documentation).
+
+```{python}
+#| output: asis
+# Library details for the analyst; collapsed, so the overview stays readable for everyone else
 rows = [
     [
         f"<b>{html.escape(s['id'])}</b>",
-        f"{s['read_fraction']:.2f}",
-        f"{s['average_genome_size_bp'] / 1e6:.2f}",
         f"{s['metagenome_size'] / 1e6:,.1f}",
         f"{s['library']['read1_mean_length']} / {s['library']['read2_mean_length']}",
-        f"{s['library']['overlapping_pairs_percent']:.1f}",
         f"{s['library']['median_insert_overlapping']}" if s["library"]["median_insert_overlapping"] is not None else "–",
-        (f'<span class="em-badge" tabindex="0" data-tip="{html.escape(s["warning"], quote=True)}" '
-         f'aria-label="SingleM warning: {html.escape(s["warning"], quote=True)}">warning</span>')
-        if s["warning"] else "",
+        f"{s['average_genome_size_bp'] / 1e6:.2f}",
     ]
     for s in data["samples"]
 ]
-raw(table(["Sample", "Prokaryotic fraction (%)", "Avg. genome (Mbp)", "Read bases (Mbp)",
-           "Mean read length R1 / R2 (bp)", "Overlapping pairs (%)", "Median insert, overlapping pairs (bp)", "SingleM"],
-          rows, numeric=(1, 2, 3, 4, 5, 6)))
-print('\n<p class="em-note">Read lengths and insert sizes are from fastp, after trimming. fastp measures the insert '
-      'only where it detects that mates overlap; the other pairs most likely have longer inserts. The higher the share of overlapping pairs, '
-      'the more the prokaryotic fraction is underestimated (see "How to read the numbers").</p>\n')
-if warned:
-    print('\n<p class="em-note">Hover over (or tab to) a <i>warning</i> badge for SingleM\'s message, shown verbatim.</p>\n')
+raw('<details class="em-profile"><summary>Sequencing details <span>· for the analyst</span></summary>'
+    + table(["Sample", "Read bases (Mbp)", "Mean read length R1 / R2 (bp)", "Median insert, overlapping pairs (bp)",
+             "Avg. genome (Mbp)"], rows, numeric=(1, 2, 3, 4))
+    + '<p class="em-note">Read lengths, overlap and insert sizes are from fastp, after trimming; fastp measures the '
+      'insert only for pairs it detects as overlapping, so the median insert describes those pairs (the others most '
+      'likely have longer inserts). Read bases are the denominator of the prokaryotic fraction; average genome size is '
+      'SingleM\'s estimate, used to convert marker coverage into bases. With paired reads, SingleM counts a fragment '
+      'once where both mates cover the same marker window but divides by the bases of both reads.</p></details>')
 ```
 
 ## Community composition

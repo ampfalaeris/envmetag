@@ -41,8 +41,9 @@ nextflow_process {
                 // fastp library summary per sample; the tiny apb_enrichment reads have shorter inserts
                 { assert data.samples*.library*.overlapping_pairs_percent.every { v -> v > 0 && v <= 100 } },
                 { assert data.samples[0].library.median_insert_overlapping < data.samples[1].library.median_insert_overlapping },
-                { assert report.contains('Overlapping pairs (%)') },
-                { assert report.contains('It runs low when mates overlap.') },
+                { assert report.contains('Overlapping read pairs (%)') },
+                { assert report.contains('Why it can read low: overlapping read pairs.') },
+                { assert report.contains('Median insert, overlapping pairs (bp)') },
                 { assert data.ranks.genus.taxa*.label.contains('Methanococcus') },
                 // HTML has generated ids, so check properties: sections, offline, one plotly.js copy
                 { assert report.contains('<title>envmetag report</title>') },
