@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Changed`
 
 - Curation reference sets are built for every family that co-occurs on a shared sequence, independent of grouping, and _cysN_/_cysN_cysC_ form the ambiguity group `cysN_cysNC`. `sequence_assignments.tsv` changed in 280 rows (262 fusions, 14 _cysN_ group, 4 moved because the fusion references they had matched are gone); see DECISIONS.md.
+- Pfam fusion calls are added to the shared-sequence assignments (`assign_shared_sequences.py --pfam-calls`; additions only, on pairs Pfam can decide). `sequence_assignments.tsv` changed in 27 rows: _cysJ_/_narB_ fusions whose headers do not name the partner, now `unresolved:cysJ|narB` (basis `pfam fusion`) instead of _cysJ_.
 
 ## v0.1.0 - [2026-10-28]
 

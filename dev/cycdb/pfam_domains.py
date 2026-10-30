@@ -48,7 +48,7 @@ Usage:
     pfam_domains.py resolve --domtbl scoped.domtbl --pfam PFAM_DIR --out resolved.tsv
     pfam_domains.py call --resolved resolved.tsv --faa scoped.faa \
         --manifest manifest.tsv --refs final_r.faa --similarity final_similarity.tsv \
-        --dropped dropped.tsv --assignments sequence_assignments.tsv --out-prefix pfam
+        --dropped dropped.tsv [--assignments sequence_assignments.tsv] --out-prefix pfam
 """
 import argparse
 import collections
@@ -326,9 +326,12 @@ def call(a):
                 lens[u].append(ln)
         unit_median[f] = {u: statistics.median(v) for u, v in lens.items()}
 
-    # Current calls, for the cross-tabulation.
-    with open(a.assignments) as fh:
-        basis = {r["seq_md5"]: r["basis"] for r in csv.DictReader(fh, delimiter="\t")}
+    # Current calls, for the cross-tabulation only; the calls themselves never read them, so
+    # the rebuild runs this step without --assignments before the final assignments.
+    basis = None
+    if a.assignments:
+        with open(a.assignments) as fh:
+            basis = {r["seq_md5"]: r["basis"] for r in csv.DictReader(fh, delimiter="\t")}
 
     counts = collections.Counter()
     with open(f"{a.out_prefix}_calls.tsv", "w", newline="") as out:
@@ -337,7 +340,9 @@ def call(a):
                     "partner_cover_a", "partner_cover_b", "current"])
         for name, k, ps in to_call:
             units = per_clan.get(name, {})
-            if k == "query":
+            if k == "query" and basis is None:
+                current = "not given"
+            elif k == "query":
                 current = "fusion" if basis.get(name) == "fusion" else (basis.get(name) or "none")
             elif k == "dropped":
                 current = "fusion"
@@ -396,7 +401,7 @@ def main():
     pc.add_argument("--refs", required=True, help="all clean references (prepare --refs), for median lengths")
     pc.add_argument("--similarity", required=True, help="place_unresolved.py score output (candidates)")
     pc.add_argument("--dropped", required=True, help="prepare --dropped output")
-    pc.add_argument("--assignments", required=True, help="sequence_assignments.tsv (current calls)")
+    pc.add_argument("--assignments", help="sequence_assignments.tsv: current calls, for comparison only")
     pc.add_argument("--reviewed", default="",
                     help="comma-separated families exempt from the under-half band rule after review")
     pc.add_argument("--out-prefix", required=True)
