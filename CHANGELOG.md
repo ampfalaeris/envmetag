@@ -20,6 +20,10 @@ Report fix for the SingleM prokaryotic fraction, plus curation work for v0.2. Th
 - Curation reference sets are built for every family that co-occurs on a shared sequence, independent of grouping, and _cysN_/_cysN_cysC_ form the ambiguity group `cysN_cysNC`. `sequence_assignments.tsv` changed in 280 rows (262 fusions, 14 _cysN_ group, 4 moved because the fusion references they had matched are gone); see DECISIONS.md.
 - Pfam fusion calls are added to the shared-sequence assignments (`assign_shared_sequences.py --pfam-calls`; additions only, on pairs Pfam can decide). `sequence_assignments.tsv` changed in 27 rows: _cysJ_/_narB_ fusions whose headers do not name the partner, now `unresolved:cysJ|narB` (basis `pfam fusion`) instead of _cysJ_.
 
+### `Tests`
+
+- 2026-10-30: `test_full` (1M read pairs per sample, full GlobDB r232, default SingleM assignment) passed on the release commit: same dominant species and prokaryotic fractions as 0.1.0 (58.43% and 77.72%), PhiX and host spikes removed (~1% each), and the new report columns match fastp (median insert of overlapping pairs 135 and 185 bp; 90.3% and 74.0% of pairs overlap). Details in `DECISIONS.md`.
+
 ## v0.1.0 - [2026-10-28]
 
 Initial release of ampfalaeris/envmetag, created with the [nf-core](https://nf-co.re/) template.

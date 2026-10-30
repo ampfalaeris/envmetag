@@ -1222,3 +1222,23 @@ Sources:
 - PfamScan (`remove_overlaps_by_clan`, `_read_pfam_data`) — https://ftp.ebi.ac.uk/pub/databases/Pfam/Tools/PfamScan.tar.gz
 - HMMER 3.4 container — `quay.io/biocontainers/hmmer:3.4--hdbdd923_2`
 - Fischer K, Barbier GG, Hecht HJ, Mendel RR, Campbell WH, Schwarz G (2005). Structural basis of eukaryotic nitrate reduction: crystal structures of the nitrate reductase active site. _Plant Cell_ 17:1167–1179 — https://pmc.ncbi.nlm.nih.gov/articles/PMC1087994
+
+---
+
+## 2026-10-30 — `test_full` for the 0.1.1 release
+
+**Run:** `-profile test_full,docker` on the release commit `187a6d3`, with no uncommitted changes. 1M-pair tier (local build `build_v3`, identical to Zenodo record 23679308), full GlobDB r232 metapackage, SingleM default assignment method, tasks capped at 4 CPUs / 7 GB, `-with-trace`. 20 tasks completed, none failed. Run directory: `~/envmetag-runs/test_full_2026-10-30/` (outside the repository).
+
+**Results**, the same as the 0.1.0 run where they overlap ("First `test_full` run"):
+
+|                                           | apb_enrichment                          | mic_coupon                                                                                        |
+| ----------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Dominant taxa (share of profile coverage) | _Sporolactobacillus nakayamae_ 84.9%    | _Methanococcus_ MOTU40_004873 51.8%, _M. maripaludis_ 30.4%, _Oleidesulfovibrio alaskensis_ 10.9% |
+| Taxa in profile                           | 5                                       | 12                                                                                                |
+| Prokaryotic fraction                      | 58.43% (SingleM warning)                | 77.72%                                                                                            |
+| PhiX reads removed (bowtie2)              | 0.99%                                   | 0.99%                                                                                             |
+| Host reads removed (Hostile)              | 0.99%                                   | 1.02%                                                                                             |
+| Report `library` (new in 0.1.1)           | reads 125 bp; 90.3% overlapping; 135 bp | reads 146 bp; 74.0% overlapping; 185 bp                                                           |
+
+- `report_data.json` has `schema_version` 2 and pipeline version 0.1.1. The `library` values equal those from the fastp JSONs of the 1M tier used in the mate-overlap analysis.
+- Peak RSS: Hostile clean 2.9 GB, fastp ≤ 1.3 GB, SingleM pipe 0.95–0.99 GB (3.1–3.6 min), report 0.82 GB. All tasks fit an 8 GB machine, as in 0.1.0.
