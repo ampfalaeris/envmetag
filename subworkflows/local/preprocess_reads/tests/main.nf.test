@@ -69,7 +69,10 @@ nextflow_workflow {
                 { assert reports.size() == 14 },
                 { assert reports.findAll { n -> n.endsWith('_fastqc.zip') }.size() == 8 },
                 { assert reports.contains('mic_coupon_raw_1_fastqc.zip') && reports.contains('mic_coupon_trimmed_1_fastqc.zip') },
-                { assert reports.contains('mic_coupon.fastp.json') && reports.contains('mic_coupon_phix.bowtie2.log') && reports.contains('mic_coupon.json') }
+                { assert reports.contains('mic_coupon.fastp.json') && reports.contains('mic_coupon_phix.bowtie2.log') && reports.contains('mic_coupon.json') },
+                // fastp JSONs for the envmetag report, named by sample id (the report matches them by filename)
+                { assert workflow.out.fastp_json.collect { f -> path(f).fileName.toString() }.toSorted() == ['apb_enrichment.fastp.json', 'mic_coupon.fastp.json'] },
+                { assert workflow.out.fastp_json.every { f -> path(f).json.insert_size.histogram.sum() > 0 } }
             )
         }
     }

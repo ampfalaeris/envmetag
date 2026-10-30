@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect SingleM outputs into one JSON file for the envmetag report.
+"""Collect SingleM outputs, and fastp's read and insert-size summary, into one JSON file for the envmetag report.
 
 The report template (assets/envmetag_report.qmd) only renders; every number it shows
 comes from the JSON written here. Inputs are the files staged by the ENVMETAG_REPORT
@@ -9,6 +9,14 @@ sample's per-rank relative abundances (including `unassigned`) do not sum to ~10
 
 Abundances are shares of prokaryotic marker-gene coverage, not of reads; the report
 states this next to every plot.
+
+From fastp's JSON the report takes each sample's mean read lengths and its insert sizes:
+the share of read pairs whose mates overlap, and the median insert of those pairs. With
+paired input, SingleM 0.21.4 counts a fragment once where both mates cover a marker
+window, while `prokaryotic_fraction` divides by the bases of both reads, so overlapping
+mates make the fraction run low (DECISIONS.md, "First real-data check of SingleM's
+prokaryotic fraction"). fastp measures insert sizes only for pairs whose mates overlap;
+it counts the others as `unknown`.
 """
 
 import argparse
@@ -18,7 +26,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2  # 2: per-sample `library` (fastp read lengths and insert sizes)
 RANKS = ("domain", "phylum", "class", "order", "family", "genus", "species")
 # `singlem summarise --output-taxonomic-level-coverage` writes level numbers (1 = domain ...
 # 7 = species; root is 0 and skipped) unless a sample has 7 or 8 distinct levels, in which
@@ -376,6 +384,43 @@ def read_sankey(path: Path, samples: list[str], min_percent: float) -> dict[str,
     return result
 
 
+def read_fastp(paths: list[Path], samples: list[str]) -> dict[str, dict]:
+    """Read lengths and insert sizes from fastp's JSON report, named `<sample>.fastp.json`."""
+    library: dict[str, dict] = {}
+    for path in paths:
+        if not path.name.endswith(".fastp.json"):
+            raise InputError(f"{path.name}: expected a file named <sample>.fastp.json")
+        sample = path.name[: -len(".fastp.json")]
+        if sample in library:
+            raise InputError(f"fastp reports: duplicate sample: {sample}")
+        try:
+            report = json.loads(path.read_text())
+            after = report["summary"]["after_filtering"]
+            r1, r2 = after["read1_mean_length"], after["read2_mean_length"]
+            histogram, unknown = report["insert_size"]["histogram"], report["insert_size"]["unknown"]
+        except (json.JSONDecodeError, KeyError, TypeError) as err:
+            raise InputError(f"{path.name}: not a paired-end fastp JSON report ({err})") from None
+        overlapping = sum(histogram)
+        if overlapping + unknown == 0:
+            raise InputError(f"{path.name}: no read pairs in the insert-size estimate")
+        median = None
+        if overlapping:
+            seen = 0
+            for size, count in enumerate(histogram):
+                seen += count
+                if seen >= overlapping / 2:
+                    median = size
+                    break
+        library[sample] = {
+            "read1_mean_length": r1,
+            "read2_mean_length": r2,
+            "overlapping_pairs_percent": round(100 * overlapping / (overlapping + unknown), 1),
+            "median_insert_overlapping": median,
+        }
+    check_samples(list(library), samples, "fastp reports")
+    return library
+
+
 def build(args: argparse.Namespace) -> dict:
     samples = sorted(args.samples)
     if not samples:
@@ -385,6 +430,10 @@ def build(args: argparse.Namespace) -> dict:
         raise InputError("--top-n must be at least 1")
     if not 0 < args.sankey_min_percent < 100:
         raise InputError("--sankey-min-percent must be between 0 and 100")
+    overview = read_fractions(args.fractions, samples)
+    library = read_fastp(args.fastp, samples)
+    for row in overview:
+        row["library"] = library[row["id"]]
     return {
         "schema_version": SCHEMA_VERSION,
         "run": {
@@ -395,7 +444,7 @@ def build(args: argparse.Namespace) -> dict:
             "stacked_bar_max_samples": args.stacked_bar_max_samples,
             "sankey_min_percent": args.sankey_min_percent,
         },
-        "samples": read_fractions(args.fractions, samples),
+        "samples": overview,
         "ranks": read_ranks(args.by_rank, samples, args.top_n),
         "level_coverage": read_level_coverage(args.level_coverage, samples),
         "sankey": read_sankey(args.extras, samples, args.sankey_min_percent),
@@ -412,6 +461,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--by-rank", nargs="+", required=True, type=Path, help="singlem summarise by_rank-*.tsv")
     parser.add_argument("--level-coverage", required=True, type=Path, help="singlem summarise level coverage TSV")
     parser.add_argument("--extras", required=True, type=Path, help="singlem summarise profile_extras TSV")
+    parser.add_argument("--fastp", nargs="+", required=True, type=Path, help="fastp JSON reports, <sample>.fastp.json")
     parser.add_argument("--pipeline-version", required=True)
     parser.add_argument("--metapackage", required=True, help="metapackage name shown in the report")
     parser.add_argument("--assignment-method", default=None, help="SingleM --assignment-method, if not the default")

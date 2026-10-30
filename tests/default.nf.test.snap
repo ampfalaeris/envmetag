@@ -47,7 +47,7 @@
                 "apb_enrichment.singlem_profile.tsv:md5,83cb7a37afb843904488fc88ae4dbe64",
                 "mic_coupon.singlem_profile.tsv:md5,39d5969df28cb937727cf7db5ccf8357"
             ],
-            "report_data.json:md5,17b6a99efe0a510db09c82881dc92095",
+            "report_data.json:md5,935f8d467b34acb8ab3d10ea00858d9e",
             [
                 "BOWTIE2_ALIGN:",
                 "  bowtie2: 2.5.5",
@@ -78,7 +78,7 @@
                 "  singlem: 0.21.4"
             ]
         ],
-        "timestamp": "2026-10-28T15:21:36.54188939",
+        "timestamp": "2026-10-30T17:38:02.51039286",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.3"

@@ -14,6 +14,7 @@ process ENVMETAG_REPORT {
     by_rank: Bag<Path>         // `singlem summarise` by_rank-<rank>.tsv (one per rank with assignments)
     level_coverage: Path       // `singlem summarise` taxonomic level coverage
     extras: Path               // `singlem summarise` profile with extras (per-taxon full coverage)
+    fastp_json: Bag<Path>      // per-sample fastp JSON reports, `<id>.fastp.json` (read lengths, insert sizes)
     metapackage_name: String   // shown in the report header and methods
     template_dir: Path         // assets/report: envmetag_report.qmd and its light/dark theme files
 
@@ -38,6 +39,7 @@ process ENVMETAG_REPORT {
         --by-rank ${by_rank.toSorted { f -> f.name }.join(' ')} \\
         --level-coverage ${level_coverage} \\
         --extras ${extras} \\
+        --fastp ${fastp_json.toSorted { f -> f.name }.join(' ')} \\
         --pipeline-version '${workflow.manifest.version}' \\
         --metapackage '${metapackage_name}' \\
         ${args} \\
@@ -73,7 +75,7 @@ process ENVMETAG_REPORT {
     stub:
     def ids = sample_ids.toSorted().collect { id -> "{\"id\": \"${id}\"}" }.join(', ')
     """
-    printf '{"schema_version": 1, "samples": [${ids}]}\\n' > report_data.json
+    printf '{"schema_version": 2, "samples": [${ids}]}\\n' > report_data.json
     printf '<!DOCTYPE html>\\n<html><head><title>envmetag report</title></head><body></body></html>\\n' > envmetag_report.html
     """
 }

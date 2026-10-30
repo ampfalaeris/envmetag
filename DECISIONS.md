@@ -1064,6 +1064,14 @@ Sources:
 
   **Decided 2026-10-30:**
   - **v0.1.1 report caveat.** Name the mechanism in plain words: overlapping mates make the fraction run low. Add each sample's median insert size and read length, from fastp, to the overview. Print no general percentage: the 35% and 21% come from two libraries. A model-predicted under-count per sample may follow once checked on more libraries. **The simple-community caveat stays, for its own reason.** Our original evidence for it is gone, since the `apb_enrichment` gap was mate overlap. But SingleM's documentation says the method "is least reliable in simple communities consisting of a small number of species that are missing from the reference database", and `mic_coupon`'s overshoot shows the genome-length side of that. Two caveats, each with its own reason.
+    - **Implemented 2026-10-30** (branch `report-mate-overlap`). `PREPROCESS_READS` emits fastp's JSON reports (`fastp_json`), and `ENVMETAG_REPORT` passes them to `envmetag_report_data.py --fastp`. That writes a per-sample `library` block to `report_data.json` (`schema_version` 2): mean read lengths after trimming, the share of pairs whose mates overlap, and the median insert of those pairs. fastp measures inserts only where it detects mate overlap and counts the other pairs as `unknown`, so no overall median is shown. Reports are matched to samples by filename (`<id>.fastp.json`; `FASTP` has no `ext.prefix`), and any unmatched or malformed report fails the run. On the tiny CI reads: `apb_enrichment` 90.3% overlapping, median 135 bp, reads 125 bp; `mic_coupon` 74.0%, 185 bp, 146 bp. These match the 1M and 5M tiers.
+    - **Both caveats are always shown, in "How to read the numbers".** The 2026-10-28 plan showed the simple-community caveat only when a few taxa hold most of the coverage. That condition would need a threshold that has not been measured, so the caveat is unconditional.
+    - **Amended 2026-10-30, before the 0.1.1 release (layout, for readers who did not run the pipeline).** On review of the rendered report: the card had grown taller than the window and did not scroll, and the eight-column overview table overhung its section. The reader of the report is often not the person who ran the pipeline, so:
+      - The overview table keeps only what a reader needs: prokaryotic fraction, share of overlapping read pairs, SingleM warning. Read bases, read lengths, median insert and average genome size go into a collapsed "Sequencing details" table in the same section.
+      - Both caveats move from the card into Sample overview, beside the number they qualify, in plain words. They are still shown unconditionally. They explain what an overlapping pair is, why it lowers the fraction, and what follows: compare fractions only between samples with similar overlap. Composition is barely affected: paired and unpaired runs gave the same taxa with shares within 0.6 points (above).
+      - The card is cut to four short points and scrolls on its own if the window is short. Quarto hides the right sidebar below 768 px, and the card used to disappear with it. It now moves back into the page body at that width (`matchMedia`).
+      - Tables scroll horizontally inside their section instead of overhanging it.
+      - Checked by rendering the template on the 0.1.1 `test_full` `report_data.json` in the report container, with headless Chrome screenshots at 1708, 1100 and 700 px.
   - **D1: genome equivalents from envmetag's own single-copy gene panel, counted per fragment like the marker reads.** Copies per genome equivalent is marker coverage divided by mean panel coverage, so no genome length enters the normalization. That removes the error source the 100.7% exposed.
     - The calibrator check becomes circular: a panel gene comes out at about 1 per genome equivalent by construction. It needs independent checks: panel genome equivalents against unpaired-SingleM bases ÷ average genome size on both libraries (they should agree within genome-length error), and the simulated controls, where genome copies are known.
     - Still open: which genes go in the panel, and where their reference sequences come from under a usable licence (UniProt, CC BY 4.0, is the candidate; not yet checked). CLAUDE.md's "normalized to genome equivalents from SingleM `prokaryotic_fraction`" is updated when the panel is specified.
@@ -1099,7 +1107,7 @@ Sources:
 
 **Consequences:**
 
-- The report gets a "less reliable in simple communities" caveat, shown when a few taxa hold most of the coverage. SingleM's own warning cannot fire here, because 94–98% of coverage is resolved to species. SingleM's documentation says the estimate is least reliable in simple communities.
+- The report gets a "less reliable in simple communities" caveat, shown when a few taxa hold most of the coverage. (2026-10-30: shown always instead, with a second caveat on mate overlap; see "Mate handling", Decided.) SingleM's own warning cannot fire here, because 94–98% of coverage is resolved to species. SingleM's documentation says the estimate is least reliable in simple communities.
 - Next check: assemble all 5M pairs (MEGAHIT), not only the unmapped ones. 15.1% of the type strain has no reads, so the sample's strain has genes of its own, and assembling only the unmapped reads would separate them from the contigs around them. Then map the reads back and compare contig depth in the same unit as the type-strain depths above (both mates, and with `-s`). MEGAHIT's `multi=` header value is k-mer multiplicity, not read depth. Split contigs by depth and GC, and identify the largest by BLAST. Contigs that are not on the type strain but sit at the _S. nakayamae_ depth would mean strain DNA. A separate cluster would be a finding about the sample. A second check: run SingleM's per-marker coverages for _S. nakayamae_ (`singlem pipe --otu-table`) against the read depth over the same marker genes in the type strain, to see whether the deficit is in a few markers (divergence) or in all of them.
 
 **Sources:**
@@ -1220,3 +1228,23 @@ Sources:
 - PfamScan (`remove_overlaps_by_clan`, `_read_pfam_data`) — https://ftp.ebi.ac.uk/pub/databases/Pfam/Tools/PfamScan.tar.gz
 - HMMER 3.4 container — `quay.io/biocontainers/hmmer:3.4--hdbdd923_2`
 - Fischer K, Barbier GG, Hecht HJ, Mendel RR, Campbell WH, Schwarz G (2005). Structural basis of eukaryotic nitrate reduction: crystal structures of the nitrate reductase active site. _Plant Cell_ 17:1167–1179 — https://pmc.ncbi.nlm.nih.gov/articles/PMC1087994
+
+---
+
+## 2026-10-30 — `test_full` for the 0.1.1 release
+
+**Run:** `-profile test_full,docker` on the release commit `187a6d3`, with no uncommitted changes. 1M-pair tier (local build `build_v3`, identical to Zenodo record 23679308), full GlobDB r232 metapackage, SingleM default assignment method, tasks capped at 4 CPUs / 7 GB, `-with-trace`. 20 tasks completed, none failed. Run directory: `~/envmetag-runs/test_full_2026-10-30/` (outside the repository).
+
+**Results**, the same as the 0.1.0 run where they overlap ("First `test_full` run"):
+
+|                                           | apb_enrichment                          | mic_coupon                                                                                        |
+| ----------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Dominant taxa (share of profile coverage) | _Sporolactobacillus nakayamae_ 84.9%    | _Methanococcus_ MOTU40_004873 51.8%, _M. maripaludis_ 30.4%, _Oleidesulfovibrio alaskensis_ 10.9% |
+| Taxa in profile                           | 5                                       | 12                                                                                                |
+| Prokaryotic fraction                      | 58.43% (SingleM warning)                | 77.72%                                                                                            |
+| PhiX reads removed (bowtie2)              | 0.99%                                   | 0.99%                                                                                             |
+| Host reads removed (Hostile)              | 0.99%                                   | 1.02%                                                                                             |
+| Report `library` (new in 0.1.1)           | reads 125 bp; 90.3% overlapping; 135 bp | reads 146 bp; 74.0% overlapping; 185 bp                                                           |
+
+- `report_data.json` has `schema_version` 2 and pipeline version 0.1.1. The `library` values equal those from the fastp JSONs of the 1M tier used in the mate-overlap analysis.
+- Peak RSS: Hostile clean 2.9 GB, fastp ≤ 1.3 GB, SingleM pipe 0.95–0.99 GB (3.1–3.6 min), report 0.82 GB. All tasks fit an 8 GB machine, as in 0.1.0.

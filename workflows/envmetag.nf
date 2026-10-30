@@ -51,6 +51,7 @@ workflow ENVMETAG {
         singlem.summary.map { s -> s.by_rank },
         singlem.summary.map { s -> s.level_coverage },
         singlem.summary.map { s -> s.extras },
+        preprocessed.fastp_json.collect(),
         metapackage.map { m -> m.name },
         report_template
     )
