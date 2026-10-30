@@ -9,7 +9,7 @@ nextflow_process {
     tag "envmetag"
     tag "envmetag/report"
 
-    // inputs: real SingleM output from `-profile test` (tests/bin/fixtures/ci_two_samples, see tests/bin)
+    // inputs: real SingleM and fastp output from `-profile test` reads (tests/bin/fixtures/ci_two_samples, see tests/bin)
 
     test("two samples, CI metapackage output") {
 
@@ -23,8 +23,9 @@ nextflow_process {
                 input[3] = channel.fromPath("\${fixtures}/singlem.by_rank-*.tsv", checkIfExists: true).collect()
                 input[4] = file("\${fixtures}/singlem.level_coverage.tsv", checkIfExists: true)
                 input[5] = file("\${fixtures}/singlem.profile_extras.tsv", checkIfExists: true)
-                input[6] = 'GlobDB_r232_ci3.smpkg'
-                input[7] = file("${projectDir}/assets/report", checkIfExists: true)
+                input[6] = channel.fromPath("\${fixtures}/*.fastp.json", checkIfExists: true).collect()
+                input[7] = 'GlobDB_r232_ci3.smpkg'
+                input[8] = file("${projectDir}/assets/report", checkIfExists: true)
                 """
             }
         }
@@ -37,6 +38,11 @@ nextflow_process {
             assertAll(
                 { assert data.samples*.id == ['apb_enrichment', 'mic_coupon'] },
                 { assert data.ranks.species.available == false },
+                // fastp library summary per sample; the tiny apb_enrichment reads have shorter inserts
+                { assert data.samples*.library*.overlapping_pairs_percent.every { v -> v > 0 && v <= 100 } },
+                { assert data.samples[0].library.median_insert_overlapping < data.samples[1].library.median_insert_overlapping },
+                { assert report.contains('Overlapping pairs (%)') },
+                { assert report.contains('It runs low when mates overlap.') },
                 { assert data.ranks.genus.taxa*.label.contains('Methanococcus') },
                 // HTML has generated ids, so check properties: sections, offline, one plotly.js copy
                 { assert report.contains('<title>envmetag report</title>') },
@@ -68,8 +74,9 @@ nextflow_process {
                 input[3] = channel.fromPath("\${fixtures}/singlem.by_rank-*.tsv", checkIfExists: true).collect()
                 input[4] = file("\${fixtures}/singlem.level_coverage.tsv", checkIfExists: true)
                 input[5] = file("\${fixtures}/singlem.profile_extras.tsv", checkIfExists: true)
-                input[6] = 'GlobDB_r232_ci3.smpkg'
-                input[7] = file("${projectDir}/assets/report", checkIfExists: true)
+                input[6] = channel.fromPath("\${fixtures}/*.fastp.json", checkIfExists: true).collect()
+                input[7] = 'GlobDB_r232_ci3.smpkg'
+                input[8] = file("${projectDir}/assets/report", checkIfExists: true)
                 """
             }
         }

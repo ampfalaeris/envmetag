@@ -3,7 +3,8 @@
 Run from the repository root:  uv run --no-project --with pytest pytest tests/bin
 
 `fixtures/ci_two_samples/` is real SingleM 0.21.4 output from `-profile test` (tiny reads,
-3-marker CI metapackage, diamond assignment): genus is the deepest rank, there is no
+3-marker CI metapackage, diamond assignment), plus the fastp 1.4.0 JSON reports for the same
+reads (pipeline arguments: defaults plus `--detect_adapter_for_pe`): genus is the deepest rank, there is no
 species file, `unassigned` is 0 everywhere, and level_coverage uses level numbers.
 The synthetic cases below cover what that run cannot: non-zero `unassigned`, a species
 file, named levels, pooling into "Other", and malformed input.
@@ -32,6 +33,7 @@ def ci_argv(samples=SAMPLES, output="unused.json", **files):
         "profiles": sorted(CI.glob("*.singlem_profile.tsv")),
         "fractions": sorted(CI.glob("*.singlem_prokaryotic_fraction.tsv")),
         "by_rank": sorted(CI.glob("singlem.by_rank-*.tsv")),
+        "fastp": sorted(CI.glob("*.fastp.json")),
     } | files
     return [
         "--samples", *samples,
@@ -40,6 +42,7 @@ def ci_argv(samples=SAMPLES, output="unused.json", **files):
         "--by-rank", *map(str, inputs["by_rank"]),
         "--level-coverage", str(CI / "singlem.level_coverage.tsv"),
         "--extras", str(CI / "singlem.profile_extras.tsv"),
+        "--fastp", *map(str, inputs["fastp"]),
         "--pipeline-version", "0.1.0dev",
         "--metapackage", "GlobDB_r232_ci3.smpkg",
         "--assignment-method", "diamond",
@@ -65,10 +68,80 @@ def tsv(*rows) -> str:
 # --- real SingleM output (CI metapackage) -------------------------------------------------
 
 
+def test_ci_fixture_library():
+    """fastp read lengths and insert sizes; the APB library has shorter inserts (more mate overlap)."""
+    apb, mic = report_data.build(ci_args())["samples"]
+    assert apb["library"] == {
+        "read1_mean_length": 125,
+        "read2_mean_length": 125,
+        "overlapping_pairs_percent": 90.3,
+        "median_insert_overlapping": 135,
+    }
+    assert mic["library"] == {
+        "read1_mean_length": 146,
+        "read2_mean_length": 146,
+        "overlapping_pairs_percent": 74.0,
+        "median_insert_overlapping": 185,
+    }
+
+
+def fastp_json(path: Path, histogram, unknown=0, r1=150, r2=150) -> Path:
+    report = {
+        "summary": {"after_filtering": {"read1_mean_length": r1, "read2_mean_length": r2}},
+        "insert_size": {"peak": 0, "unknown": unknown, "histogram": histogram},
+    }
+    return write(path, json.dumps(report))
+
+
+def test_fastp_median_and_overlap_share(tmp_path):
+    hist = [0] * 300
+    hist[100], hist[200] = 3, 1  # median of 4 pairs is the 2nd: 100
+    paths = [fastp_json(tmp_path / f"{s}.fastp.json", hist, unknown=4) for s in SAMPLES]
+    library = report_data.read_fastp(paths, sorted(SAMPLES))
+    assert library["mic_coupon"]["median_insert_overlapping"] == 100
+    assert library["mic_coupon"]["overlapping_pairs_percent"] == 50.0
+
+
+def test_fastp_no_overlapping_pairs_has_no_median(tmp_path):
+    paths = [fastp_json(tmp_path / f"{s}.fastp.json", [0] * 10, unknown=5) for s in SAMPLES]
+    library = report_data.read_fastp(paths, sorted(SAMPLES))
+    assert library["apb_enrichment"] == {
+        "read1_mean_length": 150, "read2_mean_length": 150,
+        "overlapping_pairs_percent": 0.0, "median_insert_overlapping": None,
+    }
+
+
+def test_fastp_bad_filename_fails(tmp_path):
+    path = fastp_json(tmp_path / "mic_coupon.json", [0, 1])
+    with pytest.raises(report_data.InputError, match="<sample>.fastp.json"):
+        report_data.read_fastp([path], ["mic_coupon"])
+
+
+def test_fastp_missing_sample_fails(tmp_path):
+    path = fastp_json(tmp_path / "mic_coupon.fastp.json", [0, 1])
+    with pytest.raises(report_data.InputError, match="apb_enrichment"):
+        report_data.read_fastp([path], sorted(SAMPLES))
+
+
+def test_fastp_single_end_report_fails(tmp_path):
+    """A single-end fastp report has no read2 length and no insert sizes."""
+    path = write(tmp_path / "mic_coupon.fastp.json",
+                 json.dumps({"summary": {"after_filtering": {"read1_mean_length": 150}}}))
+    with pytest.raises(report_data.InputError, match="not a paired-end fastp JSON report"):
+        report_data.read_fastp([path], ["mic_coupon"])
+
+
+def test_fastp_empty_file_fails(tmp_path):
+    """The nf-core fastp stub writes an empty JSON; the data script must not accept it."""
+    path = write(tmp_path / "mic_coupon.fastp.json", "")
+    with pytest.raises(report_data.InputError, match="not a paired-end fastp JSON report"):
+        report_data.read_fastp([path], ["mic_coupon"])
+
+
 def test_ci_fixture_builds():
     data = report_data.build(ci_args())
 
-    assert data["schema_version"] == 1
+    assert data["schema_version"] == 2
     assert [s["id"] for s in data["samples"]] == ["apb_enrichment", "mic_coupon"]
     assert data["run"]["metapackage"] == "GlobDB_r232_ci3.smpkg"
 

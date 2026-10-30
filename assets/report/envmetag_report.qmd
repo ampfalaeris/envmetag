@@ -197,7 +197,9 @@ raw(f'''<div class="em-links em-note">Related reports (relative links; paths sho
 
 - All abundances are **read-based estimates from SingleM marker genes**. A percentage is a share of **prokaryotic marker-gene coverage**, not a share of reads and not a cell count.
 - **Unassigned** is coverage SingleM could not resolve at that rank. It is always shown and never redistributed to named taxa.
-- The **prokaryotic fraction** is SingleM's estimate of the share of (fastp-trimmed) read bases from Bacteria and Archaea. The rest may be eukaryotic, viral, host, or unknown. It is a genome-size-based estimate, capped at 100%.
+- The **prokaryotic fraction** is SingleM's estimate of the share of (fastp-trimmed) read bases from Bacteria and Archaea. The rest may be eukaryotic, viral, host, or unknown. It is a genome-size-based estimate, capped at 100%. Two limits apply:
+  - **It runs low when mates overlap.** With paired reads, SingleM counts a read pair once when both mates cover the same stretch of a marker gene, but divides by the bases of both reads. In libraries with short inserts, where mates overlap, the fraction is therefore underestimated, and the more pairs overlap, the larger the shortfall. The overview below shows each sample's share of overlapping pairs and their median insert size.
+  - **It is least reliable in simple communities** of a few species missing from the reference database, whose genome sizes are hard to estimate (SingleM documentation).
 - Presence of a taxon is not evidence that it is active, and not evidence of corrosion or any other process.
 :::
 
@@ -211,13 +213,21 @@ rows = [
         f"{s['read_fraction']:.2f}",
         f"{s['average_genome_size_bp'] / 1e6:.2f}",
         f"{s['metagenome_size'] / 1e6:,.1f}",
+        f"{s['library']['read1_mean_length']} / {s['library']['read2_mean_length']}",
+        f"{s['library']['overlapping_pairs_percent']:.1f}",
+        f"{s['library']['median_insert_overlapping']}" if s["library"]["median_insert_overlapping"] is not None else "–",
         (f'<span class="em-badge" tabindex="0" data-tip="{html.escape(s["warning"], quote=True)}" '
          f'aria-label="SingleM warning: {html.escape(s["warning"], quote=True)}">warning</span>')
         if s["warning"] else "",
     ]
     for s in data["samples"]
 ]
-raw(table(["Sample", "Prokaryotic fraction (%)", "Avg. genome (Mbp)", "Read bases (Mbp)", "SingleM"], rows, numeric=(1, 2, 3)))
+raw(table(["Sample", "Prokaryotic fraction (%)", "Avg. genome (Mbp)", "Read bases (Mbp)",
+           "Mean read length R1 / R2 (bp)", "Overlapping pairs (%)", "Median insert, overlapping pairs (bp)", "SingleM"],
+          rows, numeric=(1, 2, 3, 4, 5, 6)))
+print('\n<p class="em-note">Read lengths and insert sizes are from fastp, after trimming. fastp measures the insert '
+      'only where it detects that mates overlap; the other pairs most likely have longer inserts. The higher the share of overlapping pairs, '
+      'the more the prokaryotic fraction is underestimated (see "How to read the numbers").</p>\n')
 if warned:
     print('\n<p class="em-note">Hover over (or tab to) a <i>warning</i> badge for SingleM\'s message, shown verbatim.</p>\n')
 ```

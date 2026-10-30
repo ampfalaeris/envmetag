@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added`
 
+- envmetag report: each sample's mean read lengths, share of overlapping read pairs and median insert size (from fastp) in the sample overview and `report_data.json` (`schema_version` 2). The report explains that the SingleM prokaryotic fraction runs low when mates overlap (SingleM counts a pair once where both mates cover a marker window but divides by both reads' bases), and that it is least reliable in simple communities of species missing from the reference database.
 - Canonical-family table for SCycDB, MCycDB and NCyc (`assets/cycdb/canonical_families.tsv`) and per-sequence assignments for sequences carrying more than one family (`assets/cycdb/sequence_assignments.tsv`), with the curation scripts and rebuild instructions in `dev/cycdb/`. Not yet used by the pipeline (v0.2).
 - CI check of the two tables (`.github/workflows/cycdb-check.yml`), including a field-count check; `.tsv` files are excluded from the trailing-whitespace hook, which stripped empty last fields.
 - Fusion rules in the cycling-database curation: fusion proteins are left out of the curation reference sets, and shared sequences that are fusions are labelled `unresolved:` (basis `fusion`) instead of taking one family's label. The canonical-family table gains a `fusion` column (`declared` for families that are themselves fusions, e.g. _cysN_cysC_).

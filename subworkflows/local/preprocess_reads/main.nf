@@ -70,8 +70,12 @@ workflow PREPROCESS_READS {
         .mix(phix_out.log.map { _meta, log -> log })
         .mix(hostile_out.json.map { _meta, json -> json })
 
+    // fastp JSON reports (`<id>.fastp.json`): read lengths and insert sizes for the envmetag report
+    def fastp_reports = fastp_out.json.map { _meta, json -> json }
+
     emit:
     trimmed: Channel<Sample> = trimmed_reads   // fastp output (adapter-trimmed), input to SingleM
     clean: Channel<Sample> = clean_reads
+    fastp_json: Channel<Path> = fastp_reports
     multiqc_files: Channel<Path> = qc_reports
 }
